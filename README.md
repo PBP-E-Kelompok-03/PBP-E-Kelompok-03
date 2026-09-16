@@ -94,6 +94,6 @@ Aplikasi terbagi menjadi 4 modul:
 | Modul | Tanggung Jawab & Fungsi Utama | PIC
 | :--- | :--- | :--- |
 | **🍔 Food & Restaurant** | Mengelola dan menampilkan data restoran serta *surprise box* yang tersedia, seperti nama restoran, jenis makanan, harga normal & diskon, sisa stok, serta jam ketersediaan/waktu *pickup*. | Kapitra Fachriza Utomo
-| **🗺️ Location & Map** | Menampilkan lokasi restoran pada peta interaktif menggunakan **OpenStreetMap** dan **Leaflet.js**. Pengguna dapat melihat penanda (*marker*) restoran dan mengakses detail ringkasan informasi lokasinya. | Muhammad Akbar Rinaldy
+| **🗺️ Location & Map** | Menampilkan lokasi restoran pada peta interaktif menggunakan **OpenStreetMap** dan **Leaflet.js**. Pengguna dapat melihat penanda (*marker*) restoran dan mengakses detail ringkasan informasi lokasinya. | Muhammad Akbar Rinaldy 2506586311
 | **🛍️ Pick up / Order** | Memfasilitasi alur transaksi pemesanan: memungkinkan pengguna memilih *surprise box*, melakukan reservasi penjemputan (*pickup*), serta menyajikan konfirmasi detail waktu (*pickup window*) dan alamat pengambilan. | Dyah Zhafira Wibowo 2506623723
 | **⭐ Review / Rating** | Mengelola pemberian rating (bintang 1-5) dan ulasan teks dari pengguna setelah menerima makanan, menampilkan rating rata-rata dan kumpulan ulasan pada halaman restoran sebagai bahan pertimbangan pengguna lain. | Khansa Nathania Khairunnisa 2506618061
