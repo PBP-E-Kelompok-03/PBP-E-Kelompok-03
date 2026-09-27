@@ -1,0 +1,187 @@
+{
+  "restaurants": [
+    {
+      "id": 1,
+      "nama": "Kedai Senja",
+      "alamat": "Jl. Sejahtera No. 95, Depok",
+      "lat": -6.337445,
+      "lng": 106.801589,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    },
+    {
+      "id": 2,
+      "nama": "Kios Nusantara",
+      "alamat": "Jl. Cempaka No. 78, Depok",
+      "lat": -6.40862,
+      "lng": 106.798964,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    },
+    {
+      "id": 3,
+      "nama": "Toko Roti Nusa Indah",
+      "alamat": "Jl. Sentuhan No. 21, Depok",
+      "lat": -6.383781,
+      "lng": 106.86403,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    },
+    {
+      "id": 4,
+      "nama": "Bistro Riang",
+      "alamat": "Jl. Anggrek No. 16, Depok",
+      "lat": -6.330887,
+      "lng": 106.850073,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    },
+    {
+      "id": 5,
+      "nama": "Warung Kenari",
+      "alamat": "Jl. Melati No. 30, Depok",
+      "lat": -6.38881,
+      "lng": 106.806039,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    },
+    {
+      "id": 6,
+      "nama": "Dapur Harmoni",
+      "alamat": "Jl. Riang No. 90, Depok",
+      "lat": -6.374582,
+      "lng": 106.798051,
+      "jam_buka": "08:00",
+      "jam_tutup": "21:00",
+      "is_active": true
+    }
+  ],
+  "surprise_boxes": [
+    {
+      "id": 1,
+      "restaurant_id": 1,
+      "nama_paket": "Paket Nasi Campur",
+      "harga_normal": 40000,
+      "harga_diskon": 24000,
+      "stok": 9,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 2,
+      "restaurant_id": 2,
+      "nama_paket": "Paket Sarapan",
+      "harga_normal": 35000,
+      "harga_diskon": 14000,
+      "stok": 3,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 3,
+      "restaurant_id": 3,
+      "nama_paket": "Paket Ayam",
+      "harga_normal": 30000,
+      "harga_diskon": 15000,
+      "stok": 2,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 4,
+      "restaurant_id": 3,
+      "nama_paket": "Paket Nasi Campur",
+      "harga_normal": 20000,
+      "harga_diskon": 10000,
+      "stok": 1,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 5,
+      "restaurant_id": 3,
+      "nama_paket": "Paket Dessert",
+      "harga_normal": 30000,
+      "harga_diskon": 12000,
+      "stok": 5,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 6,
+      "restaurant_id": 4,
+      "nama_paket": "Paket Ayam",
+      "harga_normal": 15000,
+      "harga_diskon": 9000,
+      "stok": 10,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 7,
+      "restaurant_id": 4,
+      "nama_paket": "Paket Sayur",
+      "harga_normal": 35000,
+      "harga_diskon": 17500,
+      "stok": 1,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 8,
+      "restaurant_id": 5,
+      "nama_paket": "Paket Bento",
+      "harga_normal": 30000,
+      "harga_diskon": 15000,
+      "stok": 10,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 9,
+      "restaurant_id": 6,
+      "nama_paket": "Paket Kue",
+      "harga_normal": 40000,
+      "harga_diskon": 16000,
+      "stok": 8,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 10,
+      "restaurant_id": 6,
+      "nama_paket": "Paket Kue",
+      "harga_normal": 40000,
+      "harga_diskon": 16000,
+      "stok": 7,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    },
+    {
+      "id": 11,
+      "restaurant_id": 6,
+      "nama_paket": "Paket Sayur",
+      "harga_normal": 30000,
+      "harga_diskon": 15000,
+      "stok": 10,
+      "pickup_start": "17:00",
+      "pickup_end": "20:00",
+      "is_active": true
+    }
+  ]
+}

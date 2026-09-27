@@ -97,3 +97,54 @@ Aplikasi terbagi menjadi 4 modul:
 | **🗺️ Location & Map** | Menampilkan lokasi restoran pada peta interaktif menggunakan **OpenStreetMap** dan **Leaflet.js**. Pengguna dapat melihat penanda (*marker*) restoran dan mengakses detail ringkasan informasi lokasinya. | Muhammad Akbar Rinaldy 2506586311
 | **🛍️ Pick up / Order** | Memfasilitasi alur transaksi pemesanan: memungkinkan pengguna memilih *surprise box*, melakukan reservasi penjemputan (*pickup*), serta menyajikan konfirmasi detail waktu (*pickup window*) dan alamat pengambilan. | Dyah Zhafira Wibowo 2506623723
 | **⭐ Review / Rating** | Mengelola pemberian rating (bintang 1-5) dan ulasan teks dari pengguna setelah menerima makanan, menampilkan rating rata-rata dan kumpulan ulasan pada halaman restoran sebagai bahan pertimbangan pengguna lain. | Khansa Nathania Khairunnisa 2506618061
+
+---
+
+## 🛠 Panduan Memulai (Quick Start)
+
+1. Clone repo dan masuk ke direktori project.
+2. Buat virtual environment:
+   ```bash
+   python -m venv .venv
+   # Windows
+   .venv\Scripts\activate
+   # macOS/Linux
+   source .venv/bin/activate
+   ```
+3. Install dependency:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Salin `.env.example` menjadi `.env`, isi `SECRET_KEY` dengan nilai acak.
+5. Jalankan migrasi:
+   ```bash
+   python manage.py migrate
+   ```
+6. (Opsional) Buat superuser untuk akses admin:
+   ```bash
+   python manage.py createsuperuser
+   ```
+7. Jalankan server development:
+   ```bash
+   python manage.py runserver
+   ```
+8. Buka `http://127.0.0.1:8000/`.
+
+Settings default (`manage.py`) memakai `config.settings.dev` (SQLite lokal). Untuk test, jalankan
+dengan `DJANGO_SETTINGS_MODULE=config.settings.test`. Untuk produksi (PWS), gunakan
+`config.settings.prod` dengan environment variable database yang sesuai (lihat `.env.example`).
+
+## 📁 Struktur Proyek
+
+```
+config/            # project settings (base, dev, prod, test), urls
+accounts/          # app autentikasi & role pengguna (pembeli/mitra) — belum diisi
+food/              # modul Food & Restaurant (Kapitra)
+map/               # modul Location & Map (Akbar)
+order/             # modul Pick up / Order (Dyah)
+review/            # modul Review / Rating (Khansa)
+templates/         # base.html + template global
+static/css/        # design tokens (tokens.css) & style dasar (base.css)
+docs/ERD.md        # kontrak data & ERD antarmodul (dikunci)
+fixtures/          # dummy data (50+ restoran & surprise box) untuk mock API
+```
