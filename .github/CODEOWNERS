@@ -1,0 +1,29 @@
+# Default owner untuk file yang tidak masuk modul spesifik
+* @muhammadakbar58-rgb @dyahzhafira @kapitrafachriza-byte @khansanathania
+
+# Food & Restaurant module
+/food/ @kapitrafachriza-byte
+
+# Location & Map module
+/map/ @muhammadakbar58-rgb
+
+# Pickup / Order module
+/order/ @dyahzhafira
+
+# Review / Rating module
+/review/ @khansanathania
+
+# Authentication
+/accounts/ @dyahzhafira
+
+# Project configuration
+/config/ @muhammadakbar58-rgb @dyahzhafira
+
+# Global templates
+/templates/ @muhammadakbar58-rgb @dyahzhafira
+
+# Global static files
+/static/ @muhammadakbar58-rgb @dyahzhafira
+
+# GitHub configuration and workflows
+/.github/ @muhammadakbar58-rgb
