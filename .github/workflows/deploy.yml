@@ -1,0 +1,41 @@
+name: Deploy to PWS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Git user
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Push main to PWS master
+        shell: bash
+        env:
+          PWS_URL: ${{ secrets.PWS_URL }}
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          if [ -z "$PWS_URL" ]; then
+            echo "::error::Secret PWS_URL is missing or empty."
+            exit 1
+          fi
+
+          # Suppress remote output so credentials cannot appear in logs.
+          if ! git push "$PWS_URL" main:master >/dev/null 2>&1; then
+            echo "::error::Push to PWS failed. Check PWS_URL, PWS availability, and branch history."
+            exit 1
+          fi
