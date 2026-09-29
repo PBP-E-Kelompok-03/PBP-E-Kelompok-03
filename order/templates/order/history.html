@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Riwayat Pesanan</h1>
+
+  {% if order_list %}
+    {% for item in order_list %}
+      <div class="card" style="margin-bottom: var(--space-md);">
+        <p><strong>Kode Pickup:</strong> {{ item.order.kode_pickup }}</p>
+        {% if item.box %}
+          <p><strong>Paket:</strong> {{ item.box.nama_paket }}</p>
+        {% endif %}
+        <p><strong>Jumlah:</strong> {{ item.order.jumlah }}</p>
+        <p><strong>Status:</strong> {{ item.order.status }}</p>
+        <p><strong>Dibuat:</strong> {{ item.order.dibuat_pada }}</p>
+        {% if item.order.status == "pending" %}
+          <button type="button" class="btn btn--outline" data-cancel-order="{{ item.order.id }}">Batalkan</button>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Belum ada pesanan.</p>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll("[data-cancel-order]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const orderId = btn.dataset.cancelOrder;
+    const response = await fetch(`/order/${orderId}/cancel/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+    });
+    if (response.ok) {
+      location.reload();
+    }
+  });
+});
+</script>
+{% endblock %}

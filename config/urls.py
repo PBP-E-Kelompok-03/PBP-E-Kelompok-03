@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("food/", include("food.urls")),
+    path("order/", include("order.urls")),
     path("", RedirectView.as_view(pattern_name="food:list", permanent=False)),
 ]
 
