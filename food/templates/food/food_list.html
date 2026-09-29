@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Katalog Surprise Box — Dibuang Sayang{% endblock %}
+
+{% block nav_links %}
+  <li><a href="{% url 'food:list' %}">Browse Food</a></li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .food-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+  .food-header__title {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: var(--font-size-xl);
+  }
+  .food-header__subtitle {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+  .food-search {
+    display: flex;
+    gap: var(--space-sm);
+    min-width: 280px;
+  }
+  .food-search input {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+  }
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+  }
+  .food-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+  .food-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  .food-card__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--color-success);
+    white-space: nowrap;
+  }
+  .food-card__title {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: var(--font-size-lg);
+  }
+  .food-card__restaurant {
+    margin: 0;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+  }
+  .food-card__address {
+    margin: var(--space-xs) 0 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+  .food-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+  .food-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+  }
+  .food-card__price-old {
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    display: block;
+  }
+  .food-card__price-new {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-success);
+  }
+  .food-card__stock {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="food-header">
+  <div>
+    <h1 class="food-header__title">🍔 Browse Surprise Box</h1>
+    <p class="food-header__subtitle">
+      Menampilkan {{ surprise_boxes|length }} paket hemat dari {{ total_restaurants }} restoran mitra aktif
+    </p>
+  </div>
+
+  <form class="food-search" method="get" action="{% url 'food:list' %}">
+    <input
+      type="text"
+      name="q"
+      value="{{ query }}"
+      placeholder="Cari paket atau nama restoran..."
+      aria-label="Cari paket atau nama restoran"
+    >
+    <button type="submit" class="btn">Cari</button>
+    {% if query %}
+      <a href="{% url 'food:list' %}" class="btn btn--outline">Reset</a>
+    {% endif %}
+  </form>
+</div>
+
+{% if surprise_boxes %}
+  <div class="food-grid">
+    {% for box in surprise_boxes %}
+      <article class="card food-card">
+        <div>
+          <div class="food-card__top">
+            <h2 class="food-card__title">{{ box.nama_paket }}</h2>
+            {% if box.diskon_persen > 0 %}
+              <span class="food-card__badge">Hemat {{ box.diskon_persen }}%</span>
+            {% endif %}
+          </div>
+          <p class="food-card__restaurant">🏪 {{ box.restaurant.nama }}</p>
+          <p class="food-card__address">📍 {{ box.restaurant.alamat }}</p>
+        </div>
+
+        <div class="food-card__meta">
+          <span>🕒 Jam Operasional: {{ box.restaurant.jam_buka }} – {{ box.restaurant.jam_tutup }}</span>
+          <span>🛍️ Waktu Pickup: {{ box.pickup_start }} – {{ box.pickup_end }}</span>
+        </div>
+
+        <div class="food-card__footer">
+          <div>
+            <span class="food-card__price-old">Rp {{ box.harga_normal }}</span>
+            <span class="food-card__price-new">Rp {{ box.harga_diskon }}</span>
+          </div>
+          <span class="food-card__stock">Sisa stok: {{ box.stok }}</span>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    <p>Tidak ada paket Surprise Box yang cocok dengan pencarian <strong>"{{ query }}"</strong>.</p>
+  </div>
+{% endif %}
+{% endblock %}
