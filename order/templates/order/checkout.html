@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Checkout, Dibuang Sayang{% endblock %}
+{% block content %}
+  {% if not box %}
+    <div class="card">
+      <h1>Surprise box tidak ditemukan</h1>
+    </div>
+  {% else %}
+    <div class="card">
+      <h1>Ringkasan Pesanan</h1>
+      <p><strong>Paket:</strong> {{ box.nama_paket }}</p>
+      {% if restaurant %}<p><strong>Resto:</strong> {{ restaurant.nama }}</p>{% endif %}
+      <p>
+        <span style="text-decoration: line-through; color: var(--color-text-muted);">
+          Rp{{ box.harga_normal }}
+        </span>
+        &nbsp;
+        <strong style="color: var(--color-success);">Rp{{ box.harga_diskon }}</strong>
+      </p>
+      <p><strong>Sisa Stok:</strong> {{ remaining_stock }}</p>
+      <p><strong>Jendela Pickup:</strong> {{ box.pickup_start }} - {{ box.pickup_end }}</p>
+
+      <div id="alert-box"></div>
+
+      <p><strong>Jumlah</strong></p>
+      <div class="stepper">
+        <button type="button" class="stepper__btn" id="stepper-minus">-</button>
+        <span class="stepper__value" id="stepper-value">1</span>
+        <button type="button" class="stepper__btn" id="stepper-plus">+</button>
+      </div>
+
+      <p style="margin-top: var(--space-lg);">
+        <button type="button" class="btn" id="confirm-order-btn"
+                data-box-id="{{ box.id }}" data-max-stock="{{ remaining_stock|default:0 }}">
+          Konfirmasi &amp; Reservasi Sekarang
+        </button>
+      </p>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const valueEl = document.getElementById("stepper-value");
+  const minusBtn = document.getElementById("stepper-minus");
+  const plusBtn = document.getElementById("stepper-plus");
+  const confirmBtn = document.getElementById("confirm-order-btn");
+  const alertBox = document.getElementById("alert-box");
+
+  if (!confirmBtn) return;
+
+  const maxStock = parseInt(confirmBtn.dataset.maxStock, 10) || 0;
+
+  let jumlah = 1;
+
+  function render() {
+    valueEl.textContent = jumlah;
+    minusBtn.disabled = jumlah <= 1;
+    plusBtn.disabled = jumlah >= maxStock;
+  }
+
+  minusBtn.addEventListener("click", () => {
+    if (jumlah > 1) jumlah -= 1;
+    render();
+  });
+
+  plusBtn.addEventListener("click", () => {
+    if (jumlah < maxStock) jumlah += 1;
+    render();
+  });
+
+  confirmBtn.addEventListener("click", async () => {
+    const boxId = confirmBtn.dataset.boxId;
+    alertBox.innerHTML = "";
+    const response = await fetch(`/order/create/${boxId}/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `jumlah=${jumlah}`,
+    });
+    const data = await response.json();
+    if (response.ok) {
+      window.location.href = `/order/${data.id}/confirmation/`;
+    } else {
+      alertBox.innerHTML = `<div class="alert alert--error">${data.error}</div>`;
+    }
+  });
+
+  render();
+})();
+</script>
+{% endblock %}

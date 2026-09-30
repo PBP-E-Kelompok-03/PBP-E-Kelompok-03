@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Konfirmasi Pesanan, Dibuang Sayang{% endblock %}
+{% block content %}
+  <div class="card">
+    <p><span class="badge badge--{{ order.status }}">{{ order.get_status_display }}</span></p>
+    <h1>Pesanan Berhasil Dibuat</h1>
+
+    <p class="voucher-code">{{ order.kode_pickup }}</p>
+
+    {% if box %}
+      <p><strong>Paket:</strong> {{ box.nama_paket }}</p>
+      <p><strong>Jam Pickup:</strong> {{ box.pickup_start }} - {{ box.pickup_end }}</p>
+    {% endif %}
+    {% if restaurant %}
+      <p><strong>Restoran:</strong> {{ restaurant.nama }}</p>
+      <p><strong>Alamat Pengambilan:</strong> {{ restaurant.alamat }}</p>
+      <p>
+        <a class="btn btn--outline"
+           href="https://www.openstreetmap.org/?mlat={{ restaurant.lat }}&mlon={{ restaurant.lng }}#map=18/{{ restaurant.lat }}/{{ restaurant.lng }}"
+           target="_blank" rel="noopener">
+          Buka Peta / Navigasi
+        </a>
+      </p>
+    {% endif %}
+    <p><strong>Jumlah:</strong> {{ order.jumlah }}</p>
+
+    <p>Tunjukkan kode pickup di atas ke staf gerai saat mengambil pesanan.</p>
+  </div>
+{% endblock %}
