@@ -1,7 +1,10 @@
 from decouple import config, Csv
 from .base import *
 
-DEBUG = False
+# Default False (aman buat production). Bisa di-override sementara lewat env var
+# DEBUG=True di dashboard PWS kalau perlu lihat traceback error buat debugging --
+# jangan lupa balikin ke False/hapus env var-nya lagi habis selesai.
+DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
