@@ -1,3 +1,6 @@
+import datetime
+from unittest import mock
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -28,6 +31,10 @@ class OrderCreateViewTest(TestCase):
     def setUp(self):
         self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
         self.client.login(username="buyer1", password="pass12345")
+        patcher = mock.patch("order.views.timezone.localtime")
+        self.mock_localtime = patcher.start()
+        self.mock_localtime.return_value = datetime.datetime(2026, 9, 30, 18, 0)
+        self.addCleanup(patcher.stop)
 
     def test_requires_login(self):
         self.client.logout()
@@ -58,6 +65,24 @@ class OrderCreateViewTest(TestCase):
         order.save()
         response2 = self.client.post(reverse("order:create", args=[1]), {"jumlah": 1})
         self.assertEqual(response2.status_code, 201)
+
+    @mock.patch("order.views.timezone.localtime")
+    def test_create_order_before_pickup_window_fails(self, mock_localtime):
+        mock_localtime.return_value = datetime.datetime(2026, 9, 30, 10, 0)
+        response = self.client.post(reverse("order:create", args=[1]), {"jumlah": 1})
+        self.assertEqual(response.status_code, 400)
+
+    @mock.patch("order.views.timezone.localtime")
+    def test_create_order_after_pickup_window_fails(self, mock_localtime):
+        mock_localtime.return_value = datetime.datetime(2026, 9, 30, 21, 0)
+        response = self.client.post(reverse("order:create", args=[1]), {"jumlah": 1})
+        self.assertEqual(response.status_code, 400)
+
+    @mock.patch("order.views.timezone.localtime")
+    def test_create_order_within_pickup_window_succeeds(self, mock_localtime):
+        mock_localtime.return_value = datetime.datetime(2026, 9, 30, 18, 0)
+        response = self.client.post(reverse("order:create", args=[1]), {"jumlah": 1})
+        self.assertEqual(response.status_code, 201)
 
 
 class OrderHistoryViewTest(TestCase):
@@ -103,4 +128,59 @@ class OrderCancelViewTest(TestCase):
 
     def test_anonymous_redirected(self):
         response = self.client.post(reverse("order:cancel", args=[self.order.id]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_cannot_cancel_already_completed_order(self):
+        self.order.status = Order.Status.COMPLETED
+        self.order.save()
+        self.client.login(username="buyer1", password="pass12345")
+        response = self.client.post(reverse("order:cancel", args=[self.order.id]))
+        self.assertEqual(response.status_code, 400)
+
+
+class OrderCompleteViewTest(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
+        self.other = User.objects.create_user(username="buyer2", password="pass12345")
+        self.order = Order.objects.create(pembeli=self.buyer, surprise_box_id=1, jumlah=1, kode_pickup="COMP01")
+
+    def test_owner_can_mark_completed(self):
+        self.client.login(username="buyer1", password="pass12345")
+        response = self.client.post(reverse("order:complete", args=[self.order.id]))
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.COMPLETED)
+
+    def test_non_owner_gets_403(self):
+        self.client.login(username="buyer2", password="pass12345")
+        response = self.client.post(reverse("order:complete", args=[self.order.id]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_cannot_complete_cancelled_order(self):
+        self.order.status = Order.Status.CANCELLED
+        self.order.save()
+        self.client.login(username="buyer1", password="pass12345")
+        response = self.client.post(reverse("order:complete", args=[self.order.id]))
+        self.assertEqual(response.status_code, 400)
+
+
+class OrderConfirmationViewTest(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
+        self.other = User.objects.create_user(username="buyer2", password="pass12345")
+        self.order = Order.objects.create(pembeli=self.buyer, surprise_box_id=1, jumlah=1, kode_pickup="CONF01")
+
+    def test_owner_sees_confirmation(self):
+        self.client.login(username="buyer1", password="pass12345")
+        response = self.client.get(reverse("order:confirmation", args=[self.order.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CONF01")
+
+    def test_non_owner_gets_403(self):
+        self.client.login(username="buyer2", password="pass12345")
+        response = self.client.get(reverse("order:confirmation", args=[self.order.id]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_anonymous_redirected(self):
+        response = self.client.get(reverse("order:confirmation", args=[self.order.id]))
         self.assertEqual(response.status_code, 302)
