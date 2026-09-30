@@ -85,6 +85,26 @@ class OrderCreateViewTest(TestCase):
         self.assertEqual(response.status_code, 201)
 
 
+class OrderCheckoutViewTest(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
+        self.client.login(username="buyer1", password="pass12345")
+
+    def test_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("order:checkout", args=[1]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_shows_box_details(self):
+        response = self.client.get(reverse("order:checkout", args=[1]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ringkasan Pesanan")
+
+    def test_unknown_box_returns_404(self):
+        response = self.client.get(reverse("order:checkout", args=[99999]))
+        self.assertEqual(response.status_code, 404)
+
+
 class OrderHistoryViewTest(TestCase):
     def setUp(self):
         self.buyer = User.objects.create_user(username="buyer1", password="pass12345")

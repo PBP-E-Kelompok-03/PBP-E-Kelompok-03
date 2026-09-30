@@ -95,10 +95,29 @@ def create_order(request, box_id):
     return JsonResponse(
         {
             "message": "Reservasi berhasil.",
+            "id": order.id,
             "kode_pickup": order.kode_pickup,
             "status": order.status,
         },
         status=201,
+    )
+
+
+@login_required
+def checkout_view(request, box_id):
+    boxes = _load_surprise_boxes()
+    box = boxes.get(box_id)
+    if not box:
+        return render(request, "order/checkout.html", {"box": None}, status=404)
+
+    restaurants = _load_restaurants()
+    restaurant = restaurants.get(box["restaurant_id"])
+    remaining = max(_remaining_stock(box), 0)
+
+    return render(
+        request,
+        "order/checkout.html",
+        {"box": box, "restaurant": restaurant, "remaining_stock": remaining},
     )
 
 

@@ -10,9 +10,10 @@
           <p><strong>Paket:</strong> {{ item.box.nama_paket }}</p>
         {% endif %}
         <p><strong>Jumlah:</strong> {{ item.order.jumlah }}</p>
-        <p><strong>Status:</strong> {{ item.order.status }}</p>
+        <p><span class="badge badge--{{ item.order.status }}">{{ item.order.get_status_display }}</span></p>
         <p><strong>Dibuat:</strong> {{ item.order.dibuat_pada }}</p>
         {% if item.order.status == "pending" %}
+          <a class="btn btn--outline" href="{% url 'order:confirmation' item.order.id %}">Lihat Voucher</a>
           <button type="button" class="btn btn--outline" data-cancel-order="{{ item.order.id }}">Batalkan</button>
         {% endif %}
       </div>
