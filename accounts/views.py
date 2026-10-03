@@ -14,17 +14,17 @@ class AccountLoginView(LoginView):
 
 def logout_view(request):
     logout(request)
-    return redirect("food:list")
+    return redirect("landing")
 
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect("food:list")
+        return redirect("landing")
 
     form = RegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = form.save()
         login(request, user)
-        return redirect("food:list")
+        return redirect("landing")
 
     return render(request, "accounts/register.html", {"form": form})
