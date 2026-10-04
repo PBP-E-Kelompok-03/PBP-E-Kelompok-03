@@ -67,9 +67,12 @@ def food_list(request):
         total_restaurants = len(restaurants_by_id)
         is_from_db = False
 
+    total_stock = sum(getattr(b, "stok", 0) if hasattr(b, "stok") else b.get("stok", 0) for b in surprise_boxes)
+
     context = {
         "surprise_boxes": surprise_boxes,
         "total_restaurants": total_restaurants,
+        "total_stock": total_stock,
         "query": query,
         "is_from_db": is_from_db,
     }
@@ -80,6 +83,8 @@ def restaurant_detail(request, restaurant_id):
     if Restaurant.objects.filter(id=restaurant_id, is_active=True).exists():
         restaurant = get_object_or_404(Restaurant, id=restaurant_id, is_active=True)
         boxes = restaurant.surprise_boxes.filter(is_active=True)
+        first_box = boxes.first()
+        total_stock = sum(b.stok for b in boxes)
     else:
         data = _load_dummy_data()
         rest_dict = next((r for r in data.get("restaurants", []) if r["id"] == restaurant_id and r.get("is_active", True)), None)
@@ -94,11 +99,18 @@ def restaurant_detail(request, restaurant_id):
             normal = b.get("harga_normal", 0)
             diskon = b.get("harga_diskon", 0)
             b["diskon_persen"] = round((normal - diskon) / normal * 100) if normal > 0 else 0
+        first_box = boxes[0] if boxes else None
+        total_stock = sum(b.get("stok", 0) for b in boxes)
 
     return render(
         request,
         "food/restaurant_detail.html",
-        {"restaurant": restaurant, "boxes": boxes},
+        {
+            "restaurant": restaurant,
+            "boxes": boxes,
+            "first_box": first_box,
+            "total_stock": total_stock,
+        },
     )
 
 
