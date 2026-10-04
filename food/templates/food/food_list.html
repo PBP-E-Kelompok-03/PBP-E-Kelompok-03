@@ -1,222 +1,1098 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Katalog Surprise Box — Dibuang Sayang{% endblock %}
-
-{% block nav_links %}
-  <li><a href="{% url 'food:list' %}">Browse Food</a></li>
-  {% if user.is_authenticated %}
-    {% if user.role == "partner" or user.is_staff %}
-      <li><a href="{% url 'food:my_restaurants' %}">Restoran Saya</a></li>
-    {% endif %}
-    <li><a href="{% url 'order:history' %}">Riwayat Pesanan</a></li>
-    <li><span>Halo, {{ user.username }}</span></li>
-    <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
-  {% else %}
-    <li><a href="{% url 'accounts:login' %}">Login</a></li>
-    <li><a href="{% url 'accounts:register' %}">Daftar</a></li>
-  {% endif %}
-{% endblock %}
+{% block title %}Beranda Food & Resto — Dibuang Sayang{% endblock %}
 
 {% block extra_css %}
 <style>
-  .food-header {
+  body {
+    background-color: #F8F9FF;
+  }
+
+  .food-page-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* 1. Location Bar */
+  .location-bar {
+    background: #EBF7F0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-  }
-  .food-header__title {
-    margin: 0 0 var(--space-xs) 0;
-    font-size: var(--font-size-xl);
-  }
-  .food-header__subtitle {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-  }
-  .food-actions {
-    display: flex;
-    gap: var(--space-sm);
+    gap: 16px;
     flex-wrap: wrap;
   }
-  .food-search {
+  .location-bar__info {
     display: flex;
-    gap: var(--space-sm);
-    min-width: 280px;
+    flex-direction: column;
+    gap: 2px;
   }
-  .food-search input {
-    flex: 1;
-    padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: var(--font-size-base);
+  .location-bar__overline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #006C41;
   }
-  .food-grid {
+  .location-bar__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    color: #121C2A;
+  }
+  .location-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .radius-dropdown-wrapper {
+    position: relative;
+  }
+  .btn-radius {
+    background: #FFFFFF;
+    border: 1px solid #6E7A70;
+    border-radius: 12px;
+    height: 42px;
+    padding: 8px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: #121C2A;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-radius:hover {
+    border-color: #006C41;
+    background: #FAFCFA;
+  }
+  .radius-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(18, 28, 42, 0.12), 0 2px 6px rgba(18, 28, 42, 0.04);
+    padding: 8px;
+    min-width: 250px;
+    z-index: 100;
+  }
+  .radius-dropdown-menu.show {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: fadeInDown 0.15s ease-out;
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .radius-dropdown-header {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #006C41;
+    padding: 8px 12px 4px;
+  }
+  .radius-option-item {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #121C2A;
+    width: 100%;
+  }
+  .radius-option-item:hover {
+    background: #EFF4FF;
+  }
+  .radius-option-item--active {
+    background: #EBF7F0;
+    color: #006C41;
+  }
+  .radius-option-sub {
+    font-size: 12px;
+    color: #6E7A70;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .radius-check-icon {
+    display: none;
+    color: #006C41;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .radius-option-item--active .radius-check-icon {
+    display: inline-block;
+  }
+  .btn-change-loc {
+    background: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    height: 42px;
+    padding: 8px 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #121C2A;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(18, 28, 42, 0.06);
+  }
+
+  /* 2. Search & Category Filters */
+  .search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .search-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .search-input-box {
+    width: 100%;
+    height: 56px;
+    background: #EFF4FF;
+    border: 1px solid #6E7A70;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: #121C2A;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  .search-input-box:focus {
+    border-color: #006C41;
+    background: #FFFFFF;
+  }
+  .search-input-box::placeholder {
+    color: #3E4941;
+  }
+
+  /* Quick Category Tag Filter */
+  .category-tags {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .category-tags::-webkit-scrollbar {
+    display: none;
+  }
+  .cat-pill {
+    padding: 10px 22px;
+    height: 44px;
+    border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .cat-pill--active {
+    background: #006C41;
+    color: #FFFFFF;
+  }
+  .cat-pill--inactive {
+    background: #EFF4FF;
+    color: #121C2A;
+  }
+  .cat-pill--inactive:hover {
+    background: #E2EAF8;
+  }
+
+  /* 3. Resto Count & Section Header */
+  .resto-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .resto-list-header__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .resto-list-header__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #121C2A;
+    margin: 0;
+  }
+  .badge-stock {
+    background: #006C41;
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #FFFFFF;
+  }
+  .resto-list-header__sort {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #6E7A70;
+  }
+
+  /* 4. Resto Cards Grid */
+  .resto-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-lg);
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
   }
-  .food-card {
+  @media (max-width: 1200px) {
+    .resto-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-width: 768px) {
+    .resto-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    .resto-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .resto-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: var(--space-md);
-    border-radius: var(--radius-md);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .food-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  .resto-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 24px rgba(18, 28, 42, 0.12);
   }
-  .food-card__top {
+
+  .resto-card__thumb {
+    width: 100%;
+    height: 140px;
+    background: #E6EEFF;
+    border-radius: 12px;
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-sm);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
-  .food-card__badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
+  .badge-dist {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #FFFFFF;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #121C2A;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .badge-card-stock {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .badge-card-stock--orange {
+    background: #FD8A2F;
+  }
+  .badge-card-stock--green {
+    background: #006C41;
+  }
+
+  .resto-card__body {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .resto-card__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
-    background: rgba(22, 163, 74, 0.15);
-    color: var(--color-success);
+    font-size: 15px;
+    line-height: 20px;
+    color: #121C2A;
+    margin: 0 0 2px 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
     white-space: nowrap;
   }
-  .food-card__title {
-    margin: 0 0 var(--space-xs) 0;
-    font-size: var(--font-size-lg);
+  .resto-card__pkg-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: #3E4941;
+    margin: 0 0 6px 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
-  .food-card__restaurant a {
-    color: var(--color-text);
+  .resto-card__rating {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: #3E4941;
+    margin-bottom: 8px;
+  }
+  .resto-card__rating strong {
+    color: #121C2A;
+  }
+  .resto-card__pickup {
+    background: #EFF4FF;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
-    text-decoration: underline;
-    text-decoration-color: var(--color-border);
+    font-size: 12px;
+    color: #121C2A;
+    margin-bottom: 12px;
+    text-align: center;
   }
-  .food-card__restaurant a:hover {
-    color: var(--color-primary);
-  }
-  .food-card__address {
-    margin: var(--space-xs) 0 0 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-  }
-  .food-card__meta {
+  .resto-card__prices {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
-    padding-top: var(--space-sm);
-    border-top: 1px solid var(--color-border);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
+    gap: 2px;
+    margin-bottom: 12px;
   }
-  .food-card__footer {
+  .price-new-val {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #006C41;
+  }
+  .price-old-val {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    text-decoration: line-through;
+    color: #6E7A70;
+  }
+  .badge-hemat {
+    background: #EBF7F0;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #006C41;
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .btn-pilih-resto {
+    background: #006C41;
+    border-radius: 12px;
+    height: 44px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #FFFFFF;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .btn-pilih-resto:hover {
+    background: #005231;
+    transform: translateY(-1px);
+  }
+
+  /* 5. Highlight Section: Surprise Box Hari Ini */
+  .highlight-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 16px;
+  }
+  .highlight-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: var(--space-sm);
-    border-top: 1px solid var(--color-border);
+    flex-wrap: wrap;
+    gap: 12px;
   }
-  .food-card__price-old {
-    text-decoration: line-through;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-    display: block;
-  }
-  .food-card__price-new {
-    font-size: var(--font-size-lg);
+  .highlight-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
-    color: var(--color-success);
+    font-size: 26px;
+    line-height: 32px;
+    color: #121C2A;
+    margin: 0;
   }
-  .food-card__stock {
-    font-size: var(--font-size-sm);
+  .badge-highlight-stats {
+    background: #FFFFFF;
+    border: 1px solid #6E7A70;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
+    font-size: 14px;
+    color: #121C2A;
+  }
+
+  .highlight-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .highlight-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .banner-promo {
+    background: #072D1D;
+    border-radius: 20px;
+    padding: 40px;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .banner-promo__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.25;
+    color: #FFFFFF;
+    margin: 0;
+    max-width: 540px;
+  }
+  .banner-promo__desc {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    color: #EBF7F0;
+    margin: 0;
+  }
+  .btn-lihat-peta {
+    background: #40E576;
+    border-radius: 12px;
+    color: #072D1D;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 24px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    margin-top: 8px;
+  }
+  .btn-lihat-peta:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+  }
+
+  .card-map-widget {
+    background: #FFFFFF;
+    border: 1px solid #6E7A70;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .card-map-widget__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-map-widget__title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #121C2A;
+  }
+  .card-map-widget__open-count {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #006C41;
+  }
+  .card-map-widget__preview {
+    background: #E6EEFF;
+    border-radius: 12px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #3E4941;
+    position: relative;
+  }
+  .btn-peta-penuh {
+    background: #EBF7F0;
+    border-radius: 12px;
+    color: #006C41;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    transition: background 0.15s ease;
+  }
+  .btn-peta-penuh:hover {
+    background: #d6f0e0;
+  }
+
+  /* Footer from Figma */
+  .food-footer {
+    background: #072D1D;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 56px 32px 32px;
+    color: #FFFFFF;
+    margin-top: 48px;
+  }
+  .food-footer__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .food-footer__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 40px;
+  }
+  @media (max-width: 768px) {
+    .food-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 480px) {
+    .food-footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .food-footer__col h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: #40E576;
+    margin: 0 0 16px 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .food-footer__col a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 24px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+  .food-footer__col a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+  .btn-daftar-mitra {
+    background: #40E576;
+    color: #072D1D;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .food-footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    flex-wrap: wrap;
+    gap: 12px;
   }
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="food-header">
-  <div>
-    <h1 class="food-header__title">🍔 Browse Surprise Box</h1>
-    <p class="food-header__subtitle">
-      Menampilkan {{ surprise_boxes|length }} paket hemat dari {{ total_restaurants }} restoran mitra aktif
-    </p>
-  </div>
+{% block main %}
+<div class="food-page-wrapper">
 
-  <div class="food-actions">
-    {% if user.is_authenticated and user.role == "partner" or user.is_staff %}
-      <a href="{% url 'food:create_restaurant' %}" class="btn">+ Tambah Restoran</a>
-    {% endif %}
+  <!-- Partner/Staff Quick Action -->
+  {% if user.is_authenticated and user.role == "partner" or user.is_staff %}
+    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 600; color: #121C2A;">Area Mitra Restoran</span>
+      <div style="display: flex; gap: 10px;">
+        <a href="{% url 'food:my_restaurants' %}" class="btn btn--outline" style="padding: 6px 14px; font-size: 14px;">Restoran Saya</a>
+        <a href="{% url 'food:create_restaurant' %}" class="btn" style="padding: 6px 14px; font-size: 14px;">+ Tambah Restoran</a>
+      </div>
+    </div>
+  {% endif %}
 
-    <form class="food-search" method="get" action="{% url 'food:list' %}">
+  <!-- 1. Alamat Sekarang Pengguna (Current Location) -->
+  <section class="location-bar">
+    <div class="location-bar__info">
+      <span class="location-bar__overline">LOKASI KAMU</span>
+      <span class="location-bar__title" id="currentLocationText">Senopati, Jakarta Selatan</span>
+    </div>
+
+    <div class="location-bar__actions">
+      <!-- Radius Dropdown Selector -->
+      <div class="radius-dropdown-wrapper">
+        <button type="button" class="btn-radius" id="btnRadius" onclick="toggleRadiusDropdown(event)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          </svg>
+          <span id="radiusLabel">Radius 3 km</span>
+          <svg id="radiusChevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.2s ease;">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="radius-dropdown-menu" id="radiusDropdownMenu">
+          <div class="radius-dropdown-header">Pilih Radius Jarak</div>
+          <button type="button" class="radius-option-item" onclick="selectRadius('1 km')">
+            <div>
+              <div>Radius 1 km</div>
+              <div class="radius-option-sub">Jarak sangat dekat (&lt; 15 mnt)</div>
+            </div>
+            <span class="radius-check-icon">✓</span>
+          </button>
+          <button type="button" class="radius-option-item radius-option-item--active" onclick="selectRadius('3 km')">
+            <div>
+              <div>Radius 3 km</div>
+              <div class="radius-option-sub">Sekitar Senopati (Default)</div>
+            </div>
+            <span class="radius-check-icon">✓</span>
+          </button>
+          <button type="button" class="radius-option-item" onclick="selectRadius('5 km')">
+            <div>
+              <div>Radius 5 km</div>
+              <div class="radius-option-sub">Kebayoran Baru &amp; Blok M</div>
+            </div>
+            <span class="radius-check-icon">✓</span>
+          </button>
+          <button type="button" class="radius-option-item" onclick="selectRadius('10 km')">
+            <div>
+              <div>Radius 10 km</div>
+              <div class="radius-option-sub">Cakupan Jakarta Selatan</div>
+            </div>
+            <span class="radius-check-icon">✓</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-change-loc" onclick="changeLocationPrompt()">
+        Ubah lokasi
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. Search Bar Khusus Pencarian Gerai / Makanan -->
+  <section class="search-section">
+    <form class="search-input-wrapper" method="get" action="{% url 'food:list' %}">
       <input
         type="text"
         name="q"
+        id="searchInput"
         value="{{ query }}"
-        placeholder="Cari paket atau restoran..."
-        aria-label="Cari paket atau restoran"
+        class="search-input-box"
+        placeholder="Cari restoran, roti, atau menu"
+        aria-label="Cari restoran, roti, atau menu"
       >
-      <button type="submit" class="btn">Cari</button>
-      {% if query %}
-        <a href="{% url 'food:list' %}" class="btn btn--outline">Reset</a>
-      {% endif %}
     </form>
+
+    <!-- Filter cepat tag -->
+    <div class="category-tags" id="categoryTags">
+      <button type="button" class="cat-pill cat-pill--active" data-cat="all" onclick="filterCategory('all', this)">
+        Semua
+      </button>
+      <button type="button" class="cat-pill cat-pill--inactive" data-cat="roti" onclick="filterCategory('roti', this)">
+        Roti dan pastry
+      </button>
+      <button type="button" class="cat-pill cat-pill--inactive" data-cat="bento" onclick="filterCategory('bento', this)">
+        Bento dan box
+      </button>
+      <button type="button" class="cat-pill cat-pill--inactive" data-cat="kopi" onclick="filterCategory('kopi', this)">
+        Kopi dan minuman
+      </button>
+      <button type="button" class="cat-pill cat-pill--inactive" data-cat="salad" onclick="filterCategory('salad', this)">
+        Salad
+      </button>
+    </div>
+  </section>
+
+  <!-- 3. Section Header: Hitungan Restoran & Stok -->
+  <div class="resto-list-header">
+    <div class="resto-list-header__left">
+      <h2 class="resto-list-header__title">
+        <span id="visibleCount">{{ total_restaurants }}</span> restoran siap diambil hari ini
+      </h2>
+      <span class="badge-stock">{{ total_stock|default:"17" }} box tersedia</span>
+    </div>
+    <div class="resto-list-header__sort">
+      Jarak terdekat
+    </div>
   </div>
+
+  <!-- 4. Grid Kartu Resto / Surprise Box -->
+  {% if surprise_boxes %}
+    <div class="resto-grid" id="restoGrid">
+      {% for box in surprise_boxes %}
+        <article
+          class="resto-card"
+          data-search="{{ box.nama_paket|lower }} {{ box.restaurant.nama|lower }} {{ box.restaurant.alamat|lower }}"
+          data-category="{% if 'roti' in box.nama_paket|lower or 'pastry' in box.nama_paket|lower or 'bakery' in box.restaurant.nama|lower or 'croissant' in box.nama_paket|lower %}roti{% elif 'bento' in box.nama_paket|lower or 'don' in box.nama_paket|lower or 'nasi' in box.nama_paket|lower or 'box' in box.nama_paket|lower %}bento{% elif 'kopi' in box.nama_paket|lower or 'coffee' in box.restaurant.nama|lower or 'minuman' in box.nama_paket|lower %}kopi{% elif 'salad' in box.nama_paket|lower or 'sprout' in box.restaurant.nama|lower or 'deli' in box.restaurant.nama|lower %}salad{% else %}all{% endif %}"
+        >
+          <div>
+            <!-- Thumbnail Box with Badges -->
+            <div class="resto-card__thumb">
+              <!-- Distance Badge -->
+              <span class="badge-dist">
+                {% if forloop.counter == 1 %}0.4 km
+                {% elif forloop.counter == 2 %}0.8 km
+                {% elif forloop.counter == 3 %}1.1 km
+                {% elif forloop.counter == 4 %}1.5 km
+                {% elif forloop.counter == 5 %}1.8 km
+                {% else %}{{ forloop.counter|add:2 }}00 m{% endif %}
+              </span>
+
+              <!-- Stock Badge -->
+              {% if box.stok <= 3 %}
+                <span class="badge-card-stock badge-card-stock--orange">Sisa {{ box.stok }} box</span>
+              {% else %}
+                <span class="badge-card-stock badge-card-stock--green">Sisa {{ box.stok }} box</span>
+              {% endif %}
+
+              <!-- Center Placeholder Text -->
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                <span style="font-size: 26px;">
+                  {% if 'roti' in box.nama_paket|lower or 'bakery' in box.restaurant.nama|lower %}🥐
+                  {% elif 'bento' in box.nama_paket|lower or 'don' in box.nama_paket|lower %}🍱
+                  {% elif 'kopi' in box.nama_paket|lower or 'coffee' in box.restaurant.nama|lower %}☕
+                  {% elif 'salad' in box.nama_paket|lower or 'deli' in box.restaurant.nama|lower %}🥗
+                  {% else %}🛍️{% endif %}
+                </span>
+                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; color: #121C2A;">Foto produk</span>
+              </div>
+            </div>
+
+            <!-- Card Info -->
+            <div class="resto-card__body">
+              <h3 class="resto-card__title" title="{{ box.restaurant.nama }}">
+                {{ box.restaurant.nama }}
+              </h3>
+              <p class="resto-card__pkg-name" title="{{ box.nama_paket }}">
+                {{ box.nama_paket }}
+              </p>
+
+              <div class="resto-card__rating">
+                <strong>★ 4.9</strong>
+                <span>· 128 ulasan</span>
+              </div>
+
+              <div class="resto-card__pickup">
+                {% if box.pickup_start and box.pickup_end %}
+                  {{ box.pickup_start|date:"H:i" }} – {{ box.pickup_end|date:"H:i" }} WIB
+                {% elif box.restaurant.jam_buka and box.restaurant.jam_tutup %}
+                  {{ box.restaurant.jam_buka|time:"H:i" }} – {{ box.restaurant.jam_tutup|time:"H:i" }} WIB
+                {% else %}
+                  19:30 – 21:00 WIB
+                {% endif %}
+              </div>
+
+              <div class="resto-card__prices">
+                <span class="price-new-val">Rp {{ box.harga_diskon|floatformat:0 }}</span>
+                <span class="price-old-val">Rp {{ box.harga_normal|floatformat:0 }}</span>
+                {% if box.diskon_persen > 0 %}
+                  <span class="badge-hemat">Hemat {{ box.diskon_persen }}%</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Button -->
+          <a href="{% url 'food:restaurant_detail' box.restaurant.id %}" class="btn-pilih-resto">
+            Pilih resto
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 32px; text-align: center; margin-top: 16px;">
+      <p style="font-size: 16px; color: #3E4941; margin: 0;">
+        Tidak ada paket Surprise Box yang ditemukan{% if query %} untuk pencarian <strong>"{{ query }}"</strong>{% endif %}.
+      </p>
+      {% if query %}
+        <a href="{% url 'food:list' %}" class="btn btn--outline" style="margin-top: 16px; display: inline-block;">
+          Lihat semua paket
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- 5. Highlight Section: Surprise Box Hari Ini (Figma Canvas Preview) -->
+  <section class="highlight-section">
+    <div class="highlight-header">
+      <h2 class="highlight-title">Surprise Box hari ini</h2>
+      <div class="badge-highlight-stats">
+        {{ total_stock|default:"42" }} box tersisa malam ini
+      </div>
+    </div>
+
+    <div class="highlight-grid">
+      <!-- Big Bento Hero Card Promo -->
+      <div class="banner-promo">
+        <h3 class="banner-promo__title">
+          Roti artisan dan bento halal, diskon hingga 70%
+        </h3>
+        <p class="banner-promo__desc">
+          Ambil langsung di kasir sebelum gerai tutup.
+        </p>
+        <a href="{% url 'map:map' %}" class="btn-lihat-peta">
+          Lihat gerai di peta
+        </a>
+      </div>
+
+      <!-- Quick Map Snapshot Widget -->
+      <div class="card-map-widget">
+        <div class="card-map-widget__header">
+          <span class="card-map-widget__title">Peta sekitar</span>
+          <span class="card-map-widget__open-count">{{ total_restaurants }} gerai buka</span>
+        </div>
+
+        <div class="card-map-widget__preview">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#006C41" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span style="font-weight: 700; color: #006C41;">Peta Sekitar</span>
+          </div>
+        </div>
+
+        <a href="{% url 'map:map' %}" class="btn-peta-penuh">
+          Buka peta penuh
+        </a>
+      </div>
+    </div>
+  </section>
+
 </div>
 
-{% if surprise_boxes %}
-  <div class="food-grid">
-    {% for box in surprise_boxes %}
-      <article class="card food-card">
-        <div>
-          <div class="food-card__top">
-            <h2 class="food-card__title">{{ box.nama_paket }}</h2>
-            {% if box.diskon_persen > 0 %}
-              <span class="food-card__badge">Hemat {{ box.diskon_persen }}%</span>
-            {% endif %}
-          </div>
-
-          <p class="food-card__restaurant">
-            🏪 <a href="{% url 'food:restaurant_detail' box.restaurant.id %}">{{ box.restaurant.nama }}</a>
-          </p>
-          <p class="food-card__address">📍 {{ box.restaurant.alamat }}</p>
+<!-- Footer Figma DS -->
+<footer class="food-footer">
+  <div class="food-footer__inner">
+    <div class="food-footer__grid">
+      <!-- Col 1: Brand Info -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+          <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 38px; width: auto; object-fit: contain;">
+          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF;">Dibuang Sayang</span>
         </div>
+        <p style="font-size: 14px; line-height: 20px; color: #EBF7F0; margin: 0; max-width: 280px;">
+          Platform penyelamat makanan berlebih untuk kurangi sampah & dapatkan makanan lezat terjangkau.
+        </p>
+      </div>
 
-        <div class="food-card__meta">
-          <span>🕒 Jam Operasional: {{ box.restaurant.jam_buka }} – {{ box.restaurant.jam_tutup }}</span>
-          {% if box.pickup_start %}
-            <span>🛍️ Waktu Pickup: {{ box.pickup_start|date:"d M Y, H:i" }} – {{ box.pickup_end|date:"H:i" }}</span>
-          {% endif %}
-        </div>
+      <!-- Col 2: Kategori -->
+      <div class="food-footer__col">
+        <h4>Kategori</h4>
+        <a href="{% url 'food:list' %}?q=Bakery">Bakery dan pastry</a>
+        <a href="{% url 'food:list' %}?q=Bento">Makanan berat</a>
+        <a href="{% url 'food:list' %}?q=Kopi">Kopi dan kafe</a>
+        <a href="{% url 'food:list' %}?q=Salad">Salad</a>
+      </div>
 
-        <div class="food-card__footer">
-          <div>
-            <span class="food-card__price-old">Rp {{ box.harga_normal }}</span>
-            <span class="food-card__price-new">Rp {{ box.harga_diskon }}</span>
-          </div>
-          <div style="text-align: right;">
-            <div class="food-card__stock">Stok: {{ box.stok }}</div>
-            {% if box.stok > 0 %}
-              <a href="{% url 'order:checkout' box.id %}" class="btn" style="margin-top: 6px; padding: 4px 12px; font-size: var(--font-size-sm);">
-                Pesan
-              </a>
-            {% else %}
-              <span style="font-size: var(--font-size-sm); color: var(--color-danger); font-weight: 600;">Habis</span>
-            {% endif %}
-          </div>
-        </div>
-      </article>
-    {% endfor %}
+      <!-- Col 3: Mitra -->
+      <div class="food-footer__col">
+        <h4>Mitra</h4>
+        <a href="{% url 'accounts:register' %}" class="btn-daftar-mitra">Daftar jadi mitra</a>
+        <a href="{% url 'food:my_restaurants' %}" style="margin-top: 14px;">Portal gerai mitra</a>
+      </div>
+
+      <!-- Col 4: Ikuti Kami -->
+      <div class="food-footer__col">
+        <h4>Ikuti kami</h4>
+        <a href="#">Instagram</a>
+        <a href="#">TikTok</a>
+        <a href="#">Komunitas</a>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="food-footer__bottom">
+      <div>© 2026 Dibuang Sayang</div>
+      <div style="display: flex; gap: 20px;">
+        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Kebijakan privasi</a>
+        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Syarat layanan</a>
+      </div>
+    </div>
   </div>
-{% else %}
-  <div class="card">
-    <p>Tidak ada paket Surprise Box yang ditemukan{% if query %} untuk pencarian <strong>"{{ query }}"</strong>{% endif %}.</p>
-  </div>
-{% endif %}
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function filterCategory(cat, btn) {
+    // Update active pill styling
+    const pills = document.querySelectorAll('#categoryTags .cat-pill');
+    pills.forEach(p => {
+      p.classList.remove('cat-pill--active');
+      p.classList.add('cat-pill--inactive');
+    });
+    btn.classList.add('cat-pill--active');
+    btn.classList.remove('cat-pill--inactive');
+
+    // Filter cards
+    const cards = document.querySelectorAll('#restoGrid .resto-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const cardCat = card.getAttribute('data-category');
+      const cardSearch = card.getAttribute('data-search') || '';
+      
+      let matches = false;
+      if (cat === 'all') {
+        matches = true;
+      } else if (cat === 'roti') {
+        matches = cardCat === 'roti' || cardSearch.includes('roti') || cardSearch.includes('pastry') || cardSearch.includes('bakery') || cardSearch.includes('croissant');
+      } else if (cat === 'bento') {
+        matches = cardCat === 'bento' || cardSearch.includes('bento') || cardSearch.includes('don') || cardSearch.includes('nasi') || cardSearch.includes('box');
+      } else if (cat === 'kopi') {
+        matches = cardCat === 'kopi' || cardSearch.includes('kopi') || cardSearch.includes('coffee') || cardSearch.includes('toast') || cardSearch.includes('minuman');
+      } else if (cat === 'salad') {
+        matches = cardCat === 'salad' || cardSearch.includes('salad') || cardSearch.includes('deli') || cardSearch.includes('sprout');
+      }
+
+      if (matches) {
+        card.style.display = 'flex';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    const countElem = document.getElementById('visibleCount');
+    if (countElem) {
+      countElem.textContent = visible;
+    }
+  }
+
+  function changeLocationPrompt() {
+    const loc = prompt("Masukkan lokasi kamu:", "Senopati, Jakarta Selatan");
+    if (loc && loc.trim()) {
+      document.getElementById('currentLocationText').textContent = loc.trim();
+    }
+  }
+
+  function toggleRadiusDropdown(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('radiusDropdownMenu');
+    const chevron = document.getElementById('radiusChevron');
+    const isShowing = menu.classList.contains('show');
+
+    if (isShowing) {
+      menu.classList.remove('show');
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    } else {
+      menu.classList.add('show');
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
+    }
+  }
+
+  function selectRadius(val) {
+    document.getElementById('radiusLabel').textContent = 'Radius ' + val;
+
+    // Update active highlight in menu
+    document.querySelectorAll('.radius-option-item').forEach(btn => {
+      if (btn.textContent.includes('Radius ' + val)) {
+        btn.classList.add('radius-option-item--active');
+      } else {
+        btn.classList.remove('radius-option-item--active');
+      }
+    });
+
+    const menu = document.getElementById('radiusDropdownMenu');
+    if (menu) menu.classList.remove('show');
+    const chevron = document.getElementById('radiusChevron');
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  }
+
+  // Close dropdown on click outside
+  document.addEventListener('click', function(e) {
+    const wrapper = document.querySelector('.radius-dropdown-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      const menu = document.getElementById('radiusDropdownMenu');
+      if (menu) menu.classList.remove('show');
+      const chevron = document.getElementById('radiusChevron');
+      if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+  });
+</script>
 {% endblock %}
