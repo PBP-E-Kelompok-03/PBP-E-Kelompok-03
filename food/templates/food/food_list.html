@@ -4,6 +4,17 @@
 
 {% block nav_links %}
   <li><a href="{% url 'food:list' %}">Browse Food</a></li>
+  {% if user.is_authenticated %}
+    {% if user.role == "partner" or user.is_staff %}
+      <li><a href="{% url 'food:my_restaurants' %}">Restoran Saya</a></li>
+    {% endif %}
+    <li><a href="{% url 'order:history' %}">Riwayat Pesanan</a></li>
+    <li><span>Halo, {{ user.username }}</span></li>
+    <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+  {% else %}
+    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+    <li><a href="{% url 'accounts:register' %}">Daftar</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -25,6 +36,11 @@
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
   }
+  .food-actions {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
   .food-search {
     display: flex;
     gap: var(--space-sm);
@@ -41,7 +57,7 @@
   }
   .food-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--space-lg);
   }
   .food-card {
@@ -49,6 +65,12 @@
     flex-direction: column;
     justify-content: space-between;
     gap: var(--space-md);
+    border-radius: var(--radius-md);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .food-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
   .food-card__top {
     display: flex;
@@ -58,11 +80,11 @@
   }
   .food-card__badge {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
-    font-weight: 600;
-    background: rgba(22, 163, 74, 0.12);
+    font-weight: 700;
+    background: rgba(22, 163, 74, 0.15);
     color: var(--color-success);
     white-space: nowrap;
   }
@@ -70,10 +92,14 @@
     margin: 0 0 var(--space-xs) 0;
     font-size: var(--font-size-lg);
   }
-  .food-card__restaurant {
-    margin: 0;
+  .food-card__restaurant a {
+    color: var(--color-text);
     font-weight: 600;
-    font-size: var(--font-size-sm);
+    text-decoration: underline;
+    text-decoration-color: var(--color-border);
+  }
+  .food-card__restaurant a:hover {
+    color: var(--color-primary);
   }
   .food-card__address {
     margin: var(--space-xs) 0 0 0;
@@ -123,19 +149,25 @@
     </p>
   </div>
 
-  <form class="food-search" method="get" action="{% url 'food:list' %}">
-    <input
-      type="text"
-      name="q"
-      value="{{ query }}"
-      placeholder="Cari paket atau nama restoran..."
-      aria-label="Cari paket atau nama restoran"
-    >
-    <button type="submit" class="btn">Cari</button>
-    {% if query %}
-      <a href="{% url 'food:list' %}" class="btn btn--outline">Reset</a>
+  <div class="food-actions">
+    {% if user.is_authenticated and user.role == "partner" or user.is_staff %}
+      <a href="{% url 'food:create_restaurant' %}" class="btn">+ Tambah Restoran</a>
     {% endif %}
-  </form>
+
+    <form class="food-search" method="get" action="{% url 'food:list' %}">
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Cari paket atau restoran..."
+        aria-label="Cari paket atau restoran"
+      >
+      <button type="submit" class="btn">Cari</button>
+      {% if query %}
+        <a href="{% url 'food:list' %}" class="btn btn--outline">Reset</a>
+      {% endif %}
+    </form>
+  </div>
 </div>
 
 {% if surprise_boxes %}
@@ -149,13 +181,18 @@
               <span class="food-card__badge">Hemat {{ box.diskon_persen }}%</span>
             {% endif %}
           </div>
-          <p class="food-card__restaurant">🏪 {{ box.restaurant.nama }}</p>
+
+          <p class="food-card__restaurant">
+            🏪 <a href="{% url 'food:restaurant_detail' box.restaurant.id %}">{{ box.restaurant.nama }}</a>
+          </p>
           <p class="food-card__address">📍 {{ box.restaurant.alamat }}</p>
         </div>
 
         <div class="food-card__meta">
           <span>🕒 Jam Operasional: {{ box.restaurant.jam_buka }} – {{ box.restaurant.jam_tutup }}</span>
-          <span>🛍️ Waktu Pickup: {{ box.pickup_start }} – {{ box.pickup_end }}</span>
+          {% if box.pickup_start %}
+            <span>🛍️ Waktu Pickup: {{ box.pickup_start|date:"d M Y, H:i" }} – {{ box.pickup_end|date:"H:i" }}</span>
+          {% endif %}
         </div>
 
         <div class="food-card__footer">
@@ -163,14 +200,23 @@
             <span class="food-card__price-old">Rp {{ box.harga_normal }}</span>
             <span class="food-card__price-new">Rp {{ box.harga_diskon }}</span>
           </div>
-          <span class="food-card__stock">Sisa stok: {{ box.stok }}</span>
+          <div style="text-align: right;">
+            <div class="food-card__stock">Stok: {{ box.stok }}</div>
+            {% if box.stok > 0 %}
+              <a href="{% url 'order:checkout' box.id %}" class="btn" style="margin-top: 6px; padding: 4px 12px; font-size: var(--font-size-sm);">
+                Pesan
+              </a>
+            {% else %}
+              <span style="font-size: var(--font-size-sm); color: var(--color-danger); font-weight: 600;">Habis</span>
+            {% endif %}
+          </div>
         </div>
       </article>
     {% endfor %}
   </div>
 {% else %}
   <div class="card">
-    <p>Tidak ada paket Surprise Box yang cocok dengan pencarian <strong>"{{ query }}"</strong>.</p>
+    <p>Tidak ada paket Surprise Box yang ditemukan{% if query %} untuk pencarian <strong>"{{ query }}"</strong>{% endif %}.</p>
   </div>
 {% endif %}
 {% endblock %}
