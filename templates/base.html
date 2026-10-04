@@ -31,8 +31,10 @@
           <span>Cari Makanan Terdekat</span>
         </a>
         <a href="{% url 'map:map' %}" class="nav-item">Peta Restoran</a>
+        {% if not user.is_authenticated %}
         <a href="/#cara-kerja" class="nav-item">Cara kerja</a>
         <a href="/#untuk-mitra" class="nav-item">Untuk mitra</a>
+        {% endif %}
       </div>
 
       <div class="navbar__right">
@@ -40,6 +42,7 @@
           {% if user.is_authenticated %}
             {% if user.role == "partner" or user.is_staff %}
               <a href="{% url 'food:my_restaurants' %}" class="nav-item{% if request.resolver_match.url_name == 'my_restaurants' %} is-active{% endif %}">Restoran Saya</a>
+              <a href="{% url 'order:incoming' %}" class="nav-item{% if request.resolver_match.url_name == 'incoming' %} is-active{% endif %}">Pesanan Masuk</a>
             {% endif %}
             <a href="{% url 'order:history' %}" class="nav-item{% if request.resolver_match.url_name == 'history' %} is-active{% endif %}">Riwayat Pesanan</a>
             <span class="navbar__user-greeting">{{ user.username }}</span>
@@ -55,11 +58,15 @@
     (function () {
       var t = document.querySelector('.navbar__toggle'), n = document.querySelector('.navbar');
       if (!t) return;
-      t.addEventListener('click', function () {
-        var o = n.classList.toggle('is-open');
-        t.setAttribute('aria-expanded', o);
-        t.setAttribute('aria-label', o ? 'Tutup menu' : 'Buka menu');
-      });
+      function set(open) {
+        n.classList.toggle('is-open', open);
+        t.setAttribute('aria-expanded', open);
+        t.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+      }
+      t.addEventListener('click', function () { set(!n.classList.contains('is-open')); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+      document.addEventListener('click', function (e) { if (!n.contains(e.target)) set(false); });
+      n.querySelectorAll('.navbar__menu a').forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
     })();
   </script>
 
