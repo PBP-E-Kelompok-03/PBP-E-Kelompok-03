@@ -25,6 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("food/", include("food.urls")),
+    path("map/", include("map.urls")),
     path("order/", include("order.urls")),
     path("", views.landing_page, name="landing"),
 ]
