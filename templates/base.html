@@ -10,50 +10,65 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
-  <nav class="navbar">
-    <div class="navbar__left">
-      <a class="navbar__brand-wrapper" href="/">
-        <div class="navbar__logo">
-          <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" class="navbar__logo-img">
-        </div>
-        <span class="navbar__brand">Dibuang Sayang</span>
-      </a>
+<body class="ds-root">
+  <nav class="navbar" aria-label="Navigasi utama">
+    <a class="navbar__brand-wrapper" href="/">
+      <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="" class="navbar__logo-img">
+      <span class="navbar__brand">Dibuang Sayang</span>
+    </a>
 
+    <button type="button" class="navbar__toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="navbar-menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="navbar__menu" id="navbar-menu">
       <div class="navbar__nav-items">
         <a href="{% url 'food:list' %}" class="navbar__search-pill">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <span>Cari Makanan Terdekat</span>
-          <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-          </svg>
         </a>
         <a href="{% url 'map:map' %}" class="nav-item">Peta Restoran</a>
+        {% if not user.is_authenticated %}
         <a href="/#cara-kerja" class="nav-item">Cara kerja</a>
         <a href="/#untuk-mitra" class="nav-item">Untuk mitra</a>
+        {% endif %}
+      </div>
+
+      <div class="navbar__right">
+        {% block nav_right %}
+          {% if user.is_authenticated %}
+            {% if user.role == "partner" or user.is_staff %}
+              <a href="{% url 'food:my_restaurants' %}" class="nav-item{% if request.resolver_match.url_name == 'my_restaurants' %} is-active{% endif %}">Restoran Saya</a>
+              <a href="{% url 'order:incoming' %}" class="nav-item{% if request.resolver_match.url_name == 'incoming' %} is-active{% endif %}">Pesanan Masuk</a>
+            {% endif %}
+            <a href="{% url 'order:history' %}" class="nav-item{% if request.resolver_match.url_name == 'history' %} is-active{% endif %}">Riwayat Pesanan</a>
+            <span class="navbar__user-greeting">{{ user.username }}</span>
+            <a href="{% url 'accounts:logout' %}" class="btn-navbar-logout">Logout</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn-navbar-cta">Masuk</a>
+          {% endif %}
+        {% endblock %}
       </div>
     </div>
-
-    <div class="navbar__right">
-      {% block nav_right %}
-        {% if user.is_authenticated %}
-          {% if user.role == "partner" or user.is_staff %}
-            <a href="{% url 'food:my_restaurants' %}" class="nav-item">Restoran Saya</a>
-          {% endif %}
-          <a href="{% url 'order:history' %}" class="nav-item">Riwayat Pesanan</a>
-          <span class="navbar__user-greeting">Halo, {{ user.username }}</span>
-          <a href="{% url 'accounts:logout' %}" class="btn-navbar-logout">Logout</a>
-        {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn-navbar-cta">Masuk</a>
-        {% endif %}
-      {% endblock %}
-    </div>
   </nav>
+  <script>
+    (function () {
+      var t = document.querySelector('.navbar__toggle'), n = document.querySelector('.navbar');
+      if (!t) return;
+      function set(open) {
+        n.classList.toggle('is-open', open);
+        t.setAttribute('aria-expanded', open);
+        t.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+      }
+      t.addEventListener('click', function () { set(!n.classList.contains('is-open')); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+      document.addEventListener('click', function (e) { if (!n.contains(e.target)) set(false); });
+      n.querySelectorAll('.navbar__menu a').forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
+    })();
+  </script>
 
   {% block main %}
     <main class="container">

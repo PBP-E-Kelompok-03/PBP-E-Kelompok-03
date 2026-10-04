@@ -1,41 +1,139 @@
 {% extends "base.html" %}
+{% block title %}Riwayat Pesanan, Dibuang Sayang{% endblock %}
 {% block content %}
-  <h1>Riwayat Pesanan</h1>
+  <div class="ds-page-head">
+    <h1 class="ds-h1">Riwayat Pesanan</h1>
+    <p class="ds-text-secondary">Pantau voucher aktif dan lihat pesanan sebelumnya.</p>
+  </div>
 
   {% if order_list %}
-    {% for item in order_list %}
-      <div class="card" style="margin-bottom: var(--space-md);">
-        <p><strong>Kode Pickup:</strong> {{ item.order.kode_pickup }}</p>
-        {% if item.box %}
-          <p><strong>Paket:</strong> {{ item.box.nama_paket }}</p>
-        {% endif %}
-        <p><strong>Jumlah:</strong> {{ item.order.jumlah }}</p>
-        <p><span class="badge badge--{{ item.order.status }}">{{ item.order.get_status_display }}</span></p>
-        <p><strong>Dibuat:</strong> {{ item.order.dibuat_pada }}</p>
-        {% if item.order.status == "pending" %}
-          <a class="btn btn--outline" href="{% url 'order:confirmation' item.order.id %}">Lihat Voucher</a>
-          <button type="button" class="btn btn--outline" data-cancel-order="{{ item.order.id }}">Batalkan</button>
-        {% endif %}
-      </div>
-    {% endfor %}
+    <div class="ds-chips" role="tablist" aria-label="Filter status pesanan" style="margin-bottom: var(--ds-space-4)">
+      <button type="button" class="ds-chip is-selected" role="tab" aria-selected="true" data-tab="active"><span>Aktif (<span data-count="active">0</span>)</span></button>
+      <button type="button" class="ds-chip" role="tab" aria-selected="false" data-tab="completed"><span>Selesai (<span data-count="completed">0</span>)</span></button>
+      <button type="button" class="ds-chip" role="tab" aria-selected="false" data-tab="cancelled"><span>Batal / Kedaluwarsa (<span data-count="cancelled">0</span>)</span></button>
+    </div>
+
+    <div class="ds-stack" id="order-list">
+      {% for item in order_list %}
+        <article class="ds-order" data-status="{{ item.order.status }}">
+          <div class="ds-order__main">
+            <div class="ds-order__thumb" aria-hidden="true"></div>
+            <div class="ds-order__info">
+              {% if item.order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu pengambilan</span>
+              {% elif item.order.status == "confirmed" %}<span class="ds-badge ds-badge--hemat">Siap diambil</span>
+              {% elif item.order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>
+              {% elif item.order.status == "expired" %}<span class="ds-badge ds-badge--neutral">Kedaluwarsa</span>
+              {% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
+              <h2 class="ds-h4">{% if item.box %}{{ item.box.nama_paket }}{% else %}Paket tidak tersedia{% endif %}</h2>
+              <p class="ds-label ds-caption">Kode {{ item.order.kode_pickup }} · {{ item.order.jumlah }} box</p>
+              {% if item.box and item.order.status == "pending" or item.box and item.order.status == "confirmed" %}
+                <p class="ds-caption ds-text-accent">Ambil {{ item.box.pickup_start|time:"H:i" }} – {{ item.box.pickup_end|time:"H:i" }} WIB</p>
+              {% endif %}
+              <p class="ds-caption ds-text-secondary">Dibuat {{ item.order.dibuat_pada|date:"d M Y, H:i" }}</p>
+            </div>
+          </div>
+          <div class="ds-order__actions">
+            {% if item.order.status == "pending" or item.order.status == "confirmed" %}
+              <a class="ds-btn ds-btn--primary ds-btn--sm" href="{% url 'order:confirmation' item.order.id %}">Lihat voucher</a>
+              <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-cancel-order="{{ item.order.id }}" data-kode="{{ item.order.kode_pickup }}">Batalkan</button>
+            {% else %}
+              <a class="ds-btn ds-btn--secondary ds-btn--sm" href="{% url 'order:confirmation' item.order.id %}">Lihat detail</a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="ds-empty ds-hidden" id="tab-empty">
+      <p class="ds-h4">Belum ada pesanan di tab ini</p>
+      <a class="ds-btn ds-btn--primary" href="{% url 'food:list' %}">Cari makanan</a>
+    </div>
   {% else %}
-    <p>Belum ada pesanan.</p>
+    <div class="ds-empty">
+      <p class="ds-h4">Belum ada pesanan</p>
+      <p>Pesan surprise box pertamamu dan selamatkan makanan hari ini.</p>
+      <a class="ds-btn ds-btn--primary" href="{% url 'food:list' %}">Cari makanan</a>
+    </div>
   {% endif %}
+
+  <div class="ds-backdrop ds-hidden" id="cancel-modal" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+    <div class="ds-modal">
+      <h2 class="ds-h4" id="cancel-title">Batalkan pesanan?</h2>
+      <p class="ds-text-secondary">Pesanan <strong id="cancel-kode"></strong> akan dibatalkan dan stok dikembalikan.</p>
+      <div id="cancel-error" class="ds-alert ds-alert--error ds-hidden" role="alert"></div>
+      <div class="ds-modal__actions">
+        <button type="button" class="ds-btn ds-btn--secondary" id="cancel-dismiss">Tidak jadi</button>
+        <button type="button" class="ds-btn ds-btn--danger" id="cancel-confirm">Ya, batalkan</button>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.querySelectorAll("[data-cancel-order]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    const orderId = btn.dataset.cancelOrder;
-    const response = await fetch(`/order/${orderId}/cancel/`, {
-      method: "POST",
-      headers: { "X-CSRFToken": "{{ csrf_token }}" },
-    });
-    if (response.ok) {
-      location.reload();
-    }
+(function () {
+  const groups = { active: ["pending", "confirmed"], completed: ["completed"], cancelled: ["cancelled", "expired"] };
+  const cards = Array.from(document.querySelectorAll("#order-list [data-status]"));
+  const chips = Array.from(document.querySelectorAll("[data-tab]"));
+  const empty = document.getElementById("tab-empty");
+  if (!chips.length) return;
+
+  Object.keys(groups).forEach((key) => {
+    const el = document.querySelector(`[data-count="${key}"]`);
+    if (el) el.textContent = cards.filter((c) => groups[key].includes(c.dataset.status)).length;
   });
-});
+
+  function show(tab) {
+    let visible = 0;
+    cards.forEach((c) => {
+      const on = groups[tab].includes(c.dataset.status);
+      c.classList.toggle("ds-hidden", !on);
+      if (on) visible += 1;
+    });
+    chips.forEach((chip) => {
+      const on = chip.dataset.tab === tab;
+      chip.classList.toggle("is-selected", on);
+      chip.setAttribute("aria-selected", on);
+    });
+    empty.classList.toggle("ds-hidden", visible > 0);
+  }
+  chips.forEach((chip) => chip.addEventListener("click", () => show(chip.dataset.tab)));
+  show("active");
+
+  const modal = document.getElementById("cancel-modal");
+  const errorBox = document.getElementById("cancel-error");
+  const confirmBtn = document.getElementById("cancel-confirm");
+  let pendingId = null;
+
+  document.querySelectorAll("[data-cancel-order]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pendingId = btn.dataset.cancelOrder;
+      document.getElementById("cancel-kode").textContent = btn.dataset.kode;
+      errorBox.classList.add("ds-hidden");
+      modal.classList.remove("ds-hidden");
+      confirmBtn.focus();
+    });
+  });
+  document.getElementById("cancel-dismiss").addEventListener("click", () => modal.classList.add("ds-hidden"));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.classList.add("ds-hidden"); });
+
+  confirmBtn.addEventListener("click", async () => {
+    confirmBtn.disabled = true;
+    try {
+      const response = await fetch(`/order/${pendingId}/cancel/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      });
+      if (response.ok) { location.reload(); return; }
+      const data = await response.json().catch(() => ({}));
+      errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
+      errorBox.classList.remove("ds-hidden");
+    } catch (e) {
+      errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
+      errorBox.classList.remove("ds-hidden");
+    }
+    confirmBtn.disabled = false;
+  });
+})();
 </script>
 {% endblock %}

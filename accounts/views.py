@@ -4,12 +4,11 @@ from django.shortcuts import redirect, render
 
 from .forms import RegisterForm
 
-# TODO: redirect ke landing page + url masih pakai food:list
-
 
 class AccountLoginView(LoginView):
     template_name = "accounts/login.html"
     redirect_authenticated_user = True
+    next_page = "landing"
 
 
 def logout_view(request):
