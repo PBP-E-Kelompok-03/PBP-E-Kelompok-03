@@ -1,40 +1,89 @@
 {% extends "base.html" %}
+{% load l10n %}
 {% block title %}Checkout, Dibuang Sayang{% endblock %}
 {% block content %}
   {% if not box %}
-    <div class="card">
-      <h1>Surprise box tidak ditemukan</h1>
+    <div class="ds-empty">
+      <h1 class="ds-h2">Surprise box tidak ditemukan</h1>
+      <p>Paket ini mungkin sudah tidak tersedia.</p>
+      <a class="ds-btn ds-btn--primary" href="{% url 'food:list' %}">Lihat katalog</a>
     </div>
   {% else %}
-    <div class="card">
-      <h1>Ringkasan Pesanan</h1>
-      <p><strong>Paket:</strong> {{ box.nama_paket }}</p>
-      {% if restaurant %}<p><strong>Resto:</strong> {{ restaurant.nama }}</p>{% endif %}
-      <p>
-        <span style="text-decoration: line-through; color: var(--color-text-muted);">
-          Rp{{ box.harga_normal }}
-        </span>
-        &nbsp;
-        <strong style="color: var(--color-success);">Rp{{ box.harga_diskon }}</strong>
-      </p>
-      <p><strong>Sisa Stok:</strong> {{ remaining_stock }}</p>
-      <p><strong>Jendela Pickup:</strong> {{ box.pickup_start }} - {{ box.pickup_end }}</p>
+    <div class="ds-page-head">
+      <ol class="ds-breadcrumb">
+        <li><a href="{% url 'food:list' %}">Katalog</a></li>
+        <li aria-current="page">Checkout</li>
+      </ol>
+      <h1 class="ds-h1">Checkout</h1>
+      <p class="ds-text-secondary">Cek pesananmu, lalu reservasi. Selesaikan dalam 10 menit.</p>
+    </div>
 
-      <div id="alert-box"></div>
+    <div id="alert-box" aria-live="polite"></div>
 
-      <p><strong>Jumlah</strong></p>
-      <div class="stepper">
-        <button type="button" class="stepper__btn" id="stepper-minus">-</button>
-        <span class="stepper__value" id="stepper-value">1</span>
-        <button type="button" class="stepper__btn" id="stepper-plus">+</button>
+    <div class="ds-grid ds-grid--2">
+      <div class="ds-stack ds-stack--lg">
+        <section class="ds-card">
+          <h2 class="ds-h4">Ringkasan Pesanan</h2>
+          <div class="ds-order__main">
+            <div class="ds-order__thumb" aria-hidden="true"></div>
+            <div class="ds-order__info">
+              <h3 class="ds-h4">{{ box.nama_paket }}</h3>
+              {% if restaurant %}<p class="ds-caption ds-text-secondary">{{ restaurant.nama }}{% if restaurant.alamat %} · {{ restaurant.alamat }}{% endif %}</p>{% endif %}
+              <div class="ds-row ds-row--wrap" style="gap: 8px">
+                <span class="ds-price--old" data-rupiah="{{ box.harga_normal|unlocalize }}"></span>
+                <span class="ds-h4 ds-price" data-rupiah="{{ box.harga_diskon|unlocalize }}"></span>
+                <span class="ds-badge ds-badge--hemat" id="discount-badge" data-normal="{{ box.harga_normal|unlocalize }}" data-discount="{{ box.harga_diskon|unlocalize }}"></span>
+              </div>
+            </div>
+          </div>
+          <hr class="ds-divider">
+          <div class="ds-row ds-row--between">
+            <div>
+              <p class="ds-label">Jumlah box</p>
+              <p class="ds-caption ds-text-accent">Sisa {{ remaining_stock }} box</p>
+            </div>
+            <div class="ds-stepper" role="group" aria-label="Jumlah box">
+              <button type="button" id="stepper-minus" aria-label="Kurangi">−</button>
+              <output id="stepper-value">1</output>
+              <button type="button" id="stepper-plus" aria-label="Tambah">+</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="ds-card">
+          <h2 class="ds-h4">Instruksi pengambilan</h2>
+          <div class="ds-notice">
+            <p class="ds-overline">Batas pengambilan</p>
+            <p class="ds-h4">{{ box.pickup_start|time:"H:i" }} – {{ box.pickup_end|time:"H:i" }} WIB</p>
+            <p class="ds-caption">Pesanan yang tidak diambil sebelum jam tutup pickup tidak dapat diambil lagi.</p>
+          </div>
+          <div class="ds-alert">♻ Bawa wadah atau tas belanja sendiri untuk kurangi sampah plastik.</div>
+        </section>
+
+        <section class="ds-card">
+          <h2 class="ds-h4">Data pemesan</h2>
+          <div class="ds-field">
+            <label class="ds-field__label" for="buyer-name">Nama pemesan</label>
+            <input class="ds-input" id="buyer-name" value="{{ request.user.get_full_name|default:request.user.get_username }}" readonly>
+            <span class="ds-field__hint">Sesuai akun yang sedang masuk.</span>
+          </div>
+        </section>
       </div>
 
-      <p style="margin-top: var(--space-lg);">
-        <button type="button" class="btn" id="confirm-order-btn"
-                data-box-id="{{ box.id }}" data-max-stock="{{ remaining_stock|default:0 }}">
+      <aside class="ds-card">
+        <h2 class="ds-h4">Rincian pembayaran</h2>
+        <div class="ds-row ds-row--between"><span class="ds-text-secondary" id="subtotal-label">Subtotal (1 box)</span><span class="ds-label" id="subtotal" data-unit="{{ box.harga_diskon|unlocalize }}"></span></div>
+        <div class="ds-row ds-row--between"><span class="ds-text-secondary">Biaya layanan</span><span class="ds-label">Rp0</span></div>
+        <hr class="ds-divider">
+        <div class="ds-row ds-row--between"><span class="ds-h4">Total</span><span class="ds-h3 ds-price" id="total"></span></div>
+        <div class="ds-timer ds-timer--soft" role="timer">Selesaikan dalam <span id="hold-timer">10:00</span></div>
+        <button type="button" class="ds-btn ds-btn--primary ds-btn--block" id="confirm-order-btn"
+                data-box-id="{{ box.id }}" data-max-stock="{{ max_qty|default:0 }}">
           Konfirmasi &amp; Reservasi Sekarang
         </button>
-      </p>
+        <a class="ds-btn ds-btn--ghost ds-btn--block" href="{% url 'food:list' %}">Kembali ke katalog</a>
+        <p class="ds-caption ds-text-secondary">Bayar tunai di gerai saat mengambil pesanan.</p>
+      </aside>
     </div>
   {% endif %}
 {% endblock %}
@@ -42,52 +91,84 @@
 {% block extra_js %}
 <script>
 (function () {
+  const confirmBtn = document.getElementById("confirm-order-btn");
+  if (!confirmBtn) return;
+
+  const rupiah = (n) => "Rp" + Math.round(Number(n) || 0).toLocaleString("id-ID");
+  document.querySelectorAll("[data-rupiah]").forEach((el) => { el.textContent = rupiah(el.dataset.rupiah); });
+
+  const badge = document.getElementById("discount-badge");
+  const normal = parseFloat(badge.dataset.normal), disc = parseFloat(badge.dataset.discount);
+  if (normal > 0 && disc < normal) badge.textContent = "Hemat " + Math.round((1 - disc / normal) * 100) + "%";
+  else badge.classList.add("ds-hidden");
+
   const valueEl = document.getElementById("stepper-value");
   const minusBtn = document.getElementById("stepper-minus");
   const plusBtn = document.getElementById("stepper-plus");
-  const confirmBtn = document.getElementById("confirm-order-btn");
   const alertBox = document.getElementById("alert-box");
-
-  if (!confirmBtn) return;
-
+  const subtotal = document.getElementById("subtotal");
+  const total = document.getElementById("total");
+  const subtotalLabel = document.getElementById("subtotal-label");
   const maxStock = parseInt(confirmBtn.dataset.maxStock, 10) || 0;
-
+  const unit = parseFloat(subtotal.dataset.unit) || 0;
   let jumlah = 1;
 
   function render() {
     valueEl.textContent = jumlah;
     minusBtn.disabled = jumlah <= 1;
     plusBtn.disabled = jumlah >= maxStock;
+    subtotalLabel.textContent = "Subtotal (" + jumlah + " box)";
+    subtotal.textContent = rupiah(unit * jumlah);
+    total.textContent = rupiah(unit * jumlah);
+    confirmBtn.disabled = maxStock < 1;
+  }
+  minusBtn.addEventListener("click", () => { if (jumlah > 1) jumlah -= 1; render(); });
+  plusBtn.addEventListener("click", () => { if (jumlah < maxStock) jumlah += 1; render(); });
+
+  function showError(msg) {
+    alertBox.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "ds-alert ds-alert--error";
+    div.setAttribute("role", "alert");
+    div.style.marginBottom = "16px";
+    div.textContent = msg;
+    alertBox.appendChild(div);
   }
 
-  minusBtn.addEventListener("click", () => {
-    if (jumlah > 1) jumlah -= 1;
-    render();
-  });
-
-  plusBtn.addEventListener("click", () => {
-    if (jumlah < maxStock) jumlah += 1;
-    render();
-  });
-
   confirmBtn.addEventListener("click", async () => {
-    const boxId = confirmBtn.dataset.boxId;
     alertBox.innerHTML = "";
-    const response = await fetch(`/order/create/${boxId}/`, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `jumlah=${jumlah}`,
-    });
-    const data = await response.json();
-    if (response.ok) {
-      window.location.href = `/order/${data.id}/confirmation/`;
-    } else {
-      alertBox.innerHTML = `<div class="alert alert--error">${data.error}</div>`;
+    confirmBtn.disabled = true;
+    try {
+      const response = await fetch(`/order/create/${confirmBtn.dataset.boxId}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
+        body: `jumlah=${jumlah}`,
+      });
+      const data = await response.json();
+      if (response.ok) {
+        window.location.href = `/order/${data.id}/confirmation/`;
+        return;
+      }
+      showError(data.error || "Reservasi gagal.");
+    } catch (e) {
+      showError("Koneksi bermasalah. Coba lagi.");
     }
+    confirmBtn.disabled = false;
   });
+
+  let left = 600;
+  const timerEl = document.getElementById("hold-timer");
+  const tick = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(tick);
+      timerEl.textContent = "00:00";
+      showError("Waktu checkout habis. Muat ulang halaman untuk cek ketersediaan stok.");
+      confirmBtn.disabled = true;
+      return;
+    }
+    timerEl.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
+  }, 1000);
 
   render();
 })();
