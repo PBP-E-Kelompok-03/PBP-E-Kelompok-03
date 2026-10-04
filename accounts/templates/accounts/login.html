@@ -1,9 +1,45 @@
 {% extends "base.html" %}
+{% block title %}Masuk, Dibuang Sayang{% endblock %}
 {% block content %}
-  <h1>Login</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn">Login</button>
-  </form>
+  <div class="ds-auth">
+    <aside class="ds-auth__brand">
+      <div class="ds-stack">
+        <p class="ds-overline">Selamatkan makanan</p>
+        <h2 class="ds-h2 ds-text-inverse">Selamatkan makanan lezat, kurangi jejak karbon</h2>
+      </div>
+      <ul class="ds-auth__points">
+        <li>Surprise box diskon 40–70%</li>
+        <li>Ambil sendiri di gerai terdekat</li>
+        <li>Kurangi food waste setiap hari</li>
+      </ul>
+    </aside>
+
+    <section class="ds-auth__form">
+      <div class="ds-stack" style="gap: 4px">
+        <h1 class="ds-h3">Selamat datang kembali</h1>
+        <p class="ds-text-secondary">Masuk untuk lihat makanan surplus di sekitarmu.</p>
+      </div>
+
+      {% if form.errors %}
+        <div class="ds-alert ds-alert--error" role="alert">Username atau password salah.</div>
+      {% endif %}
+
+      <form method="post" class="ds-stack ds-stack--lg" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="ds-field">
+            <label class="ds-field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endfor %}
+        {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+        <button type="submit" class="ds-btn ds-btn--primary ds-btn--block">Masuk</button>
+      </form>
+
+      <p class="ds-row" style="justify-content: center; gap: 6px">
+        <span class="ds-text-secondary">Belum punya akun?</span>
+        <a class="ds-link" href="{% url 'accounts:register' %}">Daftar gratis</a>
+      </p>
+    </section>
+  </div>
 {% endblock %}
