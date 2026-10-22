@@ -1,0 +1,86 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Menghubungkan file CSS review -->
+<link rel="stylesheet" href="{% static 'css/review.css' %}">
+
+<!-- Halaman untuk memberikan rating dan komentar -->
+<div class="review-container">
+
+    <!-- Judul dan informasi pesanan -->
+    <h2>Beri Ulasan</h2>
+
+    <p style="color: #006b45;">
+        Pesanan selesai
+    </p>
+
+    <p>
+        Bagaimana pesananmu?
+        <br>
+        <strong>{{ order.kode_pickup }}</strong>
+    </p>
+
+    <!-- Form untuk mengirim rating dan komentar -->
+    <form
+        id="review-form"
+        method="POST"
+        action="{% url 'review:create_review' order.id %}"
+    >
+
+        {% csrf_token %}
+
+        <!-- Menampilkan error validasi form -->
+        {{ form.non_field_errors }}
+
+        <!-- Pilihan rating 1 sampai 5 bintang -->
+        <fieldset>
+            <legend>Berikan Rating</legend>
+
+            <div class="rating-stars">
+                {% for choice in form.rating %}
+                    <label class="rating-option">
+                        {{ choice.tag }}
+                        <span>{{ choice.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+
+            {{ form.rating.errors }}
+        </fieldset>
+
+        <!-- Kolom untuk menulis komentar -->
+        <div class="review-comment">
+            <label for="{{ form.comment.id_for_label }}">
+                Komentar
+            </label>
+
+            {{ form.comment }}
+            {{ form.comment.errors }}
+        </div>
+
+        <!-- Menampilkan pesan sukses atau gagal -->
+        <p id="review-message" role="status" aria-live="polite"></p>
+
+        <!-- Tombol mengirim ulasan -->
+        <button type="submit">
+            Kirim Ulasan
+        </button>
+
+    </form>
+
+    <!-- Navigasi kembali -->
+    <div style="margin-top: 25px;">
+        <a href="/" style="color: #374151;">
+            Kembali ke beranda
+        </a>
+    </div>
+
+</div>
+
+<!-- Menghubungkan JavaScript AJAX -->
+<script src="{% static 'js/review.js' %}" defer></script>
+
+{% endblock %}

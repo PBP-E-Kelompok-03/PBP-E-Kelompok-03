@@ -25,6 +25,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("food/", include("food.urls")),
     path("order/", include("order.urls")),
+    path("review/", include("review.urls")),
     path("", RedirectView.as_view(pattern_name="food:list", permanent=False)),
 ]
 
