@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 
 from food.models import SurpriseBox
 
+from .decorators import owner_required, seller_required
 from .models import Order
 
 ACTIVE = (Order.Status.PENDING, Order.Status.CONFIRMED)
@@ -41,18 +42,6 @@ def _within_pickup_window(box, now=None):
     if box.pickup_end and now > box.pickup_end:
         return False
     return True
-
-
-def _require_owner(order, user):
-    if order.pembeli_id != user.id:
-        raise PermissionDenied("Kamu tidak berhak mengakses pesanan ini.")
-
-
-def _require_seller(order, user):
-    box = order.surprise_box
-    owner_id = box.restaurant.owner_id if box else None
-    if not (user.is_staff or (owner_id and owner_id == user.id)):
-        raise PermissionDenied("Hanya pemilik restoran yang boleh menyelesaikan pesanan.")
 
 
 def _available_boxes():
@@ -145,11 +134,11 @@ def order_history(request):
 
 @login_required
 @require_POST
+@owner_required
 def cancel_order(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     with transaction.atomic():
         order = get_object_or_404(Order, id=order_id)
-        _require_owner(order, request.user)
 
         changed = Order.objects.filter(pk=order.pk, status__in=ACTIVE).update(status=Order.Status.CANCELLED)
         if not changed:
@@ -163,10 +152,10 @@ def cancel_order(request, order_id):
 
 @login_required
 @require_POST
+@seller_required
 def complete_order(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order.objects.select_related("surprise_box__restaurant"), id=order_id)
-    _require_seller(order, request.user)
 
     changed = Order.objects.filter(pk=order.pk, status__in=ACTIVE).update(status=Order.Status.COMPLETED)
     if not changed:
@@ -176,10 +165,10 @@ def complete_order(request, order_id):
 
 
 @login_required
+@owner_required
 def order_confirmation(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order.objects.select_related("surprise_box__restaurant"), id=order_id)
-    _require_owner(order, request.user)
 
     box = order.surprise_box
     restaurant = box.restaurant if box else None

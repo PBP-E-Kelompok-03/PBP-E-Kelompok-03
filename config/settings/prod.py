@@ -24,9 +24,16 @@ DATABASES = {
 
 MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware"] + MIDDLEWARE
 
+# WHITENOISE_USE_FINDERS=True bikin WhiteNoise serve langsung dari STATICFILES_DIRS,
+# gak perlu collectstatic/manifest sama sekali. Ini sengaja dipilih karena gak jelas
+# apakah step collectstatic di Procfile beneran dijalankan sama platform PWS -- tanpa
+# ini, {% static %} pakai ManifestStaticFilesStorage bakal error kalau manifest-nya
+# gak pernah ke-generate, dan itu bikin SEMUA halaman yang extend base.html jadi 500.
+WHITENOISE_USE_FINDERS = True
+
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
