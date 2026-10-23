@@ -27,7 +27,14 @@ urlpatterns = [
     path("food/", include("food.urls")),
     path("map/", include("map.urls")),
     path("order/", include("order.urls")),
+
+    # URL untuk fitur Review 
+    path("review/", include("review.urls")),
+
+    # Halaman utama terbaru 
     path("", views.landing_page, name="landing"),
+
+   
 ]
 
 if settings.DEBUG:
