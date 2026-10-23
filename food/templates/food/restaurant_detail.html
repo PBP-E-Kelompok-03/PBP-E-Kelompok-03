@@ -794,10 +794,10 @@
           <h1 class="resto-hero__name">{{ restaurant.nama }}</h1>
           <span class="badge-verified">Terverifikasi</span>
         </div>
-
         <div class="resto-hero-header__right">
           <div class="pill-rating">
-            <strong>4.9</strong> <span>128 ulasan</span>
+              ★ <strong id="restaurantRatingTop">0</strong>/5
+              · <span id="restaurantReviewCountTop">0 ulasan</span>
           </div>
           <div class="pill-stock-hero">
             {{ total_stock|default:"4" }} paket tersisa
@@ -1028,68 +1028,24 @@
   <section class="reviews-section">
     <div class="reviews-header">
       <div class="reviews-title-wrap">
-        <span class="reviews-stars-orange">★★★★★</span>
+        <span class="reviews-stars-orange" id="restaurantStars">☆☆☆☆☆</span>
         <h2 class="reviews-title">Ulasan</h2>
       </div>
 
-      <div class="reviews-score-wrap">
-        <div class="reviews-score-main">4.9 dari 5</div>
-        <div class="reviews-score-sub">128 ulasan</div>
+    
+  <div class="reviews-score-wrap">
+      <div class="reviews-score-main" id="restaurantRating">
+          0 dari 5
       </div>
-    </div>
+      <div class="reviews-score-sub" id="restaurantReviewCount">
+          0 ulasan
+      </div>
+  </div>
+  </div>
 
-    <div class="reviews-grid">
-      <!-- Review 1 -->
-      <article class="review-card">
-        <div>
-          <div class="review-card__header">
-            <div class="review-card__user">
-              <div class="avatar-circle avatar-dk">DK</div>
-              <span class="review-user-name">Dimas Kurniawan</span>
-            </div>
-            <span class="review-stars">★★★★★</span>
-          </div>
-          <p class="review-comment" style="margin-top: 10px;">
-            Rotinya renyah, diskon 65% worth it.
-          </p>
-        </div>
-        <span class="review-time">Kemarin</span>
-      </article>
-
-      <!-- Review 2 -->
-      <article class="review-card">
-        <div>
-          <div class="review-card__header">
-            <div class="review-card__user">
-              <div class="avatar-circle avatar-aw">AW</div>
-              <span class="review-user-name">Anindya Wardhani</span>
-            </div>
-            <span class="review-stars">★★★★★</span>
-          </div>
-          <p class="review-comment" style="margin-top: 10px;">
-            Sourdough-nya besar dan enak, staf ramah.
-          </p>
-        </div>
-        <span class="review-time">3 hari lalu</span>
-      </article>
-
-      <!-- Review 3 -->
-      <article class="review-card">
-        <div>
-          <div class="review-card__header">
-            <div class="review-card__user">
-              <div class="avatar-circle avatar-rz">RZ</div>
-              <span class="review-user-name">Reza Zakaria</span>
-            </div>
-            <span class="review-stars">★★★★★</span>
-          </div>
-          <p class="review-comment" style="margin-top: 10px;">
-            Jam ambil tepat waktu, makanannya enak.
-          </p>
-        </div>
-        <span class="review-time">5 hari lalu</span>
-      </article>
-    </div>
+  <div class="reviews-grid" id="restaurantReviewsGrid">
+          <p>Belum ada ulasan untuk restoran ini.</p>
+  </div>
   </section>
 
 </div>
@@ -1226,9 +1182,121 @@
     }
   }
 
-  // Initialize summary on page load
+  
+
+  // Menjalankan fungsi Food saat halaman selesai dimuat
   document.addEventListener('DOMContentLoaded', () => {
-    updateSummaryDisplay();
+      updateSummaryDisplay();
+  });
+
+</script>
+
+<!-- JavaScript khusus Rating & Review -->
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+      try {
+          // Mengambil rating dan ulasan dari API Django
+          const response = await fetch(
+              "{% url 'review:restaurant_reviews' restaurant.id %}"
+          );
+
+          if (!response.ok) {
+              throw new Error('Gagal mengambil data review');
+          }
+
+          const data = await response.json();
+
+          // Rating di bagian atas halaman
+          document.getElementById('restaurantRatingTop').textContent =
+              data.rata_rata;
+
+          document.getElementById('restaurantReviewCountTop').textContent =
+              data.jumlah_ulasan + ' ulasan';
+
+          // Rating di bagian Ulasan
+          document.getElementById('restaurantRating').textContent =
+              data.rata_rata + ' dari 5';
+
+          document.getElementById('restaurantReviewCount').textContent =
+              data.jumlah_ulasan + ' ulasan';
+              // Menampilkan bintang sesuai rata-rata rating restoran
+          const nilaiRating = Math.max(
+              0,
+              Math.min(5, Math.round(Number(data.rata_rata) || 0))
+          );
+
+          document.getElementById('restaurantStars').textContent =
+              '★'.repeat(nilaiRating) + '☆'.repeat(5 - nilaiRating);
+
+          // Menampilkan komentar pembeli
+          const reviewsGrid = document.getElementById('restaurantReviewsGrid');
+          reviewsGrid.replaceChildren();
+
+          if (data.reviews.length === 0) {
+              const pesan = document.createElement('p');
+              pesan.textContent = 'Belum ada ulasan untuk restoran ini.';
+              reviewsGrid.appendChild(pesan);
+          } else {
+              data.reviews.forEach((review, index) => {
+                  const card = document.createElement('article');
+                  card.className = 'review-card';
+
+                  card.innerHTML = `
+                      <div>
+                          <div class="review-card__header">
+                              <div class="review-card__user">
+                                  <div class="avatar-circle"></div>
+                                  <span class="review-user-name"></span>
+                              </div>
+                              <span class="review-stars"></span>
+                          </div>
+                          <p class="review-comment" style="margin-top: 10px;"></p>
+                      </div>
+                      <span class="review-time"></span>
+                  `;
+
+                  // Nama pembeli
+                  const nama = String(review.nama || 'Pembeli');
+
+                  card.querySelector('.review-user-name').textContent = nama;
+
+                  // Inisial avatar pembeli
+                  const inisial = nama.trim()
+                      .split(/\s+/)
+                      .slice(0, 2)
+                      .map(kata => kata.charAt(0).toUpperCase())
+                      .join('');
+
+                  const avatar = card.querySelector('.avatar-circle');
+                  avatar.textContent = inisial;
+
+                  avatar.classList.add(
+                      ['avatar-dk', 'avatar-aw', 'avatar-rz'][index % 3]
+                  );
+
+                  // Bintang sesuai rating pembeli
+                  const rating = Math.max(
+                      0,
+                      Math.min(5, Math.round(Number(review.rating) || 0))
+                  );
+
+                  card.querySelector('.review-stars').textContent =
+                      '★'.repeat(rating) + '☆'.repeat(5 - rating);
+
+                  // Komentar dan tanggal
+                  card.querySelector('.review-comment').textContent =
+                      review.komentar;
+
+                  card.querySelector('.review-time').textContent =
+                      review.tanggal;
+
+                  reviewsGrid.appendChild(card);
+              });
+          }
+
+      } catch (error) {
+          console.error('Gagal mengambil review:', error);
+      }
   });
 </script>
 {% endblock %}

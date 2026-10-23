@@ -179,4 +179,42 @@ def delete_review(request, review_id):
     })
 
 
+# Mengambil ulasan dan menghitung rata-rata rating per restoran
+def restaurant_reviews(request, restaurant_id):
+
+    # Mengambil semua review aktif dari Surprise Box milik restoran
+    reviews = Review.objects.filter(
+        order__surprise_box__restaurant_id=restaurant_id,
+        active=True
+    ).select_related(
+        "order__pembeli"
+    ).order_by("-created_at")
+
+    # Menghitung rata-rata rating dan jumlah ulasan restoran
+    rata_rata = reviews.aggregate(
+        Avg("rating")
+    )["rating__avg"]
+
+    jumlah_ulasan = reviews.count()
+
+    # Menyiapkan data ulasan untuk ditampilkan
+    data_reviews = []
+
+    for review in reviews[:50]:
+        data_reviews.append({
+            "nama": str(review.order.pembeli),
+            "rating": review.rating,
+            "komentar": review.comment,
+            "tanggal": review.created_at.strftime("%d/%m/%Y")
+        })
+
+    # Mengirim data review restoran dalam format JSON
+    return JsonResponse({
+        "rata_rata": round(rata_rata, 1) if rata_rata is not None else 0,
+        "jumlah_ulasan": jumlah_ulasan,
+        "reviews": data_reviews
+    })
+
+
+
 

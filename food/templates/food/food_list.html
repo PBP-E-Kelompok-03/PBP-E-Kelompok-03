@@ -852,9 +852,11 @@
                 {{ box.nama_paket }}
               </p>
 
-              <div class="resto-card__rating">
-                <strong>★ 4.9</strong>
-                <span>· 128 ulasan</span>
+              
+              <div class="resto-card__rating"
+                  data-review-url="{% url 'review:restaurant_reviews' box.restaurant.id %}">
+                  <strong class="restaurant-rating-value">★ 0/5</strong>
+                  <span class="restaurant-review-count">· 0 ulasan</span>
               </div>
 
               <div class="resto-card__pickup">
@@ -1094,5 +1096,39 @@
       if (chevron) chevron.style.transform = 'rotate(0deg)';
     }
   });
+
+  // Mengambil rating asli untuk setiap kartu restoran
+  document.addEventListener('DOMContentLoaded', () => {
+      const reviewCache = new Map();
+
+      document.querySelectorAll('.resto-card__rating').forEach(card => {
+          const url = card.dataset.reviewUrl;
+
+          // Restoran yang sama cukup diambil datanya sekali
+          if (!reviewCache.has(url)) {
+              reviewCache.set(url,
+                  fetch(url).then(response => {
+                      if (!response.ok) {
+                          throw new Error('Gagal mengambil rating');
+                      }
+                      return response.json();
+                  })
+              );
+          }
+
+          reviewCache.get(url)
+              .then(data => {
+                  card.querySelector('.restaurant-rating-value').textContent =
+                      '★ ' + data.rata_rata + '/5';
+
+                  card.querySelector('.restaurant-review-count').textContent =
+                      '· ' + data.jumlah_ulasan + ' ulasan';
+              })
+              .catch(error => {
+                  console.error('Gagal memuat rating restoran:', error);
+              });
+      });
+  });
+
 </script>
 {% endblock %}

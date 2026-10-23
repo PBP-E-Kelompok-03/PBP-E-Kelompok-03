@@ -29,4 +29,13 @@ urlpatterns = [
         name="delete_review"
     ),
 
+
+    # URL untuk mengambil ulasan dan rata-rata rating restoran
+    path(
+        "restaurant/<int:restaurant_id>/reviews/",
+        views.restaurant_reviews,
+        name="restaurant_reviews"
+    ),
+
+
 ]
