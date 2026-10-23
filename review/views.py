@@ -147,3 +147,36 @@ def update_review(request, review_id):
     }, status=400)
 
 
+# Menghapus review menggunakan soft delete
+@login_required
+def delete_review(request, review_id):
+
+    # Mengambil review yang masih aktif
+    review = get_object_or_404(
+        Review, id=review_id, active=True
+    )
+
+    # Memastikan review milik pengguna yang sedang login
+    if review.order.pembeli != request.user:
+        raise PermissionDenied(
+            "Kamu tidak boleh menghapus review orang lain."
+        )
+
+    # Penghapusan hanya diperbolehkan melalui POST
+    if request.method != "POST":
+        return JsonResponse({
+            "success": False,
+            "error": "Metode tidak diizinkan."
+        }, status=405)
+
+    # Menonaktifkan review tanpa menghapus dari database
+    review.active = False
+    review.save(update_fields=["active"])
+
+    return JsonResponse({
+        "success": True,
+        "message": "Review berhasil dihapus!"
+    })
+
+
+

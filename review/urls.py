@@ -19,7 +19,14 @@ urlpatterns = [
         views.list_reviews,
         name="list_reviews"
     ),
-    
+
     path("update/<int:review_id>/", views.update_review, name="update_review"),
+
+    # URL untuk menghapus review menggunakan soft delete
+    path(
+        "delete/<int:review_id>/",
+        views.delete_review,
+        name="delete_review"
+    ),
 
 ]
