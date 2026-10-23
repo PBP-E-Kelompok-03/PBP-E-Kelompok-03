@@ -1,40 +1,47 @@
 :root {
-  --color-primary: #4b5563;
-  --color-primary-dark: #374151;
-  --color-accent: #6b7280;
-  --color-bg: #ffffff;
-  --color-surface: #f9fafb;
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
-  --color-danger: #dc2626;
-  --color-success: #16a34a;
-  --color-warning: #d97706;
+  --color-forest: #18310C;
+  --color-primary-dark: #18310C;
+  --color-primary: #38761D;
+  --color-accent: #A7D18B;
+  --color-accent-light: #EAF4E4;
+  --color-orange: #F19C34;
+  --color-orange-dark: #8A4D00;
+  --color-orange-tint: #FBEBD3;
+  --color-bg-light: #F6F6F2;
+  --color-bg: #F6F6F2;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #EFEFEA;
+  --color-text: #18310C;
+  --color-text-muted: #3D4B34;
+  --color-text-on-dark: #FFFFFF;
+  --color-border: #E8E8E8;
+  --color-danger: #B42318;
+  --color-danger-tint: #FEE4E2;
+  --color-success: #38761D;
+  --color-warning: #F19C34;
 
-  --font-base: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-base: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-alt: 'Inter', system-ui, -apple-system, sans-serif;
   --font-size-base: 16px;
   --font-size-sm: 14px;
   --font-size-lg: 20px;
   --font-size-xl: 28px;
+  --font-size-2xl: 40px;
+  --font-size-display: 56px;
 
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 40px;
+  --space-2xl: 64px;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
 
-  --focus-ring: 0 0 0 3px rgba(75, 85, 99, 0.4);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #111827;
-    --color-surface: #1f2937;
-    --color-text: #f9fafb;
-    --color-text-muted: #9ca3af;
-    --color-border: #374151;
-  }
+  --shadow-card: 0px 8px 24px rgba(24, 49, 12, 0.1), 0px 2px 4px rgba(24, 49, 12, 0.08);
+  --shadow-hero-text: 0px 4px 20px rgba(0, 0, 0, 0.35);
+  --focus-ring: 0 0 0 3px rgba(56, 118, 29, 0.4);
 }

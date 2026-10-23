@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Restoran Saya — Dibuang Sayang{% endblock %}
+
+{% block nav_links %}
+  <li><a href="{% url 'food:list' %}">Browse Food</a></li>
+  <li><a href="{% url 'food:my_restaurants' %}">Restoran Saya</a></li>
+  <li><a href="{% url 'order:history' %}">Riwayat Pesanan</a></li>
+  <li><span>Halo, {{ user.username }}</span></li>
+  <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+  <div>
+    <h1 style="margin: 0;">🏪 Restoran Mitra Saya</h1>
+    <p style="margin: 4px 0 0 0; color: var(--color-text-muted);">Kelola restoran dan paket Surprise Box yang kamu sediakan.</p>
+  </div>
+  <a href="{% url 'food:create_restaurant' %}" class="btn">+ Tambah Restoran Baru</a>
+</div>
+
+{% if restaurants %}
+  <div style="display: flex; flex-direction: column; gap: var(--space-lg);">
+    {% for rest in restaurants %}
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h2 style="margin: 0 0 4px 0;"><a href="{% url 'food:restaurant_detail' rest.id %}" style="text-decoration: none; color: inherit;">{{ rest.nama }}</a></h2>
+            <p style="margin: 0; color: var(--color-text-muted);">📍 {{ rest.alamat }} | 🕒 {{ rest.jam_buka }} – {{ rest.jam_tutup }}</p>
+          </div>
+          <div style="display: flex; gap: var(--space-sm);">
+            <a href="{% url 'food:restaurant_detail' rest.id %}" class="btn btn--outline" style="font-size: var(--font-size-sm);">Lihat Halaman</a>
+            <a href="{% url 'food:edit_restaurant' rest.id %}" class="btn btn--outline" style="font-size: var(--font-size-sm);">Edit Info</a>
+            <a href="{% url 'food:create_surprise_box' rest.id %}" class="btn" style="font-size: var(--font-size-sm);">+ Tambah Paket</a>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--color-border);">
+          <h4 style="margin: 0 0 var(--space-sm) 0;">Paket Surprise Box Aktif ({{ rest.surprise_boxes.all|length }})</h4>
+          {% if rest.surprise_boxes.all %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-md);">
+              {% for box in rest.surprise_boxes.all %}
+                {% if box.is_active %}
+                  <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-sm);">
+                    <div style="font-weight: 600;">{{ box.nama_paket }}</div>
+                    <div style="font-size: var(--font-size-sm); color: var(--color-success); font-weight: 700;">
+                      Rp {{ box.harga_diskon }} <span style="text-decoration: line-through; color: var(--color-text-muted); font-weight: 400;">Rp {{ box.harga_normal }}</span>
+                    </div>
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin: 4px 0;">Stok: {{ box.stok }}</div>
+                    <div style="display: flex; gap: var(--space-xs); margin-top: var(--space-xs);">
+                      <a href="{% url 'food:edit_surprise_box' box.id %}" class="btn btn--outline" style="padding: 2px 8px; font-size: 12px;">Edit</a>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">Belum ada paket.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="text-align: center; padding: var(--space-xl);">
+    <h3>Kamu belum mendaftarkan restoran mitra.</h3>
+    <p style="color: var(--color-text-muted); margin-bottom: var(--space-md);">Mulai tawarkan surplus makanan dari tokomu untuk mengurangi food waste.</p>
+    <a href="{% url 'food:create_restaurant' %}" class="btn">+ Daftarkan Restoran Pertamamu</a>
+  </div>
+{% endif %}
+{% endblock %}

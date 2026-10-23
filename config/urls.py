@@ -18,15 +18,23 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import RedirectView
+
+from . import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("food/", include("food.urls")),
+    path("map/", include("map.urls")),
     path("order/", include("order.urls")),
+
+    # URL untuk fitur Review 
     path("review/", include("review.urls")),
-    path("", RedirectView.as_view(pattern_name="food:list", permanent=False)),
+
+    # Halaman utama terbaru 
+    path("", views.landing_page, name="landing"),
+
+   
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Peta Restoran | Dibuang Sayang{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="{% static 'map/map.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="restaurant-map">
+  <h1>Restoran di sekitarmu</h1>
+  <p>Temukan makanan hemat dari mitra Dibuang Sayang.</p>
+  <div class="map-controls">
+    <button type="button" id="locate-user" class="btn btn--primary" disabled>Gunakan lokasi saya</button>
+    <label for="radius-filter">Radius dari lokasi saya</label>
+    <select id="radius-filter" aria-describedby="location-status" disabled>
+      <option value="all">Semua restoran</option>
+      <option value="1">1 km</option>
+      <option value="3">3 km</option>
+      <option value="5">5 km</option>
+    </select>
+  </div>
+  <p id="location-status" role="status">Semua restoran ditampilkan. Gunakan lokasi saya untuk mengaktifkan filter radius.</p>
+  <p>Jarak dihitung sebagai garis lurus, bukan jarak perjalanan.</p>
+  <p id="map-status" role="status"></p>
+  <div id="restaurant-map" aria-label="Peta lokasi restoran"></div>
+  <noscript><p>Aktifkan JavaScript untuk peta interaktif. Daftar restoran tetap tersedia di bawah.</p></noscript>
+  {{ restaurants|json_script:"restaurant-data" }}
+  <h2>Daftar restoran</h2>
+  <p id="restaurant-count" role="status">{{ restaurants|length }} restoran ditampilkan.</p>
+  <ul id="restaurant-list" class="map-restaurants">
+    {% for restaurant in restaurants %}
+    <li>
+      <h3><a href="{{ restaurant.detail_url }}">{{ restaurant.nama }}</a></h3>
+      <p>{{ restaurant.alamat }}</p>
+      <p>Jam buka: {{ restaurant.jam_buka|default:"Belum tersedia" }} – {{ restaurant.jam_tutup|default:"Belum tersedia" }}</p>
+    </li>
+    {% empty %}
+    <li>Belum ada restoran dengan koordinat yang valid.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+<script src="{% static 'map/map.js' %}" defer></script>
+{% endblock %}

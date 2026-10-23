@@ -1,9 +1,48 @@
 {% extends "base.html" %}
+{% block title %}Daftar, Dibuang Sayang{% endblock %}
 {% block content %}
-  <h1>Daftar</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn">Daftar</button>
-  </form>
+  <div class="ds-auth">
+    <aside class="ds-auth__brand">
+      <div class="ds-stack">
+        <p class="ds-overline">Gabung jadi Food Hero</p>
+        <h2 class="ds-h2 ds-text-inverse">Satu box, satu makanan terselamatkan</h2>
+      </div>
+      <ul class="ds-auth__points">
+        <li>Daftar gratis, tanpa biaya langganan</li>
+        <li>Pilih peran sebagai pembeli atau mitra gerai</li>
+        <li>Pantau voucher dan riwayat pesanan</li>
+      </ul>
+    </aside>
+
+    <section class="ds-auth__form">
+      <div class="ds-stack" style="gap: 4px">
+        <h1 class="ds-h3">Buat akun baru</h1>
+        <p class="ds-text-secondary">Daftar gratis dan mulai selamatkan makanan di sekitarmu.</p>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="ds-alert ds-alert--error" role="alert">{{ form.non_field_errors|join:" " }}</div>
+      {% elif form.errors %}
+        <div class="ds-alert ds-alert--error" role="alert">Periksa kembali data yang diisi.</div>
+      {% endif %}
+
+      <form method="post" class="ds-stack ds-stack--lg" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="ds-field{% if field.errors %} ds-field--error{% endif %}">
+            <label class="ds-field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}<span class="ds-field__hint">{{ error }}</span>{% endfor %}
+            {% if field.help_text and not field.errors %}<div class="ds-field__hint">{{ field.help_text|safe }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="ds-btn ds-btn--primary ds-btn--block">Buat akun</button>
+      </form>
+
+      <p class="ds-row" style="justify-content: center; gap: 6px">
+        <span class="ds-text-secondary">Sudah punya akun?</span>
+        <a class="ds-link" href="{% url 'accounts:login' %}">Masuk</a>
+      </p>
+    </section>
+  </div>
 {% endblock %}

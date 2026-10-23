@@ -36,7 +36,8 @@ jobs:
 
           # Suppress remote output so credentials cannot appear in logs.
           # --force karena PWS master cuma jadi target deploy (snapshot terbaru)
-          if ! git push --force "$PWS_URL" main:master >/dev/null 2>&1; then
-            echo "::error::Push to PWS failed. Check PWS_URL, PWS availability, and branch history."
+          if ! out=$(git push --force "$PWS_URL" main:master 2>&1); then
+            echo "${out//$PWS_URL/***}"
+            echo "::error::Push to PWS failed."
             exit 1
           fi

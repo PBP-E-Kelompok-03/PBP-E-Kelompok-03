@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Akses Ditolak, Dibuang Sayang{% endblock %}
 {% block content %}
-  <div class="card">
-    <h1>403, Akses Ditolak</h1>
+  <div class="ds-empty">
+    <p class="ds-overline ds-text-error">Error 403</p>
+    <h1 class="ds-h2">Akses ditolak</h1>
     <p>Kamu tidak punya izin untuk mengakses atau mengubah data ini.</p>
+    <a class="ds-btn ds-btn--primary" href="/">Kembali ke beranda</a>
   </div>
 {% endblock %}

@@ -1,29 +1,132 @@
 {% extends "base.html" %}
-{% block title %}Konfirmasi Pesanan, Dibuang Sayang{% endblock %}
+{% load l10n %}
+{% block title %}Voucher Pesanan, Dibuang Sayang{% endblock %}
 {% block content %}
-  <div class="card">
-    <p><span class="badge badge--{{ order.status }}">{{ order.get_status_display }}</span></p>
-    <h1>Pesanan Berhasil Dibuat</h1>
-
-    <p class="voucher-code">{{ order.kode_pickup }}</p>
-
-    {% if box %}
-      <p><strong>Paket:</strong> {{ box.nama_paket }}</p>
-      <p><strong>Jam Pickup:</strong> {{ box.pickup_start }} - {{ box.pickup_end }}</p>
-    {% endif %}
-    {% if restaurant %}
-      <p><strong>Restoran:</strong> {{ restaurant.nama }}</p>
-      <p><strong>Alamat Pengambilan:</strong> {{ restaurant.alamat }}</p>
-      <p>
-        <a class="btn btn--outline"
-           href="https://www.openstreetmap.org/?mlat={{ restaurant.lat }}&mlon={{ restaurant.lng }}#map=18/{{ restaurant.lat }}/{{ restaurant.lng }}"
-           target="_blank" rel="noopener">
-          Buka Peta / Navigasi
-        </a>
-      </p>
-    {% endif %}
-    <p><strong>Jumlah:</strong> {{ order.jumlah }}</p>
-
-    <p>Tunjukkan kode pickup di atas ke staf gerai saat mengambil pesanan.</p>
+  <div class="ds-page-head" style="align-items: center; text-align: center">
+    <h1 class="ds-h1">{% if order.status == "cancelled" %}Pesanan dibatalkan{% elif order.status == "completed" %}Pesanan selesai{% elif order.status == "expired" %}Pesanan kedaluwarsa{% else %}Reservasi berhasil{% endif %}</h1>
+    <p class="ds-text-secondary">Tunjukkan voucher ini ke kasir saat mengambil pesanan.</p>
   </div>
+
+  <div class="ds-grid ds-grid--2" style="max-width: 960px; margin-inline: auto">
+    <section class="ds-voucher">
+      <div class="ds-voucher__head">
+        <div>
+          <p class="ds-overline">Batas pengambilan</p>
+          {% if box %}<p class="ds-h4">Sebelum {{ box.pickup_end|time:"H:i" }} WIB</p>{% endif %}
+        </div>
+        {% if order.status == "pending" or order.status == "confirmed" %}
+          <span class="ds-timer ds-hidden" id="pickup-timer" data-end="{{ box.pickup_end|date:'c' }}" role="timer">Sisa <span id="pickup-left"></span></span>
+        {% endif %}
+      </div>
+      <div class="ds-voucher__body">
+        {% if order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu pengambilan</span>
+        {% elif order.status == "confirmed" %}<span class="ds-badge ds-badge--hemat">Siap diambil</span>
+        {% elif order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>
+        {% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
+        <div>
+          <p class="ds-overline ds-text-secondary">Kode reservasi</p>
+          <p class="ds-voucher__code voucher-code" style="letter-spacing: -0.5px">{{ order.kode_pickup }}</p>
+        </div>
+        <div class="ds-voucher__qr" id="qr" data-code="{{ order.kode_pickup }}" aria-label="QR code {{ order.kode_pickup }}"></div>
+        <p class="ds-caption ds-text-secondary">Kasir akan memindai QR atau memasukkan kode di atas.</p>
+        <div class="ds-voucher__summary">
+          <div>
+            {% if box %}<p class="ds-label">{{ order.jumlah }}× {{ box.nama_paket }}</p>{% endif %}
+            <p class="ds-caption ds-text-secondary">Bayar tunai di gerai</p>
+          </div>
+          {% if box %}<p class="ds-h4 ds-price" id="total" data-unit="{{ box.harga_diskon|unlocalize }}" data-qty="{{ order.jumlah }}"></p>{% endif %}
+        </div>
+      </div>
+    </section>
+
+    <div class="ds-stack ds-stack--lg">
+      <section class="ds-card">
+        <h2 class="ds-h4">Lokasi pengambilan</h2>
+        {% if restaurant %}
+          <div>
+            <p class="ds-label">{{ restaurant.nama }}</p>
+            <p class="ds-caption ds-text-secondary">{{ restaurant.alamat }}</p>
+          </div>
+          <a class="ds-btn ds-btn--secondary ds-btn--block"
+             href="https://www.openstreetmap.org/?mlat={{ restaurant.lat|unlocalize }}&mlon={{ restaurant.lng|unlocalize }}#map=18/{{ restaurant.lat|unlocalize }}/{{ restaurant.lng|unlocalize }}"
+             target="_blank" rel="noopener">Buka peta / navigasi</a>
+        {% endif %}
+        {% if box %}<p class="ds-pickup-window">Jendela pickup: {{ box.pickup_start|time:"H:i" }} – {{ box.pickup_end|time:"H:i" }} WIB</p>{% endif %}
+      </section>
+
+      <section class="ds-card">
+        <h2 class="ds-h4">Cara mengambil pesanan</h2>
+        <ol class="ds-steps">
+          <li>Datang ke gerai dalam jendela pickup.</li>
+          <li>Tunjukkan QR atau sebutkan kode {{ order.kode_pickup }} ke kasir.</li>
+          <li>Kasir memverifikasi, kamu terima box dan bayar tunai.</li>
+        </ol>
+        <div class="ds-alert ds-alert--warning">Bawa wadah atau tas belanja sendiri.</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="ds-row" style="max-width: 960px; margin: var(--ds-space-6) auto 0; gap: 12px; flex-wrap: wrap">
+    {% if order.status == "pending" or order.status == "confirmed" %}
+      <button type="button" class="ds-btn ds-btn--secondary" id="cancel-btn" style="flex: 1">Batalkan pesanan</button>
+    {% endif %}
+    <a class="ds-btn ds-btn--primary" style="flex: 1" href="{% url 'order:history' %}">Lihat riwayat pesanan</a>
+  </div>
+  <div id="cancel-error" class="ds-alert ds-alert--error ds-hidden" role="alert" style="max-width: 960px; margin: var(--ds-space-4) auto 0"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  const rupiah = (n) => "Rp" + Math.round(Number(n) || 0).toLocaleString("id-ID");
+
+  const qrEl = document.getElementById("qr");
+  if (window.QRCode && qrEl) {
+    new QRCode(qrEl, { text: qrEl.dataset.code, width: 216, height: 216, colorDark: "#18310C", colorLight: "#FFFFFF" });
+  }
+
+  const total = document.getElementById("total");
+  if (total) total.textContent = rupiah((parseFloat(total.dataset.unit) || 0) * (parseInt(total.dataset.qty, 10) || 1));
+
+  const timer = document.getElementById("pickup-timer");
+  if (timer) {
+    const end = new Date(timer.dataset.end || "");
+    if (!isNaN(end)) {
+      const left = document.getElementById("pickup-left");
+      const tick = () => {
+        const diff = Math.floor((end - new Date()) / 1000);
+        if (diff <= 0) { left.textContent = "habis"; timer.classList.add("ds-timer--urgent"); return false; }
+        const h = Math.floor(diff / 3600), mnt = Math.floor((diff % 3600) / 60), s = diff % 60;
+        left.textContent = [h, mnt, s].map((v) => String(v).padStart(2, "0")).join(":");
+        timer.classList.toggle("ds-timer--urgent", diff < 900);
+        return true;
+      };
+      timer.classList.remove("ds-hidden");
+      if (tick()) { const id = setInterval(() => { if (!tick()) clearInterval(id); }, 1000); }
+    }
+  }
+
+  const cancelBtn = document.getElementById("cancel-btn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", async () => {
+      const errorBox = document.getElementById("cancel-error");
+      cancelBtn.disabled = true;
+      try {
+        const response = await fetch("{% url 'order:cancel' order.id %}", {
+          method: "POST",
+          headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        });
+        if (response.ok) { location.reload(); return; }
+        const data = await response.json().catch(() => ({}));
+        errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
+      } catch (e) {
+        errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
+      }
+      errorBox.classList.remove("ds-hidden");
+      cancelBtn.disabled = false;
+    });
+  }
+})();
+</script>
 {% endblock %}

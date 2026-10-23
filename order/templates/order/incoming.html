@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Pesanan Masuk, Dibuang Sayang{% endblock %}
+{% block content %}
+  <div class="ds-page-head">
+    <h1 class="ds-h1">Pesanan Masuk</h1>
+    <p class="ds-text-secondary">Cocokkan kode pickup dari pembeli, lalu tandai selesai saat box diserahkan.</p>
+  </div>
+
+  <div class="ds-field" style="max-width: 360px; margin-bottom: var(--ds-space-4)">
+    <label for="kode-filter">Cari kode pickup</label>
+    <input type="text" id="kode-filter" placeholder="Contoh: DEMO0001" autocomplete="off">
+  </div>
+
+  <div id="complete-error" class="ds-alert ds-alert--error ds-hidden" role="alert" style="margin-bottom: var(--ds-space-4)"></div>
+
+  <h2 class="ds-h3" style="margin-bottom: var(--ds-space-3)">Menunggu pengambilan ({{ active_orders|length }})</h2>
+  <div class="ds-stack" id="incoming-list">
+    {% for order in active_orders %}
+      <article class="ds-order" data-kode="{{ order.kode_pickup }}">
+        <div class="ds-order__main">
+          <div class="ds-order__info">
+            <span class="ds-badge ds-badge--warning">{{ order.get_status_display }}</span>
+            <h3 class="ds-h4">{{ order.surprise_box.nama_paket }} × {{ order.jumlah }}</h3>
+            <p class="ds-label ds-caption">Kode {{ order.kode_pickup }} · {{ order.pembeli.username }}</p>
+            <p class="ds-caption ds-text-secondary">{{ order.surprise_box.restaurant.nama }} · dibuat {{ order.dibuat_pada|date:"d M, H:i" }}</p>
+          </div>
+        </div>
+        <div class="ds-order__actions">
+          <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-complete-order="{{ order.id }}">Selesaikan</button>
+        </div>
+      </article>
+    {% empty %}
+      <div class="ds-empty"><p class="ds-h4">Belum ada pesanan aktif</p></div>
+    {% endfor %}
+  </div>
+
+  {% if done_orders %}
+    <h2 class="ds-h3" style="margin: var(--ds-space-8) 0 var(--ds-space-3)">Riwayat ({{ done_orders|length }})</h2>
+    <div class="ds-stack">
+      {% for order in done_orders %}
+        <article class="ds-order" data-kode="{{ order.kode_pickup }}">
+          <div class="ds-order__main">
+            <div class="ds-order__info">
+              {% if order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>{% elif order.status == "expired" %}<span class="ds-badge ds-badge--neutral">Kedaluwarsa</span>{% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
+              <h3 class="ds-h4">{{ order.surprise_box.nama_paket|default:"Paket tidak tersedia" }} × {{ order.jumlah }}</h3>
+              <p class="ds-label ds-caption">Kode {{ order.kode_pickup }} · {{ order.pembeli.username }}</p>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const cards = Array.from(document.querySelectorAll("[data-kode]"));
+  const filter = document.getElementById("kode-filter");
+  filter.addEventListener("input", () => {
+    const q = filter.value.trim().toUpperCase();
+    cards.forEach((c) => c.classList.toggle("ds-hidden", q !== "" && !c.dataset.kode.includes(q)));
+  });
+
+  const errorBox = document.getElementById("complete-error");
+  document.querySelectorAll("[data-complete-order]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      errorBox.classList.add("ds-hidden");
+      try {
+        const response = await fetch(`/order/${btn.dataset.completeOrder}/complete/`, {
+          method: "POST",
+          headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        });
+        if (response.ok) { location.reload(); return; }
+        const data = await response.json().catch(() => ({}));
+        errorBox.textContent = data.error || "Pesanan gagal diselesaikan.";
+      } catch (e) {
+        errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
+      }
+      errorBox.classList.remove("ds-hidden");
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+{% endblock %}
