@@ -1,9 +1,10 @@
 import datetime
+import time
 import uuid
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -12,6 +13,7 @@ from django.views.decorators.http import require_POST
 
 from food.models import SurpriseBox
 
+from .decorators import owner_required, seller_required
 from .models import Order
 
 ACTIVE = (Order.Status.PENDING, Order.Status.CONFIRMED)
@@ -43,18 +45,6 @@ def _within_pickup_window(box, now=None):
     return True
 
 
-def _require_owner(order, user):
-    if order.pembeli_id != user.id:
-        raise PermissionDenied("Kamu tidak berhak mengakses pesanan ini.")
-
-
-def _require_seller(order, user):
-    box = order.surprise_box
-    owner_id = box.restaurant.owner_id if box else None
-    if not (user.is_staff or (owner_id and owner_id == user.id)):
-        raise PermissionDenied("Hanya pemilik restoran yang boleh menyelesaikan pesanan.")
-
-
 def _available_boxes():
     return SurpriseBox.objects.select_related("restaurant").filter(is_active=True, restaurant__is_active=True)
 
@@ -83,28 +73,36 @@ def create_order(request, box_id):
     if jumlah > MAX_PER_ORDER:
         return JsonResponse({"error": f"Maksimal {MAX_PER_ORDER} box per pesanan."}, status=400)
 
-    try:
-        with transaction.atomic():
-            box = _available_boxes().filter(pk=box_id).first()
-            if not box:
-                raise OrderError("Surprise box tidak ditemukan.", 404)
+    attempts_left = 5
+    while True:
+        try:
+            with transaction.atomic():
+                box = _available_boxes().filter(pk=box_id).first()
+                if not box:
+                    raise OrderError("Surprise box tidak ditemukan.", 404)
 
-            if not _within_pickup_window(box):
-                raise OrderError("Di luar jendela pickup.")
+                if not _within_pickup_window(box):
+                    raise OrderError("Di luar jendela pickup.")
 
-            expire_stale_orders(Order.objects.filter(pembeli=request.user, surprise_box=box))
-            if Order.objects.filter(pembeli=request.user, surprise_box=box, status__in=ACTIVE).exists():
-                raise OrderError("Kamu sudah punya pesanan aktif untuk paket ini.", 409)
+                expire_stale_orders(Order.objects.filter(pembeli=request.user, surprise_box=box))
+                if Order.objects.filter(pembeli=request.user, surprise_box=box, status__in=ACTIVE).exists():
+                    raise OrderError("Kamu sudah punya pesanan aktif untuk paket ini.", 409)
 
-            reserved = SurpriseBox.objects.filter(pk=box.pk, stok__gte=jumlah).update(stok=F("stok") - jumlah)
-            if not reserved:
-                raise OrderError("Stok tidak cukup.")
+                reserved = SurpriseBox.objects.filter(pk=box.pk, stok__gte=jumlah).update(stok=F("stok") - jumlah)
+                if not reserved:
+                    raise OrderError("Stok tidak cukup.")
 
-            order = _new_order(pembeli=request.user, surprise_box=box, jumlah=jumlah)
-    except OrderError as exc:
-        return JsonResponse({"error": exc.message}, status=exc.status)
-    except IntegrityError:
-        return JsonResponse({"error": "Kamu sudah punya pesanan aktif untuk paket ini."}, status=409)
+                order = _new_order(pembeli=request.user, surprise_box=box, jumlah=jumlah)
+            break
+        except OrderError as exc:
+            return JsonResponse({"error": exc.message}, status=exc.status)
+        except IntegrityError:
+            return JsonResponse({"error": "Kamu sudah punya pesanan aktif untuk paket ini."}, status=409)
+        except OperationalError:
+            attempts_left -= 1
+            if attempts_left <= 0:
+                raise
+            time.sleep(0.05)
 
     return JsonResponse(
         {
@@ -145,11 +143,11 @@ def order_history(request):
 
 @login_required
 @require_POST
+@owner_required
 def cancel_order(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     with transaction.atomic():
         order = get_object_or_404(Order, id=order_id)
-        _require_owner(order, request.user)
 
         changed = Order.objects.filter(pk=order.pk, status__in=ACTIVE).update(status=Order.Status.CANCELLED)
         if not changed:
@@ -163,10 +161,10 @@ def cancel_order(request, order_id):
 
 @login_required
 @require_POST
+@seller_required
 def complete_order(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order.objects.select_related("surprise_box__restaurant"), id=order_id)
-    _require_seller(order, request.user)
 
     changed = Order.objects.filter(pk=order.pk, status__in=ACTIVE).update(status=Order.Status.COMPLETED)
     if not changed:
@@ -176,10 +174,10 @@ def complete_order(request, order_id):
 
 
 @login_required
+@owner_required
 def order_confirmation(request, order_id):
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order.objects.select_related("surprise_box__restaurant"), id=order_id)
-    _require_owner(order, request.user)
 
     box = order.surprise_box
     restaurant = box.restaurant if box else None
