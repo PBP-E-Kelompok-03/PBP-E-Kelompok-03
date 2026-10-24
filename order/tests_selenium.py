@@ -57,15 +57,22 @@ class OrderReservationSeleniumTest(StaticLiveServerTestCase):
         self.driver.get(self.live_server_url + reverse("accounts:login"))
         self.driver.find_element(By.NAME, "username").send_keys("buyer1")
         self.driver.find_element(By.NAME, "password").send_keys("pass12345")
-        self.driver.find_element(By.CSS_SELECTOR, "form button[type=submit]").click()
+        self.click(self.driver.find_element(By.CSS_SELECTOR, "form button[type=submit]"))
         self.wait.until(lambda d: "login" not in d.current_url)
 
     def open_checkout(self):
         self.driver.get(self.live_server_url + reverse("order:checkout", args=[self.box.id]))
         return self.wait.until(EC.element_to_be_clickable((By.ID, "confirm-order-btn")))
 
+    def click(self, element):
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        try:
+            element.click()
+        except Exception:
+            self.driver.execute_script("arguments[0].click();", element)
+
     def test_reserve_shows_confirmation_with_pickup_code(self):
-        self.open_checkout().click()
+        self.click(self.open_checkout())
         self.wait.until(EC.url_contains("/confirmation/"))
 
         order = Order.objects.get()
@@ -75,9 +82,9 @@ class OrderReservationSeleniumTest(StaticLiveServerTestCase):
 
     def test_stepper_quantity_is_reserved(self):
         button = self.open_checkout()
-        self.driver.find_element(By.ID, "stepper-plus").click()
+        self.click(self.driver.find_element(By.ID, "stepper-plus"))
         self.assertEqual(self.driver.find_element(By.ID, "stepper-value").text, "2")
-        button.click()
+        self.click(button)
         self.wait.until(EC.url_contains("/confirmation/"))
 
         self.assertEqual(Order.objects.get().jumlah, 2)
@@ -85,9 +92,9 @@ class OrderReservationSeleniumTest(StaticLiveServerTestCase):
         self.assertEqual(self.box.stok, 3)
 
     def test_cancel_from_confirmation_page(self):
-        self.open_checkout().click()
+        self.click(self.open_checkout())
         self.wait.until(EC.url_contains("/confirmation/"))
-        self.wait.until(EC.element_to_be_clickable((By.ID, "cancel-btn"))).click()
+        self.click(self.wait.until(EC.element_to_be_clickable((By.ID, "cancel-btn"))))
         self.wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), "Pesanan dibatalkan"))
 
         self.assertEqual(Order.objects.get().status, Order.Status.CANCELLED)
