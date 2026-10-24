@@ -1,14 +1,19 @@
 import datetime
+import threading
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.db import connection
+from django.db.backends.signals import connection_created
+from django.test import Client
 
 from accounts.models import User
 from food.models import Restaurant, SurpriseBox
 
 from .models import Order
 from .views import MAX_PER_ORDER, expire_stale_orders
+
 
 
 def make_box(owner=None, stok=5, start_offset=-1, end_offset=2, **extra):
@@ -374,3 +379,48 @@ class OrderExpiryTest(BaseOrderTest):
         out = StringIO()
         call_command("expire_orders", stdout=out)
         self.assertIn("1 pesanan", out.getvalue())
+
+def _set_sqlite_busy_timeout(sender, connection, **kwargs):
+    if connection.vendor == "sqlite":
+        connection.cursor().execute("PRAGMA busy_timeout = 20000")
+
+
+class OrderStockRaceConditionTest(TransactionTestCase):
+    def setUp(self):
+        connection_created.connect(_set_sqlite_busy_timeout)
+        self.addCleanup(connection_created.disconnect, _set_sqlite_busy_timeout)
+
+        self.seller = User.objects.create_user(username="seller1", password="pass12345", role=User.Role.PARTNER)
+        self.box = make_box(owner=self.seller, stok=1)
+        self.url = reverse("order:create", args=[self.box.id])
+        self.clients = []
+        for name in ("buyer1", "buyer2"):
+            User.objects.create_user(username=name, password="pass12345")
+            client = Client()
+            client.login(username=name, password="pass12345")
+            self.clients.append(client)
+
+    def test_last_unit_only_one_request_succeeds(self):
+        barrier = threading.Barrier(2)
+        statuses = []
+        errors = []
+
+        def attempt(client):
+            try:
+                barrier.wait(timeout=5)
+                statuses.append(client.post(self.url, {"jumlah": 1}).status_code)
+            except Exception as exc:
+                errors.append(exc)
+            finally:
+                connection.close()
+
+        threads = [threading.Thread(target=attempt, args=(c,)) for c in self.clients]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        self.assertEqual(errors, [])
+        self.assertEqual(sorted(statuses), [201, 400])
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(SurpriseBox.objects.get(pk=self.box.pk).stok, 0)

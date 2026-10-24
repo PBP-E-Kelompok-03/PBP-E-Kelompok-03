@@ -1,9 +1,10 @@
 import datetime
+import time
 import uuid
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -72,28 +73,36 @@ def create_order(request, box_id):
     if jumlah > MAX_PER_ORDER:
         return JsonResponse({"error": f"Maksimal {MAX_PER_ORDER} box per pesanan."}, status=400)
 
-    try:
-        with transaction.atomic():
-            box = _available_boxes().filter(pk=box_id).first()
-            if not box:
-                raise OrderError("Surprise box tidak ditemukan.", 404)
+    attempts_left = 5
+    while True:
+        try:
+            with transaction.atomic():
+                box = _available_boxes().filter(pk=box_id).first()
+                if not box:
+                    raise OrderError("Surprise box tidak ditemukan.", 404)
 
-            if not _within_pickup_window(box):
-                raise OrderError("Di luar jendela pickup.")
+                if not _within_pickup_window(box):
+                    raise OrderError("Di luar jendela pickup.")
 
-            expire_stale_orders(Order.objects.filter(pembeli=request.user, surprise_box=box))
-            if Order.objects.filter(pembeli=request.user, surprise_box=box, status__in=ACTIVE).exists():
-                raise OrderError("Kamu sudah punya pesanan aktif untuk paket ini.", 409)
+                expire_stale_orders(Order.objects.filter(pembeli=request.user, surprise_box=box))
+                if Order.objects.filter(pembeli=request.user, surprise_box=box, status__in=ACTIVE).exists():
+                    raise OrderError("Kamu sudah punya pesanan aktif untuk paket ini.", 409)
 
-            reserved = SurpriseBox.objects.filter(pk=box.pk, stok__gte=jumlah).update(stok=F("stok") - jumlah)
-            if not reserved:
-                raise OrderError("Stok tidak cukup.")
+                reserved = SurpriseBox.objects.filter(pk=box.pk, stok__gte=jumlah).update(stok=F("stok") - jumlah)
+                if not reserved:
+                    raise OrderError("Stok tidak cukup.")
 
-            order = _new_order(pembeli=request.user, surprise_box=box, jumlah=jumlah)
-    except OrderError as exc:
-        return JsonResponse({"error": exc.message}, status=exc.status)
-    except IntegrityError:
-        return JsonResponse({"error": "Kamu sudah punya pesanan aktif untuk paket ini."}, status=409)
+                order = _new_order(pembeli=request.user, surprise_box=box, jumlah=jumlah)
+            break
+        except OrderError as exc:
+            return JsonResponse({"error": exc.message}, status=exc.status)
+        except IntegrityError:
+            return JsonResponse({"error": "Kamu sudah punya pesanan aktif untuk paket ini."}, status=409)
+        except OperationalError:
+            attempts_left -= 1
+            if attempts_left <= 0:
+                raise
+            time.sleep(0.05)
 
     return JsonResponse(
         {

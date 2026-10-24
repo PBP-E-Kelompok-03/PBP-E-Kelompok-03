@@ -1,9 +1,6 @@
 from decouple import config, Csv
 from .base import *
 
-# Default False (aman buat production). Bisa di-override sementara lewat env var
-# DEBUG=True di dashboard PWS kalau perlu lihat traceback error buat debugging --
-# jangan lupa balikin ke False/hapus env var-nya lagi habis selesai.
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
@@ -24,11 +21,6 @@ DATABASES = {
 
 MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware"] + MIDDLEWARE
 
-# WHITENOISE_USE_FINDERS=True bikin WhiteNoise serve langsung dari STATICFILES_DIRS,
-# gak perlu collectstatic/manifest sama sekali. Ini sengaja dipilih karena gak jelas
-# apakah step collectstatic di Procfile beneran dijalankan sama platform PWS -- tanpa
-# ini, {% static %} pakai ManifestStaticFilesStorage bakal error kalau manifest-nya
-# gak pernah ke-generate, dan itu bikin SEMUA halaman yang extend base.html jadi 500.
 WHITENOISE_USE_FINDERS = True
 
 STORAGES = {
@@ -37,9 +29,6 @@ STORAGES = {
     },
 }
 
-# PWS terminates HTTPS di reverse proxy dan forward ke app pakai HTTP biasa.
-# Tanpa baris ini, Django gak tau request aslinya udah HTTPS dan bikin redirect loop
-# tak berujung (SECURE_SSL_REDIRECT terus nganggep tiap request masih HTTP).
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
