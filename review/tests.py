@@ -15,6 +15,9 @@ from order.models import Order
 from . import views
 from .forms import ReviewForm
 
+import sys
+from unittest import skipUnless
+
 
 # ============================================================
 # BAGIAN 1 — UNIT TEST BACKEND REVIEW
@@ -655,8 +658,8 @@ class TestReviewBackend(SimpleTestCase):
 # BAGIAN 2 — SELENIUM SAFARI
 # ============================================================
 
+@skipUnless(sys.platform == "darwin", "Safari hanya tersedia di macOS")
 class TestReviewSelenium(StaticLiveServerTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
