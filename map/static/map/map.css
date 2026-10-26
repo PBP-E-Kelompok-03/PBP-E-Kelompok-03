@@ -4,6 +4,32 @@
 .map-controls :disabled { cursor: not-allowed; opacity: .65; }
 #restaurant-map { height: 55vh; min-height: 320px; max-height: 600px; width: 100%; border-radius: 12px; z-index: 0; }
 .map-restaurants { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 1rem; }
-.map-restaurants li { padding: 1rem; border: 1px solid var(--color-border); border-radius: 12px; overflow-wrap: anywhere; }
+.map-restaurants > li { padding: 1rem; border: 1px solid var(--color-border); border-radius: 12px; overflow-wrap: anywhere; }
 .map-restaurants h3 { margin-top: 0; }
 .map-restaurants button { margin-top: .5rem; }
+.map-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; padding: .75rem 0; list-style: none; }
+.map-legend li { display: flex; gap: .4rem; align-items: center; }
+.map-legend-dot { display: inline-grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; font-weight: 700; color: white; }
+.map-legend-dot--available, .restaurant-marker--available { background: #006c41; }
+.map-legend-dot--unavailable, .restaurant-marker--unavailable { background: #8a5700; }
+.map-legend-dot--sold_out, .restaurant-marker--sold_out { background: #626a70; }
+.restaurant-marker { border: 3px solid white; border-radius: 50%; color: white; box-shadow: 0 2px 6px #0006; text-align: center; line-height: 26px; font-size: 20px; font-weight: bold; }
+.restaurant-info { display: grid; gap: .55rem; overflow-wrap: anywhere; }
+.restaurant-info > p, .restaurant-info > h3 { margin: 0; }
+.restaurant-photo { margin: 0 0 .6rem; }
+.restaurant-photo img { display: block; width: 100%; height: 150px; object-fit: cover; border-radius: 8px; background: #edf4ef; }
+.restaurant-photo figcaption { font-size: .8rem; color: #626a70; margin-top: .25rem; }
+.restaurant-stock { font-weight: 600; }
+.restaurant-stock--available, .restaurant-price { color: #006c41; }
+.restaurant-stock--unavailable { color: #8a5700; }
+.restaurant-stock--sold_out { color: #626a70; }
+.restaurant-price { font-weight: 700; }
+.restaurant-detail-link { display: inline-block; text-align: center; margin-top: .4rem; }
+.leaflet-popup-content .restaurant-detail-link { color: white; }
+.restaurant-directions-link { display: block; text-align: center; margin-top: .4rem; }
+.leaflet-popup-content .restaurant-directions-link { color: var(--color-text); }
+.restaurant-photo-link { display: block; margin-top: .5rem; font-size: .9rem; }
+.map-photo-form { max-width: 640px; margin-inline: auto; }
+.map-photo-form h1, .map-photo-form form { margin-block: 1rem; }
+.map-photo-form input { width: 100%; box-sizing: border-box; padding: .75rem; margin-block: .5rem; }
+.map-photo-form .errorlist { color: #a32121; }

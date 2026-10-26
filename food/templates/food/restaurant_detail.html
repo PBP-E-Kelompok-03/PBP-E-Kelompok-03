@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}{{ restaurant.nama }} — Dibuang Sayang{% endblock %}
 
@@ -800,7 +800,7 @@
             <strong>4.9</strong> <span>128 ulasan</span>
           </div>
           <div class="pill-stock-hero">
-            {{ total_stock|default:"4" }} paket tersisa
+            {{ total_stock|default_if_none:0 }} paket tersisa
           </div>
         </div>
       </div>
@@ -854,8 +854,8 @@
             id="menuCard{{ box.id }}"
             data-id="{{ box.id }}"
             data-name="{{ box.nama_paket }}"
-            data-price-discount="{{ box.harga_diskon }}"
-            data-price-normal="{{ box.harga_normal }}"
+            data-price-discount="{{ box.harga_diskon|unlocalize }}"
+            data-price-normal="{{ box.harga_normal|unlocalize }}"
             data-stock="{{ box.stok }}"
           >
             <!-- Thumbnail Box -->
@@ -892,7 +892,7 @@
               <button
                 type="button"
                 class="btn-add-item"
-                onclick="selectBox({{ box.id }}, '{{ box.nama_paket|escapejs }}', {{ box.harga_diskon }}, {{ box.harga_normal }}, {{ box.stok }})"
+                onclick="selectBox({{ box.id }}, '{{ box.nama_paket|escapejs }}', {{ box.harga_diskon|unlocalize }}, {{ box.harga_normal|unlocalize }}, {{ box.stok }})"
               >
                 Pilih
               </button>
@@ -1151,8 +1151,8 @@
   let currentBox = {
     id: {% if first_box %}{{ first_box.id }}{% else %}null{% endif %},
     name: '{% if first_box %}{{ first_box.nama_paket|escapejs }}{% else %}Surprise Box{% endif %}',
-    discountPrice: {% if first_box %}{{ first_box.harga_diskon|default:35000 }}{% else %}35000{% endif %},
-    normalPrice: {% if first_box %}{{ first_box.harga_normal|default:100000 }}{% else %}100000{% endif %},
+    discountPrice: {% if first_box %}{{ first_box.harga_diskon|unlocalize }}{% else %}0{% endif %},
+    normalPrice: {% if first_box %}{{ first_box.harga_normal|unlocalize }}{% else %}0{% endif %},
     qty: 1
   };
 
