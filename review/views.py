@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
+from django.db import IntegrityError, transaction
 from django.db.models import Avg
 
 from order.models import Order
@@ -18,9 +19,9 @@ def create_review(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
     # Memastikan pesanan milik pengguna yang sedang login
-    if order.pembeli != request.user:
+    if order.pembeli_id != request.user.pk:
         raise PermissionDenied(
-            "Kamu tidak boleh mereview pesanan orang lain."
+            "Anda tidak dapat mereview pesanan orang lain."
         )
 
     # Review hanya boleh dibuat setelah pesanan selesai
@@ -28,33 +29,74 @@ def create_review(request, order_id):
         raise PermissionDenied(
             "Review hanya dapat diberikan setelah pesanan selesai."
         )
-
-    # Mencegah satu pesanan memiliki lebih dari satu review
-    if Review.objects.filter(order=order).exists():
+    
+    # Respons ketika pesanan sudah memiliki review
+    def sudah_review():
         return JsonResponse({
+            "success": False,
             "error": "Pesanan ini sudah memiliki review."
-        }, status=400)
+        }, status=409)
 
     # Memproses data review yang dikirim pengguna
     if request.method == "POST":
         form = ReviewForm(request.POST)
 
         # Menyimpan review jika data sudah valid
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.order = order
-            review.save()
-
+        if not form.is_valid():
             return JsonResponse({
-                "success": True,
-                "message": "Review berhasil dikirim!"
-            })
+                "success": False,
+                "errors": form.errors
+            }, status=400)
+        
+        try:
+            # Pengecekan dan penyimpanan dalam satu transaksi
+            with transaction.atomic():
 
-        # Mengembalikan pesan jika form tidak valid
+                # Mengunci Order selama transaksi,
+                # pada database yang mendukung row locking
+                order = get_object_or_404(
+                    Order.objects.select_for_update(),
+                    pk=order_id
+                )
+
+                # Periksa ulang kepemilikan pesanan
+                if order.pembeli_id != request.user.pk:
+                    raise PermissionDenied(
+                        "Kamu tidak boleh mereview pesanan orang lain."
+                    )
+
+                # Periksa ulang status pesanan
+                if order.status != Order.Status.COMPLETED:
+                    raise PermissionDenied(
+                        "Review hanya dapat diberikan setelah pesanan selesai."
+                    )
+
+                # Cek duplikasi setelah mendapatkan lock
+                if Review.objects.filter(order=order).exists():
+                    return sudah_review()
+
+                # Menyimpan review
+                review = form.save(commit=False)
+                review.order = order
+                review.save()
+
+        except IntegrityError:
+            # Menangani duplikasi akibat request bersamaan
+            if Review.objects.filter(order_id=order_id).exists():
+                return sudah_review()
+
+            # Error database lainnya  yang tetap diteruskan
+            raise
+
         return JsonResponse({
-            "success": False,
-            "errors": form.errors
-        }, status=400)
+            "success": True,
+            "message": "Review berhasil dikirim!"
+        })
+ 
+
+     # Mencegah membuka form untuk order yang sudah direview
+    if Review.objects.filter(order=order).exists():
+        return sudah_review()
 
     # Menampilkan form review ketika halaman dibuka
     form = ReviewForm()
@@ -214,7 +256,3 @@ def restaurant_reviews(request, restaurant_id):
         "jumlah_ulasan": jumlah_ulasan,
         "reviews": data_reviews
     })
-
-
-
-
