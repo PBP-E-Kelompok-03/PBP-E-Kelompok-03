@@ -11,11 +11,16 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from .api_client import FoodApiClient
 from .forms import RestaurantForm, SurpriseBoxForm
 from .models import Restaurant, SurpriseBox
 
 
 def _load_dummy_data():
+    """
+    Fallback helper untuk kebutuhan seeding atau backward-compatibility (e.g. map.views).
+    View di modul food sendiri sekarang 100% menggunakan model database (ORM).
+    """
     fixture_path = Path(settings.BASE_DIR) / "fixtures" / "dummy_data.json"
     if not fixture_path.exists():
         return {"restaurants": [], "surprise_boxes": []}
@@ -24,83 +29,44 @@ def _load_dummy_data():
 
 
 def food_list(request):
+    """
+    Katalog Surprise Box murni dari model database ORM (SurpriseBox dan Restaurant).
+    Mendukung pencarian nama paket atau nama restoran.
+    """
     query = request.GET.get("q", "").strip()
 
-    # Cek apakah database sudah ada data
-    if SurpriseBox.objects.filter(is_active=True).exists():
-        boxes_qs = SurpriseBox.objects.filter(
-            is_active=True,
-            restaurant__is_active=True,
-        ).select_related("restaurant")
+    boxes_qs = SurpriseBox.objects.filter(
+        is_active=True,
+        restaurant__is_active=True,
+    ).select_related("restaurant")
 
-        if query:
-            boxes_qs = boxes_qs.filter(
-                Q(nama_paket__icontains=query) | Q(restaurant__nama__icontains=query)
-            )
+    if query:
+        boxes_qs = boxes_qs.filter(
+            Q(nama_paket__icontains=query) | Q(restaurant__nama__icontains=query)
+        )
 
-        surprise_boxes = list(boxes_qs)
-        total_restaurants = Restaurant.objects.filter(is_active=True).count()
-        is_from_db = True
-    else:
-        # Fallback dummy data jika belum migrate/seed
-        data = _load_dummy_data()
-        restaurants_by_id = {
-            r["id"]: r for r in data.get("restaurants", []) if r.get("is_active", True)
-        }
-        surprise_boxes = []
-        for box in data.get("surprise_boxes", []):
-            if not box.get("is_active", True):
-                continue
-            rest = restaurants_by_id.get(box.get("restaurant_id"))
-            if not rest:
-                continue
-            if query and query.lower() not in box["nama_paket"].lower() and query.lower() not in rest["nama"].lower():
-                continue
-            normal = box.get("harga_normal", 0)
-            diskon = box.get("harga_diskon", 0)
-            diskon_persen = round((normal - diskon) / normal * 100) if normal > 0 else 0
-            surprise_boxes.append({
-                **box,
-                "restaurant": rest,
-                "diskon_persen": diskon_persen,
-            })
-        total_restaurants = len(restaurants_by_id)
-        is_from_db = False
-
-    total_stock = sum(getattr(b, "stok", 0) if hasattr(b, "stok") else b.get("stok", 0) for b in surprise_boxes)
+    surprise_boxes = list(boxes_qs)
+    total_restaurants = Restaurant.objects.filter(is_active=True).count()
+    total_stock = sum(b.stok for b in surprise_boxes)
 
     context = {
         "surprise_boxes": surprise_boxes,
         "total_restaurants": total_restaurants,
         "total_stock": total_stock,
         "query": query,
-        "is_from_db": is_from_db,
+        "is_from_db": True,
     }
     return render(request, "food/food_list.html", context)
 
 
 def restaurant_detail(request, restaurant_id):
-    if Restaurant.objects.filter(id=restaurant_id, is_active=True).exists():
-        restaurant = get_object_or_404(Restaurant, id=restaurant_id, is_active=True)
-        boxes = restaurant.surprise_boxes.filter(is_active=True)
-        first_box = boxes.first()
-        total_stock = sum(b.stok for b in boxes)
-    else:
-        data = _load_dummy_data()
-        rest_dict = next((r for r in data.get("restaurants", []) if r["id"] == restaurant_id and r.get("is_active", True)), None)
-        if not rest_dict:
-            raise Http404("Restoran tidak ditemukan.")
-        restaurant = rest_dict
-        boxes = [
-            b for b in data.get("surprise_boxes", [])
-            if b.get("restaurant_id") == restaurant_id and b.get("is_active", True)
-        ]
-        for b in boxes:
-            normal = b.get("harga_normal", 0)
-            diskon = b.get("harga_diskon", 0)
-            b["diskon_persen"] = round((normal - diskon) / normal * 100) if normal > 0 else 0
-        first_box = boxes[0] if boxes else None
-        total_stock = sum(b.get("stok", 0) for b in boxes)
+    """
+    Detail restoran dan varian Surprise Box aktif murni dari model database ORM.
+    """
+    restaurant = get_object_or_404(Restaurant, id=restaurant_id, is_active=True)
+    boxes = restaurant.surprise_boxes.filter(is_active=True)
+    first_box = boxes.first()
+    total_stock = sum(b.stok for b in boxes)
 
     return render(
         request,
@@ -203,49 +169,24 @@ def delete_surprise_box(request, box_id):
 
 
 def api_restaurants(request):
-    """API JSON sebaran restoran untuk modul peta / partner."""
-    if Restaurant.objects.filter(is_active=True).exists():
-        qs = Restaurant.objects.filter(is_active=True)
-        results = [
-            {
-                "id": r.id,
-                "nama": r.nama,
-                "alamat": r.alamat,
-                "lat": float(r.lat) if r.lat is not None else None,
-                "lng": float(r.lng) if r.lng is not None else None,
-                "jam_buka": r.jam_buka.strftime("%H:%M") if r.jam_buka else None,
-                "jam_tutup": r.jam_tutup.strftime("%H:%M") if r.jam_tutup else None,
-            }
-            for r in qs
-        ]
-    else:
-        data = _load_dummy_data()
-        results = [r for r in data.get("restaurants", []) if r.get("is_active", True)]
-
+    """
+    API JSON sebaran restoran untuk modul peta / partner menggunakan FoodApiClient.
+    Mendukung caching TTL dan fallback yang aman.
+    """
+    client = FoodApiClient()
+    query = request.GET.get("q", "").strip() or None
+    results = client.get_restaurants(query=query)
     return JsonResponse({"restaurants": results})
 
 
 def api_surprise_boxes(request):
-    """API JSON paket surprise box."""
-    if SurpriseBox.objects.filter(is_active=True).exists():
-        qs = SurpriseBox.objects.filter(is_active=True, restaurant__is_active=True).select_related("restaurant")
-        results = [
-            {
-                "id": b.id,
-                "restaurant_id": b.restaurant.id,
-                "restaurant_nama": b.restaurant.nama,
-                "nama_paket": b.nama_paket,
-                "harga_normal": float(b.harga_normal),
-                "harga_diskon": float(b.harga_diskon),
-                "diskon_persen": b.diskon_persen,
-                "stok": b.stok,
-                "pickup_start": b.pickup_start.isoformat() if b.pickup_start else None,
-                "pickup_end": b.pickup_end.isoformat() if b.pickup_end else None,
-            }
-            for b in qs
-        ]
-    else:
-        data = _load_dummy_data()
-        results = [b for b in data.get("surprise_boxes", []) if b.get("is_active", True)]
-
+    """
+    API JSON paket surprise box menggunakan FoodApiClient.
+    Mendukung caching TTL dan fallback yang aman.
+    """
+    client = FoodApiClient()
+    query = request.GET.get("q", "").strip() or None
+    restaurant_id_raw = request.GET.get("restaurant_id", "").strip()
+    restaurant_id = int(restaurant_id_raw) if restaurant_id_raw.isdigit() else None
+    results = client.get_surprise_boxes(restaurant_id=restaurant_id, query=query)
     return JsonResponse({"surprise_boxes": results})
