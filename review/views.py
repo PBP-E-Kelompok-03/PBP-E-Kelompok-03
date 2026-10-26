@@ -48,7 +48,7 @@ def create_review(request, order_id):
         return JsonResponse({
             "success": False,
             "error": "Pesanan ini sudah memiliki review."
-        }, status=409),
+        }, status=409)
 
 
     # Memproses data review yang dikirim pengguna
