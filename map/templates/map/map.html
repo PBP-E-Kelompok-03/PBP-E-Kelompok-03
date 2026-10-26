@@ -22,11 +22,20 @@
       <option value="3">3 km</option>
       <option value="5">5 km</option>
     </select>
+    <button type="button" id="refresh-restaurants" class="btn btn--secondary" disabled>Perbarui stok</button>
   </div>
-  <p id="location-status" role="status">Semua restoran ditampilkan. Gunakan lokasi saya untuk mengaktifkan filter radius.</p>
+  <p id="location-status" role="status">Lokasi akan diminta otomatis. Izinkan akses lokasi untuk menemukan restoran di sekitarmu.</p>
   <p>Jarak dihitung sebagai garis lurus, bukan jarak perjalanan.</p>
+  <ul class="map-legend" aria-label="Keterangan marker">
+    <li><span class="map-legend-dot map-legend-dot--available" aria-hidden="true">✓</span> Tersedia</li>
+    <li><span class="map-legend-dot map-legend-dot--unavailable" aria-hidden="true">◷</span> Di luar waktu pickup</li>
+    <li><span class="map-legend-dot map-legend-dot--sold_out" aria-hidden="true">−</span> Stok habis</li>
+  </ul>
   <p id="map-status" role="status"></p>
-  <div id="restaurant-map" aria-label="Peta lokasi restoran"></div>
+  <p id="data-status" role="status">Stok dan harga mengikuti paket yang tersedia saat ini.</p>
+  <div id="restaurant-map" aria-label="Peta lokasi restoran" tabindex="-1"
+       data-restaurants-url="{% url 'map:restaurants_data' %}"
+       data-placeholder-url="{% static 'map/restaurant-placeholder.svg' %}"></div>
   <noscript><p>Aktifkan JavaScript untuk peta interaktif. Daftar restoran tetap tersedia di bawah.</p></noscript>
   {{ restaurants|json_script:"restaurant-data" }}
   <h2>Daftar restoran</h2>
@@ -34,9 +43,21 @@
   <ul id="restaurant-list" class="map-restaurants">
     {% for restaurant in restaurants %}
     <li>
-      <h3><a href="{{ restaurant.detail_url }}">{{ restaurant.nama }}</a></h3>
+      <figure class="restaurant-photo">
+        <img src="{{ restaurant.image_url }}" alt="{% if restaurant.has_image %}Foto {{ restaurant.nama }}{% else %}Foto restoran belum tersedia{% endif %}"
+             loading="lazy" referrerpolicy="no-referrer" width="320" height="180">
+        {% if not restaurant.has_image %}<figcaption>Foto belum tersedia</figcaption>{% endif %}
+      </figure>
+      <h3>{{ restaurant.nama }}</h3>
+      <p class="restaurant-stock restaurant-stock--{{ restaurant.stock_status }}">{{ restaurant.stock_label }}</p>
+      {% if restaurant.is_available %}<p class="restaurant-price">Mulai Rp {{ restaurant.min_discount_price|floatformat:"0g" }}</p>{% endif %}
       <p>{{ restaurant.alamat }}</p>
       <p>Jam buka: {{ restaurant.jam_buka|default:"Belum tersedia" }} – {{ restaurant.jam_tutup|default:"Belum tersedia" }}</p>
+      <a href="{{ restaurant.detail_url }}" class="btn btn--primary restaurant-detail-link">Lihat detail restoran</a>
+      <a href="{{ restaurant.directions_url }}" class="btn btn--outline restaurant-directions-link"
+         target="_blank" rel="noopener noreferrer" title="Buka petunjuk arah di Google Maps (tab baru)"
+         aria-label="Arahkan ke Lokasi {{ restaurant.nama }} di Google Maps (tab baru)">Arahkan ke Lokasi</a>
+      {% if restaurant.photo_edit_url %}<a href="{{ restaurant.photo_edit_url }}" class="restaurant-photo-link">Ubah foto restoran</a>{% endif %}
     </li>
     {% empty %}
     <li>Belum ada restoran dengan koordinat yang valid.</li>

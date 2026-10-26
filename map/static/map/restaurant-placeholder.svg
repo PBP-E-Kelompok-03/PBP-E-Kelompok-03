@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Foto restoran belum tersedia">
+  <rect width="320" height="180" rx="12" fill="#edf4ef"/>
+  <g fill="none" stroke="#537762" stroke-width="4" stroke-linejoin="round">
+    <path d="M111 76h98v65h-98zM103 76l15-30h84l15 30"/>
+    <path d="M103 76c0 14 19 14 19 0 0 14 19 14 19 0 0 14 19 14 19 0 0 14 19 14 19 0 0 14 19 14 19 0 0 14 19 14 19 0"/>
+    <path d="M131 141v-35h27v35M175 103h20v18h-20z"/>
+  </g>
+</svg>

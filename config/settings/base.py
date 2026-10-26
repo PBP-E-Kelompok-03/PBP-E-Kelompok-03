@@ -66,6 +66,9 @@ TIME_ZONE = "Asia/Jakarta"
 USE_I18N = True
 USE_TZ = True
 
+# OSM requires a Referer on cross-origin tile requests; send only the site origin.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
