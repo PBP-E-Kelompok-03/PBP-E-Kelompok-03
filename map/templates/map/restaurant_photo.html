@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Foto {{ restaurant.nama }} | Dibuang Sayang{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'map/map.css' %}">{% endblock %}
+{% block content %}
+<section class="restaurant-map map-photo-form">
+  <a href="{% url 'map:map' %}">← Kembali ke peta</a>
+  <h1>Foto {{ restaurant.nama }}</h1>
+  <p>Gunakan foto restoran milik Anda. Foto akan tampil pada popup dan daftar restoran.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn--primary">Simpan foto</button>
+  </form>
+</section>
+{% endblock %}
