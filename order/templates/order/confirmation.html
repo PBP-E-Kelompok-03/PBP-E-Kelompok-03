@@ -70,7 +70,31 @@
     {% if order.status == "pending" or order.status == "confirmed" %}
       <button type="button" class="ds-btn ds-btn--secondary" id="cancel-btn" style="flex: 1">Batalkan pesanan</button>
     {% endif %}
-    <a class="ds-btn ds-btn--primary" style="flex: 1" href="{% url 'order:history' %}">Lihat riwayat pesanan</a>
+
+    <!-- Tombol Review hanya muncul untuk pesanan selesai -->
+    {% if order.status == "completed" %}
+          {% if order.review %}
+
+        <!-- Pesanan sudah pernah direview -->
+        <span class="ds-btn ds-btn--secondary"
+              style="flex: 1; cursor: default; opacity: 0.7;">
+            Sudah Direview
+        </span>
+
+    {% else %}
+
+        <!-- Pesanan belum direview -->
+        <a class="ds-btn ds-btn--secondary"
+          style="flex: 1"
+          href="{% url 'review:create_review' order.id %}">
+            Tulis Review
+        </a>
+
+    {% endif %}
+  {% endif %}
+
+
+  <a class="ds-btn ds-btn--primary" style="flex: 1" href="{% url 'order:history' %}">Lihat riwayat pesanan</a>
   </div>
   <div id="cancel-error" class="ds-alert ds-alert--error ds-hidden" role="alert" style="max-width: 960px; margin: var(--ds-space-4) auto 0"></div>
 {% endblock %}

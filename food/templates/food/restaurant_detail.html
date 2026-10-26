@@ -763,6 +763,113 @@
     flex-wrap: wrap;
     gap: 12px;
   }
+
+  /* Balasan restoran sedikit menjorok ke kanan */
+.restaurant-owner-reply {
+    margin-top: 12px;
+    margin-left: 28px;
+    padding-left: 12px;
+    border-left: 2px solid #dddddd;
+}
+
+.restaurant-owner-reply strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.restaurant-owner-reply p {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* Tombol Edit dan Hapus dalam kartu review */
+.review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.review-edit-btn,
+.review-delete-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Edit warna hijau */
+.review-edit-btn {
+    background: #FFFFFF;
+    border: 1px solid #006C41;
+    color: #006C41;
+}
+
+/* Hapus warna merah */
+.review-delete-btn {
+    background: #DC2626;
+    border: 1px solid #DC2626;
+    color: #FFFFFF;
+}
+
+.review-delete-btn:hover {
+    background: #B91C1C;
+}
+
+.review-inline-edit {
+    margin-top: 14px;
+}
+
+.review-inline-edit[hidden] {
+    display: none;
+}
+
+.review-inline-edit label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.review-inline-edit select,
+.review-inline-edit textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.review-inline-edit button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #006C41;
+    color: white;
+    cursor: pointer;
+}
+
+.review-action-feedback {
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+
+/* Samakan ukuran font balasan dengan komentar pembeli */
+.restaurant-owner-reply,
+.restaurant-owner-reply * {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+}
+
+
 </style>
 {% endblock %}
 
@@ -1043,6 +1150,9 @@
   </div>
   </div>
 
+<form id="review-action-csrf" hidden>
+    {% csrf_token %}
+</form>
   <div class="reviews-grid" id="restaurantReviewsGrid">
           <p>Belum ada ulasan untuk restoran ini.</p>
   </div>
@@ -1193,110 +1303,701 @@
 
 <!-- JavaScript khusus Rating & Review -->
 <script>
-  document.addEventListener('DOMContentLoaded', async () => {
-      try {
-          // Mengambil rating dan ulasan dari API Django
-          const response = await fetch(
-              "{% url 'review:restaurant_reviews' restaurant.id %}"
-          );
 
-          if (!response.ok) {
-              throw new Error('Gagal mengambil data review');
-          }
+    // =====================================================
+    // 1. MENAMPILKAN RATA-RATA RATING RESTORAN
+    // =====================================================
 
-          const data = await response.json();
+    function tampilkanRingkasanReview(data) {
 
-          // Rating di bagian atas halaman
-          document.getElementById('restaurantRatingTop').textContent =
-              data.rata_rata;
+        const rataRata = Number(data.rata_rata) || 0;
+        const jumlah = Number(data.jumlah_ulasan) || 0;
 
-          document.getElementById('restaurantReviewCountTop').textContent =
-              data.jumlah_ulasan + ' ulasan';
+        // Menghitung jumlah bintang rata-rata
+        const jumlahBintang = Math.max(
+            0,
+            Math.min(5, Math.round(rataRata))
+        );
 
-          // Rating di bagian Ulasan
-          document.getElementById('restaurantRating').textContent =
-              data.rata_rata + ' dari 5';
+        // Rating di bagian atas restoran
+        document.getElementById('restaurantRatingTop').textContent =
+            data.rata_rata;
 
-          document.getElementById('restaurantReviewCount').textContent =
-              data.jumlah_ulasan + ' ulasan';
-              // Menampilkan bintang sesuai rata-rata rating restoran
-          const nilaiRating = Math.max(
-              0,
-              Math.min(5, Math.round(Number(data.rata_rata) || 0))
-          );
+        document.getElementById('restaurantReviewCountTop').textContent =
+            jumlah + ' ulasan';
 
-          document.getElementById('restaurantStars').textContent =
-              '★'.repeat(nilaiRating) + '☆'.repeat(5 - nilaiRating);
+        // Rating di bagian daftar ulasan
+        document.getElementById('restaurantRating').textContent =
+            data.rata_rata + ' dari 5';
 
-          // Menampilkan komentar pembeli
-          const reviewsGrid = document.getElementById('restaurantReviewsGrid');
-          reviewsGrid.replaceChildren();
+        document.getElementById('restaurantReviewCount').textContent =
+            jumlah + ' ulasan';
 
-          if (data.reviews.length === 0) {
-              const pesan = document.createElement('p');
-              pesan.textContent = 'Belum ada ulasan untuk restoran ini.';
-              reviewsGrid.appendChild(pesan);
-          } else {
-              data.reviews.forEach((review, index) => {
-                  const card = document.createElement('article');
-                  card.className = 'review-card';
+        // Bintang rata-rata restoran
+        document.getElementById('restaurantStars').textContent =
+            '★'.repeat(jumlahBintang) +
+            '☆'.repeat(5 - jumlahBintang);
+    }
 
-                  card.innerHTML = `
-                      <div>
-                          <div class="review-card__header">
-                              <div class="review-card__user">
-                                  <div class="avatar-circle"></div>
-                                  <span class="review-user-name"></span>
-                              </div>
-                              <span class="review-stars"></span>
-                          </div>
-                          <p class="review-comment" style="margin-top: 10px;"></p>
-                      </div>
-                      <span class="review-time"></span>
-                  `;
 
-                  // Nama pembeli
-                  const nama = String(review.nama || 'Pembeli');
+    // =====================================================
+    // 2. MEMPERBARUI RATING SETELAH EDIT / HAPUS
+    // =====================================================
 
-                  card.querySelector('.review-user-name').textContent = nama;
+    async function refreshReviewRatingSummary() {
 
-                  // Inisial avatar pembeli
-                  const inisial = nama.trim()
-                      .split(/\s+/)
-                      .slice(0, 2)
-                      .map(kata => kata.charAt(0).toUpperCase())
-                      .join('');
+        // Mengambil data terbaru dari database Django
+        const response = await fetch(
+            "{% url 'review:restaurant_reviews' restaurant.id %}",
+            {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            }
+        );
 
-                  const avatar = card.querySelector('.avatar-circle');
-                  avatar.textContent = inisial;
+        if (!response.ok) {
+            throw new Error('Gagal memperbarui statistik review');
+        }
 
-                  avatar.classList.add(
-                      ['avatar-dk', 'avatar-aw', 'avatar-rz'][index % 3]
-                  );
+        const data = await response.json();
 
-                  // Bintang sesuai rating pembeli
-                  const rating = Math.max(
-                      0,
-                      Math.min(5, Math.round(Number(review.rating) || 0))
-                  );
+        // Memperbarui tampilan tanpa reload
+        tampilkanRingkasanReview(data);
+    }
 
-                  card.querySelector('.review-stars').textContent =
-                      '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
-                  // Komentar dan tanggal
-                  card.querySelector('.review-comment').textContent =
-                      review.komentar;
+    // =====================================================
+    // 3. MENAMPILKAN SEMUA REVIEW RESTORAN
+    // =====================================================
 
-                  card.querySelector('.review-time').textContent =
-                      review.tanggal;
+    document.addEventListener('DOMContentLoaded', async () => {
 
-                  reviewsGrid.appendChild(card);
-              });
-          }
+        try {
 
-      } catch (error) {
-          console.error('Gagal mengambil review:', error);
-      }
-  });
+            // Mengambil daftar review dari Django
+            const response = await fetch(
+                "{% url 'review:restaurant_reviews' restaurant.id %}",
+                {
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Gagal mengambil data review');
+            }
+
+            const data = await response.json();
+
+            // Menampilkan rata-rata rating saat halaman dibuka
+            tampilkanRingkasanReview(data);
+
+            const reviewsGrid = document.getElementById(
+                'restaurantReviewsGrid'
+            );
+
+            // Mengosongkan isi lama
+            reviewsGrid.replaceChildren();
+
+
+            // Jika restoran belum memiliki ulasan
+            if (data.reviews.length === 0) {
+
+                const pesan = document.createElement('p');
+
+                pesan.textContent =
+                    'Belum ada ulasan untuk restoran ini.';
+
+                reviewsGrid.appendChild(pesan);
+
+            } else {
+
+                // Membuat kartu untuk setiap review
+                data.reviews.forEach((review, index) => {
+
+                    const card = document.createElement('article');
+                    card.className = 'review-card';
+
+                    // Struktur kartu mengikuti desain restoran lama
+                    card.innerHTML = `
+                        <div>
+                            <div class="review-card__header">
+
+                                <div class="review-card__user">
+                                    <div class="avatar-circle"></div>
+                                    <span class="review-user-name"></span>
+                                </div>
+
+                                <span class="review-stars"></span>
+
+                            </div>
+
+                            <p class="review-comment"
+                               style="margin-top: 10px;"></p>
+                        </div>
+
+                        <span class="review-time"></span>
+                    `;
+
+
+                    // =====================================
+                    // USERNAME DAN AVATAR PEMBELI
+                    // =====================================
+
+                    const nama = String(review.nama || 'Pembeli');
+
+                    card.querySelector(
+                        '.review-user-name'
+                    ).textContent = nama;
+
+                    // Mengambil inisial username untuk avatar
+                    const inisial = nama.trim()
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map(kata => kata.charAt(0).toUpperCase())
+                        .join('');
+
+                    const avatar = card.querySelector('.avatar-circle');
+
+                    avatar.textContent = inisial;
+
+                    avatar.classList.add(
+                        ['avatar-dk', 'avatar-aw', 'avatar-rz'][index % 3]
+                    );
+
+
+                    // =====================================
+                    // BINTANG RATING PEMBELI
+                    // =====================================
+
+                    const rating = Math.max(
+                        0,
+                        Math.min(
+                            5,
+                            Math.round(Number(review.rating) || 0)
+                        )
+                    );
+
+                    card.querySelector('.review-stars').textContent =
+                        '★'.repeat(rating) +
+                        '☆'.repeat(5 - rating);
+
+
+                    // =====================================
+                    // KOMENTAR DAN TANGGAL
+                    // =====================================
+
+                    card.querySelector('.review-comment').textContent =
+                        review.komentar;
+
+                    card.querySelector('.review-time').textContent =
+                        review.tanggal;
+
+
+                    // =====================================
+                    // BALASAN DARI RESTORAN
+                    // =====================================
+
+                    if (review.owner_reply) {
+
+                        // Membuat kotak balasan restoran
+                        const replyBox = document.createElement('div');
+
+                        replyBox.className = 'restaurant-owner-reply';
+
+                        // Nama restoran asli
+                        const replyTitle = document.createElement('strong');
+
+                        replyTitle.textContent = review.restaurant_name;
+
+                        // Isi balasan restoran
+                        const replyText = document.createElement('p');
+
+                        replyText.textContent = review.owner_reply;
+
+                        replyBox.appendChild(replyTitle);
+                        replyBox.appendChild(replyText);
+
+                        // Balasan diletakkan di bawah komentar
+                        card.querySelector(
+                            '.review-comment'
+                        ).insertAdjacentElement(
+                            'afterend',
+                            replyBox
+                        );
+                    }
+
+                    // =====================================
+                    // TOMBOL BALAS KHUSUS AKUN RESTORAN
+                    // =====================================
+
+                    {% if user.is_authenticated and user.is_partner and restaurant.owner_id == user.id %}
+
+                    // Tombol Balas hanya muncul jika belum ada balasan
+                    if (!String(review.owner_reply || '').trim()) {
+
+                        const replyContent = card.querySelector(
+                            '.review-comment'
+                        ).parentElement;
+
+                        // Membuat tombol Balas Ulasan
+                        const replyActions = document.createElement('div');
+                        replyActions.className = 'review-actions';
+
+                        const replyButton = document.createElement('button');
+                        replyButton.type = 'button';
+                        replyButton.className = 'review-edit-btn';
+                        replyButton.textContent = 'Balas Ulasan';
+
+                        replyActions.appendChild(replyButton);
+                        replyContent.appendChild(replyActions);
+
+                        // Membuat form balasan
+                        const replyForm = document.createElement('form');
+                        replyForm.className = 'review-inline-edit';
+                        replyForm.hidden = true;
+
+                        replyForm.innerHTML = `
+                            <label>
+                                Balasan Restoran
+                                <textarea name="owner_reply"
+                                          rows="3"
+                                          maxlength="1000"
+                                          required></textarea>
+                            </label>
+                            <button type="submit">Kirim Balasan</button>
+                            <p class="review-action-feedback"
+                               role="status"></p>
+                        `;
+
+                        replyContent.appendChild(replyForm);
+
+                        // Klik tombol untuk membuka form
+                        replyButton.addEventListener('click', () => {
+                            replyForm.hidden = !replyForm.hidden;
+                        });
+
+                        // Mengirim balasan ke Django
+                        replyForm.addEventListener('submit', async (event) => {
+                            event.preventDefault();
+
+                            const submitButton = replyForm.querySelector(
+                                '[type="submit"]'
+                            );
+                            submitButton.disabled = true;
+
+                            const feedback = replyForm.querySelector(
+                                '.review-action-feedback'
+                            );
+
+                            const csrfToken = document.querySelector(
+                                '#review-action-csrf input[name="csrfmiddlewaretoken"]'
+                            ).value;
+
+                            const url = "{% url 'review:reply_review' 999999 %}"
+                                .replace('999999', String(review.id));
+
+                            try {
+                                const response = await fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': csrfToken
+                                    },
+                                    body: new FormData(replyForm),
+                                    credentials: 'same-origin'
+                                });
+
+                                const data = await response.json()
+                                    .catch(() => ({}));
+
+                                if (!response.ok || !data.success) {
+                                    throw new Error(
+                                        data.error || 'Gagal mengirim balasan.'
+                                    );
+                                }
+
+                                // Menampilkan balasan di bawah komentar
+                                const replyBox = document.createElement('div');
+                                replyBox.className = 'restaurant-owner-reply';
+
+                                const replyTitle = document.createElement('strong');
+                                replyTitle.textContent = review.restaurant_name;
+
+                                const replyText = document.createElement('p');
+                                replyText.textContent = data.owner_reply;
+
+                                replyBox.appendChild(replyTitle);
+                                replyBox.appendChild(replyText);
+
+                                card.querySelector(
+                                    '.review-comment'
+                                ).insertAdjacentElement('afterend', replyBox);
+
+                                // Review sudah dibalas, tombol Balas dihilangkan
+                                review.owner_reply = data.owner_reply;
+                                replyActions.remove();
+                                replyForm.remove();
+
+                            } catch (error) {
+                                feedback.textContent = error.message;
+                            } finally {
+                                submitButton.disabled = false;
+                            }
+                        });
+                    }
+
+                    {% endif %}
+
+
+
+                    // =====================================
+                    // TOMBOL EDIT DAN HAPUS REVIEW
+                    // =====================================
+
+                    // Hanya muncul jika:
+                    // - Review milik pembeli yang sedang login
+                    // - Restoran belum membalas
+                    if (review.can_manage) {
+                      
+
+                        const reviewContent = card.querySelector(
+                            '.review-comment'
+                        ).parentElement;
+
+                        // Membuat tombol Edit dan Hapus
+                        const actions = document.createElement('div');
+
+                        actions.className = 'review-actions';
+
+                        actions.innerHTML = `
+                            <button type="button"
+                                    class="review-edit-btn">
+                                Edit Ulasan
+                            </button>
+
+                            <button type="button"
+                                    class="review-delete-btn">
+                                Hapus Ulasan
+                            </button>
+                        `;
+
+                        reviewContent.appendChild(actions);
+
+
+                        // =====================================
+                        // FORM EDIT REVIEW
+                        // =====================================
+
+                        const editForm = document.createElement('form');
+
+                        editForm.className = 'review-inline-edit';
+                        editForm.hidden = true;
+
+                        editForm.innerHTML = `
+                            <label>
+                                Rating
+                                <select name="rating" required>
+                                    <option value="1">1 Bintang</option>
+                                    <option value="2">2 Bintang</option>
+                                    <option value="3">3 Bintang</option>
+                                    <option value="4">4 Bintang</option>
+                                    <option value="5">5 Bintang</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Komentar
+                                <textarea name="comment"
+                                          rows="3"
+                                          required></textarea>
+                            </label>
+
+                            <button type="submit">
+                                Simpan Perubahan
+                            </button>
+                        `;
+
+                        // Mengisi form dengan rating lama
+                        editForm.querySelector(
+                            '[name="rating"]'
+                        ).value = String(review.rating);
+
+                        // Mengisi form dengan komentar lama
+                        editForm.querySelector(
+                            '[name="comment"]'
+                        ).value = review.komentar;
+
+                        reviewContent.appendChild(editForm);
+
+
+                        // =====================================
+                        // PESAN BERHASIL / GAGAL
+                        // =====================================
+
+                        const feedback = document.createElement('p');
+
+                        feedback.className = 'review-action-feedback';
+                        feedback.setAttribute('role', 'status');
+
+                        reviewContent.appendChild(feedback);
+
+
+                        // Mengambil tombol Edit dan Hapus
+                        const editButton = actions.querySelector(
+                            '.review-edit-btn'
+                        );
+
+                        const deleteButton = actions.querySelector(
+                            '.review-delete-btn'
+                        );
+
+
+                        // Mengambil token CSRF Django
+                        const csrfToken = document.querySelector(
+                            '#review-action-csrf input[name="csrfmiddlewaretoken"]'
+                        ).value;
+
+
+                        // =====================================
+                        // MEMBUKA / MENUTUP FORM EDIT
+                        // =====================================
+
+                        editButton.addEventListener('click', () => {
+
+                            editForm.hidden = !editForm.hidden;
+
+                        });
+
+
+                        // =====================================
+                        // MENYIMPAN EDIT REVIEW DENGAN AJAX
+                        // =====================================
+
+                        editForm.addEventListener(
+                            'submit',
+                            async (event) => {
+
+                                // Mencegah reload halaman
+                                event.preventDefault();
+
+                                const saveButton = editForm.querySelector(
+                                    '[type="submit"]'
+                                );
+
+                                saveButton.disabled = true;
+
+                                const url =
+                                    "{% url 'review:update_review' 999999 %}"
+                                    .replace(
+                                        '999999',
+                                        String(review.id)
+                                    );
+
+                                try {
+
+                                    // Mengirim rating dan komentar baru
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': csrfToken
+                                        },
+                                        body: new FormData(editForm),
+                                        credentials: 'same-origin'
+                                    });
+
+                                    const data = await response.json()
+                                        .catch(() => ({}));
+
+
+                                    // Jika Django menolak edit
+                                    if (!response.ok || !data.success) {
+
+                                        // Restoran sudah membalas
+                                        if (response.status === 403) {
+
+                                            actions.remove();
+                                            editForm.remove();
+                                        }
+
+                                        throw new Error(
+                                            data.error ||
+                                            'Gagal mengedit ulasan.'
+                                        );
+                                    }
+
+
+                                    // Mengambil rating terbaru
+                                    review.rating = Number(
+                                        editForm.querySelector(
+                                            '[name="rating"]'
+                                        ).value
+                                    );
+
+                                    // Mengambil komentar terbaru
+                                    review.komentar = editForm.querySelector(
+                                        '[name="comment"]'
+                                    ).value;
+
+
+                                    // Memperbarui bintang tanpa reload
+                                    card.querySelector(
+                                        '.review-stars'
+                                    ).textContent =
+                                        '★'.repeat(review.rating) +
+                                        '☆'.repeat(5 - review.rating);
+
+
+                                    // Memperbarui komentar tanpa reload
+                                    card.querySelector(
+                                        '.review-comment'
+                                    ).textContent = review.komentar;
+
+
+                                    // Menyembunyikan form edit
+                                    editForm.hidden = true;
+
+                                    feedback.textContent =
+                                        'Ulasan berhasil diperbarui.';
+
+
+                                    // Memperbarui rata-rata rating restoran
+                                    try {
+
+                                        await refreshReviewRatingSummary();
+
+                                    } catch (summaryError) {
+
+                                        console.warn(
+                                            'Gagal memperbarui statistik:',
+                                            summaryError
+                                        );
+                                    }
+
+                                } catch (error) {
+
+                                    feedback.textContent = error.message;
+
+                                } finally {
+
+                                    saveButton.disabled = false;
+
+                                }
+                            }
+                        );
+
+
+                        // =====================================
+                        // HAPUS REVIEW DENGAN AJAX
+                        // =====================================
+
+                        deleteButton.addEventListener(
+                            'click',
+                            async () => {
+
+                                // Konfirmasi sebelum menghapus review
+                                if (!confirm(
+                                    'Yakin ingin menghapus ulasan ini?'
+                                )) {
+                                    return;
+                                }
+
+                                deleteButton.disabled = true;
+
+                                const url =
+                                    "{% url 'review:delete_review' 999999 %}"
+                                    .replace(
+                                        '999999',
+                                        String(review.id)
+                                    );
+
+                                try {
+
+                                    // Mengirim permintaan hapus ke Django
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': csrfToken
+                                        },
+                                        credentials: 'same-origin'
+                                    });
+
+                                    const data = await response.json()
+                                        .catch(() => ({}));
+
+
+                                    // Jika Django menolak penghapusan
+                                    if (!response.ok || !data.success) {
+
+                                        // Restoran sudah membalas
+                                        if (response.status === 403) {
+
+                                            actions.remove();
+                                            editForm.remove();
+                                        }
+
+                                        throw new Error(
+                                            data.error ||
+                                            'Gagal menghapus ulasan.'
+                                        );
+                                    }
+
+
+                                    // Menghilangkan kartu review
+                                    card.remove();
+
+
+                                    // Jika semua review sudah dihapus
+                                    if (!reviewsGrid.querySelector(
+                                        '.review-card'
+                                    )) {
+
+                                        const empty =
+                                            document.createElement('p');
+
+                                        empty.textContent =
+                                            'Belum ada ulasan untuk restoran ini.';
+
+                                        reviewsGrid.appendChild(empty);
+                                    }
+
+
+                                    // Memperbarui rata-rata dan jumlah review
+                                    try {
+
+                                        await refreshReviewRatingSummary();
+
+                                    } catch (summaryError) {
+
+                                        console.warn(
+                                            'Gagal memperbarui statistik:',
+                                            summaryError
+                                        );
+                                    }
+
+                                } catch (error) {
+
+                                    feedback.textContent = error.message;
+
+                                    deleteButton.disabled = false;
+
+                                }
+                            }
+                        );
+                    }
+
+                    // Menampilkan kartu review ke halaman
+                    reviewsGrid.appendChild(card);
+
+                });
+            }
+
+        } catch (error) {
+
+            console.error('Gagal mengambil review:', error);
+
+        }
+
+    });
+
 </script>
 {% endblock %}
