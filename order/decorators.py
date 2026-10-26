@@ -37,5 +37,5 @@ def _is_seller(order, user):
 
 owner_required = _order_guard(_is_owner, "Kamu tidak berhak mengakses pesanan ini.")
 seller_required = _order_guard(
-    _is_seller, "Hanya pemilik restoran yang boleh menyelesaikan pesanan."
+    _is_seller, "Hanya pemilik restoran yang boleh mengelola pesanan ini."
 )
