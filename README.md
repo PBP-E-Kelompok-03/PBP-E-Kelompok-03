@@ -111,10 +111,13 @@ Aplikasi terbagi menjadi 4 modul:
    # macOS/Linux
    source .venv/bin/activate
    ```
-3. Install dependency:
+3. Install dependency untuk development dan testing:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+
+   Build production PWS memakai `requirements.txt`. Selenium hanya diperlukan untuk
+   tes browser dan dipasang melalui `requirements-dev.txt`.
 4. Salin `.env.example` menjadi `.env`, isi `SECRET_KEY` dengan nilai acak.
 5. Jalankan migrasi:
    ```bash
