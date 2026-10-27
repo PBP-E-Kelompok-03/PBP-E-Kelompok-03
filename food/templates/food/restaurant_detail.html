@@ -921,16 +921,11 @@
         <div class="pickup-alert-box">
           <span class="pickup-alert-box__title">
             {% if restaurant.jam_buka and restaurant.jam_tutup %}
-              Ambil {{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB
+              Buka {{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB
             {% else %}
-              Ambil 19:30 – 21:00 WIB
+              Jam buka belum diatur
             {% endif %}
           </span>
-          <span class="pickup-alert-box__sub">Sisa 1 jam 15 menit</span>
-        </div>
-
-        <div class="badge-halal">
-          Halal
         </div>
       </div>
 
@@ -957,7 +952,7 @@
       {% if boxes %}
         {% for box in boxes %}
           <article
-            class="box-menu-card {% if forloop.first %}box-menu-card--active{% endif %}"
+            class="box-menu-card"
             id="menuCard{{ box.id }}"
             data-id="{{ box.id }}"
             data-name="{{ box.nama_paket }}"
@@ -980,7 +975,6 @@
                 <h3 class="box-menu-name">{{ box.nama_paket }}</h3>
                 <span class="badge-sisa-box">Sisa {{ box.stok }} box</span>
               </div>
-              <p class="box-menu-desc">Aneka pastry, roti lezat, dan hidangan segar berkualitas tinggi.</p>
 
               <div class="box-menu-prices">
                 <span class="old-price">Rp {{ box.harga_normal|floatformat:0 }}</span>
@@ -1014,31 +1008,6 @@
           {% endif %}
         </div>
       {% endif %}
-
-      <!-- Catatan Pesanan Card (BYOB & Note) -->
-      <section class="order-notes-card">
-        <h3 class="order-notes-title">Catatan pesanan</h3>
-
-        <label class="byob-wrapper">
-          <input type="checkbox" id="byobCheckbox" class="byob-checkbox" checked onchange="toggleByobBonus(this)">
-          <div>
-            <div class="byob-label-title">Bawa wadah sendiri</div>
-            <div class="byob-label-sub" id="byobSub">Bonus 20 Eco-Points</div>
-          </div>
-        </label>
-
-        <div>
-          <label for="cashierNote" style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--ds-text-primary); margin-bottom: 6px;">
-            Catatan untuk kasir
-          </label>
-          <input
-            type="text"
-            id="cashierNote"
-            class="cashier-note-input"
-            placeholder="Contoh: alergi kacang"
-          >
-        </div>
-      </section>
     </div>
 
     <!-- RIGHT COLUMN: Sticky Order Summary & Miniature Map -->
@@ -1046,11 +1015,13 @@
       <aside class="summary-card">
         <h3 class="summary-title">Ringkasan</h3>
 
+        <p id="summaryEmpty" style="color: var(--ds-text-secondary); margin: 0 0 16px;">Pilih salah satu paket untuk melihat ringkasan.</p>
+
+        <div id="summaryContent" hidden>
         <!-- Selected Item Row -->
         <div class="summary-item-line">
           <div>
             <div id="summaryItemName" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
-              1x {{ first_box.nama_paket|default:"Surprise Box" }}
             </div>
             <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: var(--ds-text-placeholder); margin-top: 2px;">
               {{ restaurant.nama }}
@@ -1059,10 +1030,8 @@
 
           <div style="text-align: right;">
             <div id="summaryItemPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
-              Rp {{ first_box.harga_diskon|floatformat:0|default:"35.000" }}
             </div>
             <div id="summaryOldPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; text-decoration: line-through; color: var(--ds-text-disabled);">
-              Rp {{ first_box.harga_normal|floatformat:0|default:"100.000" }}
             </div>
           </div>
         </div>
@@ -1071,34 +1040,29 @@
         <div class="summary-savings-banner">
           <span>Hemat</span>
           <span id="summarySavings">
-            {% if first_box %}
-              Rp {{ first_box.harga_normal|add:"-first_box.harga_diskon"|default:"65.000" }}
-            {% else %}
-              Rp 65.000
-            {% endif %}
           </span>
         </div>
 
         <!-- Subtotal & Service fee -->
         <div class="summary-row">
           <span>Subtotal</span>
-          <span id="summarySubtotal">Rp {{ first_box.harga_diskon|floatformat:0|default:"35.000" }}</span>
+          <span id="summarySubtotal"></span>
         </div>
         <div class="summary-row">
           <span>Biaya layanan</span>
-          <span>Rp 2.000</span>
+          <span>Rp 0</span>
         </div>
 
         <!-- Total Box -->
         <div class="summary-total-box">
           <span class="summary-total-label">TOTAL</span>
-          <span class="summary-total-value" id="summaryTotal">
-            Rp 37.000
-          </span>
+          <span class="summary-total-value" id="summaryTotal"></span>
         </div>
 
         <!-- Action Button -->
-        {% if first_box %}
+        {% if user.is_partner %}
+          <p style="color: var(--ds-text-secondary); margin: 0;">Akun mitra tidak bisa memesan. Masuk dengan akun pembeli.</p>
+        {% elif first_box %}
           <a href="{% url 'order:checkout' first_box.id %}" id="btnConfirmReservation" class="btn-confirm-reserve">
             Konfirmasi reservasi
           </a>
@@ -1107,6 +1071,7 @@
             Konfirmasi reservasi
           </button>
         {% endif %}
+        </div>
 
         <!-- Supported payment -->
         <div class="badge-payment-cash">
@@ -1214,13 +1179,7 @@
 
 {% block extra_js %}
 <script>
-  let currentBox = {
-    id: {% if first_box %}{{ first_box.id }}{% else %}null{% endif %},
-    name: '{% if first_box %}{{ first_box.nama_paket|escapejs }}{% else %}Surprise Box{% endif %}',
-    discountPrice: {% if first_box %}{{ first_box.harga_diskon|unlocalize }}{% else %}0{% endif %},
-    normalPrice: {% if first_box %}{{ first_box.harga_normal|unlocalize }}{% else %}0{% endif %},
-    qty: 1
-  };
+  let currentBox = { id: null, name: '', discountPrice: 0, normalPrice: 0, qty: 1 };
 
   function formatRp(num) {
     return 'Rp ' + Math.round(num).toLocaleString('id-ID');
@@ -1230,27 +1189,26 @@
     const subtotal = currentBox.discountPrice * currentBox.qty;
     const normalTotal = currentBox.normalPrice * currentBox.qty;
     const savings = Math.max(normalTotal - subtotal, 0);
-    const serviceFee = 2000;
-    const total = subtotal + serviceFee;
 
     document.getElementById('summaryItemName').textContent = currentBox.qty + 'x ' + currentBox.name;
     document.getElementById('summaryItemPrice').textContent = formatRp(subtotal);
     document.getElementById('summaryOldPrice').textContent = formatRp(normalTotal);
     document.getElementById('summarySavings').textContent = formatRp(savings);
     document.getElementById('summarySubtotal').textContent = formatRp(subtotal);
-    document.getElementById('summaryTotal').textContent = formatRp(total);
+    document.getElementById('summaryTotal').textContent = formatRp(subtotal);
 
     const btn = document.getElementById('btnConfirmReservation');
-    if (btn && currentBox.id) {
-      btn.href = '/order/checkout/' + currentBox.id + '/';
+    if (btn) {
+      btn.href = '/order/checkout/' + currentBox.id + '/?jumlah=' + currentBox.qty;
     }
   }
 
   function updateQty(boxId, change) {
     const qtyElem = document.getElementById('qty' + boxId);
+    const card = document.getElementById('menuCard' + boxId);
     if (!qtyElem) return;
-    let qty = parseInt(qtyElem.textContent) || 1;
-    qty = Math.max(1, qty + change);
+    const stock = parseInt(card.dataset.stock, 10) || 1;
+    const qty = Math.min(Math.max(1, (parseInt(qtyElem.textContent) || 1) + change), stock);
     qtyElem.textContent = qty;
 
     if (currentBox.id === boxId) {
@@ -1260,44 +1218,22 @@
   }
 
   function selectBox(boxId, name, discountPrice, normalPrice, stock) {
-    // highlight selected card
     document.querySelectorAll('.box-menu-card').forEach(c => c.classList.remove('box-menu-card--active'));
-    const card = document.getElementById('menuCard' + boxId);
-    if (card) {
-      card.classList.add('box-menu-card--active');
-    }
+    document.getElementById('menuCard' + boxId).classList.add('box-menu-card--active');
 
     const qtyElem = document.getElementById('qty' + boxId);
-    const qty = qtyElem ? (parseInt(qtyElem.textContent) || 1) : 1;
-
     currentBox = {
       id: boxId,
       name: name,
       discountPrice: discountPrice,
       normalPrice: normalPrice,
-      qty: qty
+      qty: qtyElem ? (parseInt(qtyElem.textContent) || 1) : 1
     };
 
+    document.getElementById('summaryEmpty').hidden = true;
+    document.getElementById('summaryContent').hidden = false;
     updateSummaryDisplay();
   }
-
-  function toggleByobBonus(chk) {
-    const sub = document.getElementById('byobSub');
-    if (chk.checked) {
-      sub.textContent = 'Bonus 20 Eco-Points';
-      sub.style.color = '#006C41';
-    } else {
-      sub.textContent = 'Tidak menggunakan wadah sendiri';
-      sub.style.color = '#6E7A70';
-    }
-  }
-
-  
-
-  // Menjalankan fungsi Food saat halaman selesai dimuat
-  document.addEventListener('DOMContentLoaded', () => {
-      updateSummaryDisplay();
-  });
 
 </script>
 

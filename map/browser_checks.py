@@ -8,7 +8,6 @@ Geolocation and map tiles are simulated; no development database is changed.
 
 def main():
     import base64, hashlib, html, json, os, re, shutil, subprocess, sys, tempfile, threading, urllib.request
-    from datetime import timedelta
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
     from pathlib import Path
     from urllib.parse import parse_qs, unquote, urlsplit
@@ -26,22 +25,20 @@ def main():
     from django.contrib.staticfiles import finders
     from django.core.management import call_command
     from django.test import Client
-    from django.utils import timezone
     from food.models import Restaurant, SurpriseBox
     from map.models import RestaurantMapProfile
 
     call_command("migrate", verbosity=0)
-    for number, name, lng, stock, expired in [
+    for number, name, lng, stock, _ in [
         (1, "A Available", 0, 3, False),
         (2, "B Sold Out", .005, 0, False),
-        (3, "C Outside Pickup", .005, 2, True),
+        (3, "C Nearby", .005, 2, False),
         (4, "D Distant", .02, 1, False),
     ]:
         restaurant = Restaurant.objects.create(id=number, nama=name, alamat="Audit address", lat=0, lng=lng)
         SurpriseBox.objects.create(
             restaurant=restaurant, nama_paket="Test", stok=stock,
             harga_normal=40000, harga_diskon=12000,
-            pickup_end=timezone.now()-timedelta(hours=1) if expired else None,
         )
     RestaurantMapProfile.objects.create(restaurant_id=1, image_url="https://example.invalid/photo.jpg")
     assets = {}

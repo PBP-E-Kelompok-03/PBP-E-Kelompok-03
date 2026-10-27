@@ -6,20 +6,14 @@ from django.core.validators import URLValidator
 from django.db.models import Min, Q, Sum
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils import timezone
 
 from food.models import Restaurant
 
 
 def restaurant_locations(user=None):
-    """Return database-backed stock and prices using the order pickup rules."""
-    now = timezone.now()
+    """Return database-backed stock and prices of active surprise boxes."""
     active = Q(surprise_boxes__is_active=True)
-    available = (
-        active & Q(surprise_boxes__stok__gt=0)
-        & (Q(surprise_boxes__pickup_start__isnull=True) | Q(surprise_boxes__pickup_start__lte=now))
-        & (Q(surprise_boxes__pickup_end__isnull=True) | Q(surprise_boxes__pickup_end__gte=now))
-    )
+    available = active & Q(surprise_boxes__stok__gt=0)
     restaurants = (
         Restaurant.objects.filter(is_active=True).select_related("map_profile")
         .annotate(
@@ -49,8 +43,6 @@ def restaurant_locations(user=None):
         if restaurant.available_stock:
             status = "available"
             stock_label = f"{restaurant.available_stock} paket tersedia"
-        elif restaurant.total_stock:
-            status, stock_label = "unavailable", "Di luar waktu pickup"
         else:
             status, stock_label = "sold_out", "Stok habis"
 

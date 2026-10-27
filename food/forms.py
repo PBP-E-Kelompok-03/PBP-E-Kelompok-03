@@ -19,14 +19,12 @@ class RestaurantForm(forms.ModelForm):
 class SurpriseBoxForm(forms.ModelForm):
     class Meta:
         model = SurpriseBox
-        fields = ["nama_paket", "harga_normal", "harga_diskon", "stok", "pickup_start", "pickup_end"]
+        fields = ["nama_paket", "harga_normal", "harga_diskon", "stok"]
         widgets = {
             "nama_paket": forms.TextInput(attrs={"placeholder": "Contoh: Paket Nasi Campur"}),
             "harga_normal": forms.NumberInput(attrs={"placeholder": "Harga normal (Rp)"}),
             "harga_diskon": forms.NumberInput(attrs={"placeholder": "Harga diskon (Rp)"}),
             "stok": forms.NumberInput(attrs={"placeholder": "Sisa stok", "min": "0"}),
-            "pickup_start": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "pickup_end": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
 
     def clean(self):

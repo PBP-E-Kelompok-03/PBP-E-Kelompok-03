@@ -2,13 +2,6 @@
 
 {% block title %}Restoran Saya — Dibuang Sayang{% endblock %}
 
-{% block nav_links %}
-  <li><a href="{% url 'food:list' %}">Browse Food</a></li>
-  <li><a href="{% url 'food:my_restaurants' %}">Restoran Saya</a></li>
-  <li><a href="{% url 'order:history' %}">Riwayat Pesanan</a></li>
-  <li><span>Halo, {{ user.username }}</span></li>
-  <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
-{% endblock %}
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
@@ -30,6 +23,7 @@
           </div>
           <div style="display: flex; gap: var(--space-sm);">
             <a href="{% url 'food:restaurant_detail' rest.id %}" class="btn btn--outline" style="font-size: var(--font-size-sm);">Lihat Halaman</a>
+            <a href="{% url 'review:owner_restaurant_reviews' rest.id %}" class="btn btn--outline" style="font-size: var(--font-size-sm);">Ulasan</a>
             <a href="{% url 'food:edit_restaurant' rest.id %}" class="btn btn--outline" style="font-size: var(--font-size-sm);">Edit Info</a>
             <a href="{% url 'food:create_surprise_box' rest.id %}" class="btn" style="font-size: var(--font-size-sm);">+ Tambah Paket</a>
           </div>

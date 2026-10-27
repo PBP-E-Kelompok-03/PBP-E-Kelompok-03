@@ -1,8 +1,3 @@
-import datetime
-import json
-from pathlib import Path
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -14,18 +9,6 @@ from django.views.decorators.http import require_POST
 from .api_client import FoodApiClient
 from .forms import RestaurantForm, SurpriseBoxForm
 from .models import Restaurant, SurpriseBox
-
-
-def _load_dummy_data():
-    """
-    Fallback helper untuk kebutuhan seeding atau backward-compatibility (e.g. map.views).
-    View di modul food sendiri sekarang 100% menggunakan model database (ORM).
-    """
-    fixture_path = Path(settings.BASE_DIR) / "fixtures" / "dummy_data.json"
-    if not fixture_path.exists():
-        return {"restaurants": [], "surprise_boxes": []}
-    with open(fixture_path, encoding="utf-8") as f:
-        return json.load(f)
 
 
 def food_list(request):
@@ -46,7 +29,7 @@ def food_list(request):
         )
 
     surprise_boxes = list(boxes_qs)
-    total_restaurants = Restaurant.objects.filter(is_active=True).count()
+    total_restaurants = len({b.restaurant_id for b in surprise_boxes})
     total_stock = sum(b.stok for b in surprise_boxes)
 
     context = {
@@ -88,6 +71,8 @@ def my_restaurants(request):
 
 @login_required
 def create_restaurant(request):
+    if not (request.user.is_partner or request.user.is_staff):
+        raise PermissionDenied("Hanya mitra restoran yang boleh menambah restoran.")
     form = RestaurantForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         restaurant = form.save(commit=False)
