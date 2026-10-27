@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
   body {
-    background-color: #F8F9FF;
+    background-color: var(--ds-bg-page);
   }
 
   .food-page-wrapper {
@@ -20,7 +20,7 @@
 
   /* 1. Location Bar */
   .location-bar {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 16px;
     padding: 16px 20px;
     display: flex;
@@ -42,14 +42,14 @@
     line-height: 18px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .location-bar__title {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
     line-height: 24px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .location-bar__actions {
     display: flex;
@@ -60,15 +60,15 @@
     position: relative;
   }
   .btn-radius {
-    background: #FFFFFF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 12px;
     height: 42px;
     padding: 8px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 500;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -76,18 +76,18 @@
     transition: all 0.2s ease;
   }
   .btn-radius:hover {
-    border-color: #006C41;
-    background: #FAFCFA;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-bg-page);
   }
   .radius-dropdown-menu {
     display: none;
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(18, 28, 42, 0.12), 0 2px 6px rgba(18, 28, 42, 0.04);
+    box-shadow: 0 10px 30px rgba(24, 49, 12, 0.12), 0 2px 6px rgba(24, 49, 12, 0.04);
     padding: 8px;
     min-width: 250px;
     z-index: 100;
@@ -108,7 +108,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #006C41;
+    color: var(--ds-action-primary);
     padding: 8px 12px 4px;
   }
   .radius-option-item {
@@ -125,25 +125,25 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     font-weight: 600;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     width: 100%;
   }
   .radius-option-item:hover {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
   }
   .radius-option-item--active {
-    background: #EBF7F0;
-    color: #006C41;
+    background: var(--ds-brand-tint);
+    color: var(--ds-action-primary);
   }
   .radius-option-sub {
     font-size: 12px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
     font-weight: 400;
     margin-top: 2px;
   }
   .radius-check-icon {
     display: none;
-    color: #006C41;
+    color: var(--ds-action-primary);
     font-weight: 800;
     font-size: 14px;
   }
@@ -151,7 +151,7 @@
     display: inline-block;
   }
   .btn-change-loc {
-    background: #FFFFFF;
+    background: var(--ds-white);
     border: none;
     border-radius: 12px;
     height: 42px;
@@ -159,9 +159,9 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(18, 28, 42, 0.06);
+    box-shadow: 0 1px 3px rgba(24, 49, 12, 0.06);
   }
 
   /* 2. Search & Category Filters */
@@ -177,24 +177,24 @@
   .search-input-box {
     width: 100%;
     height: 56px;
-    background: #EFF4FF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-bg-subtle);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 12px;
     padding: 16px 20px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 400;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     outline: none;
     box-sizing: border-box;
     transition: border-color 0.2s;
   }
   .search-input-box:focus {
-    border-color: #006C41;
-    background: #FFFFFF;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-white);
   }
   .search-input-box::placeholder {
-    color: #3E4941;
+    color: var(--ds-text-secondary);
   }
 
   /* Quick Category Tag Filter */
@@ -227,15 +227,15 @@
     transition: all 0.2s ease;
   }
   .cat-pill--active {
-    background: #006C41;
-    color: #FFFFFF;
+    background: var(--ds-action-primary);
+    color: var(--ds-white);
   }
   .cat-pill--inactive {
-    background: #EFF4FF;
-    color: #121C2A;
+    background: var(--ds-bg-subtle);
+    color: var(--ds-text-primary);
   }
   .cat-pill--inactive:hover {
-    background: #E2EAF8;
+    background: var(--ds-border-default);
   }
 
   /* 3. Resto Count & Section Header */
@@ -256,23 +256,23 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-stock {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 8px;
     padding: 4px 12px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: #FFFFFF;
+    color: var(--ds-white);
   }
   .resto-list-header__sort {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 500;
     font-size: 14px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
   }
 
   /* 4. Resto Cards Grid */
@@ -298,25 +298,25 @@
   }
 
   .resto-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.06);
+    box-shadow: 0px 4px 16px rgba(24, 49, 12, 0.06);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .resto-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0px 8px 24px rgba(18, 28, 42, 0.12);
+    box-shadow: 0px 8px 24px rgba(24, 49, 12, 0.12);
   }
 
   .resto-card__thumb {
     width: 100%;
     height: 140px;
-    background: #E6EEFF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     position: relative;
     display: flex;
@@ -329,13 +329,13 @@
     position: absolute;
     top: 8px;
     left: 8px;
-    background: #FFFFFF;
+    background: var(--ds-white);
     border-radius: 6px;
     padding: 3px 8px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
   .badge-card-stock {
@@ -347,14 +347,14 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
   .badge-card-stock--orange {
-    background: #FD8A2F;
+    background: var(--ds-accent-solid);
   }
   .badge-card-stock--green {
-    background: #006C41;
+    background: var(--ds-action-primary);
   }
 
   .resto-card__body {
@@ -368,7 +368,7 @@
     font-weight: 700;
     font-size: 15px;
     line-height: 20px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0 0 2px 0;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -377,7 +377,7 @@
   .resto-card__pkg-name {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin: 0 0 6px 0;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -386,20 +386,20 @@
   .resto-card__rating {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin-bottom: 8px;
   }
   .resto-card__rating strong {
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .resto-card__pickup {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 8px;
     padding: 6px 8px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin-bottom: 12px;
     text-align: center;
   }
@@ -413,35 +413,35 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .price-old-val {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     text-decoration: line-through;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
   }
   .badge-hemat {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 6px;
     padding: 3px 8px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 12px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     display: inline-block;
     align-self: flex-start;
     margin-top: 4px;
   }
 
   .btn-pilih-resto {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 12px;
     height: 44px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-align: center;
     display: flex;
     align-items: center;
@@ -450,7 +450,7 @@
     transition: background 0.15s ease, transform 0.15s ease;
   }
   .btn-pilih-resto:hover {
-    background: #005231;
+    background: var(--ds-action-primary-hover);
     transform: translateY(-1px);
   }
 
@@ -473,18 +473,18 @@
     font-weight: 700;
     font-size: 26px;
     line-height: 32px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-highlight-stats {
-    background: #FFFFFF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 20px;
     padding: 8px 18px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
 
   .highlight-grid {
@@ -499,10 +499,10 @@
   }
 
   .banner-promo {
-    background: #072D1D;
+    background: var(--ds-bg-inverse);
     border-radius: 20px;
     padding: 40px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -516,7 +516,7 @@
     font-weight: 700;
     font-size: 28px;
     line-height: 1.25;
-    color: #FFFFFF;
+    color: var(--ds-white);
     margin: 0;
     max-width: 540px;
   }
@@ -524,13 +524,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
     line-height: 24px;
-    color: #EBF7F0;
+    color: var(--ds-brand-tint);
     margin: 0;
   }
   .btn-lihat-peta {
-    background: #40E576;
+    background: var(--ds-accent-on-inverse);
     border-radius: 12px;
-    color: #072D1D;
+    color: var(--ds-bg-inverse);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
@@ -547,8 +547,8 @@
   }
 
   .card-map-widget {
-    background: #FFFFFF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 20px;
     padding: 24px;
     display: flex;
@@ -565,16 +565,16 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .card-map-widget__open-count {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .card-map-widget__preview {
-    background: #E6EEFF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     height: 160px;
     display: flex;
@@ -583,13 +583,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     position: relative;
   }
   .btn-peta-penuh {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 12px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 16px;
@@ -600,15 +600,15 @@
     transition: background 0.15s ease;
   }
   .btn-peta-penuh:hover {
-    background: #d6f0e0;
+    background: var(--ds-brand-tint);
   }
 
   /* Footer from Figma */
   .food-footer {
-    background: #072D1D;
+    background: var(--ds-bg-inverse);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 56px 32px 32px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     margin-top: 48px;
   }
   .food-footer__inner {
@@ -639,13 +639,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #40E576;
+    color: var(--ds-accent-on-inverse);
     margin: 0 0 16px 0;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
   .food-footer__col a {
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-decoration: none;
     font-size: 14px;
     line-height: 24px;
@@ -658,8 +658,8 @@
     text-decoration: underline;
   }
   .btn-daftar-mitra {
-    background: #40E576;
-    color: #072D1D;
+    background: var(--ds-accent-on-inverse);
+    color: var(--ds-bg-inverse);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -681,12 +681,12 @@
 {% endblock %}
 
 {% block main %}
-<div class="food-page-wrapper">
+<div class="food-page-wrapper" id="main" tabindex="-1">
 
   <!-- Partner/Staff Quick Action -->
   {% if user.is_authenticated and user.role == "partner" or user.is_staff %}
-    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-weight: 600; color: #121C2A;">Area Mitra Restoran</span>
+    <div style="background: var(--ds-white); border: 1px solid var(--ds-border-default); border-radius: 12px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 600; color: var(--ds-text-primary);">Area Mitra Restoran</span>
       <div style="display: flex; gap: 10px;">
         <a href="{% url 'food:my_restaurants' %}" class="btn btn--outline" style="padding: 6px 14px; font-size: 14px;">Restoran Saya</a>
         <a href="{% url 'food:create_restaurant' %}" class="btn" style="padding: 6px 14px; font-size: 14px;">+ Tambah Restoran</a>
@@ -839,7 +839,7 @@
                   {% elif 'salad' in box.nama_paket|lower or 'deli' in box.restaurant.nama|lower %}🥗
                   {% else %}🛍️{% endif %}
                 </span>
-                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; color: #121C2A;">Foto produk</span>
+                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--ds-text-primary);">Foto produk</span>
               </div>
             </div>
 
@@ -887,8 +887,8 @@
       {% endfor %}
     </div>
   {% else %}
-    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 32px; text-align: center; margin-top: 16px;">
-      <p style="font-size: 16px; color: #3E4941; margin: 0;">
+    <div style="background: var(--ds-white); border: 1px solid var(--ds-border-default); border-radius: 16px; padding: 32px; text-align: center; margin-top: 16px;">
+      <p style="font-size: 16px; color: var(--ds-text-secondary); margin: 0;">
         Tidak ada paket Surprise Box yang ditemukan{% if query %} untuk pencarian <strong>"{{ query }}"</strong>{% endif %}.
       </p>
       {% if query %}
@@ -931,11 +931,11 @@
 
         <div class="card-map-widget__preview">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#006C41" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38761D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
-            <span style="font-weight: 700; color: #006C41;">Peta Sekitar</span>
+            <span style="font-weight: 700; color: var(--ds-action-primary);">Peta Sekitar</span>
           </div>
         </div>
 
@@ -956,9 +956,9 @@
       <div>
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 38px; width: auto; object-fit: contain;">
-          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF;">Dibuang Sayang</span>
+          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: var(--ds-white);">Dibuang Sayang</span>
         </div>
-        <p style="font-size: 14px; line-height: 20px; color: #EBF7F0; margin: 0; max-width: 280px;">
+        <p style="font-size: 14px; line-height: 20px; color: var(--ds-brand-tint); margin: 0; max-width: 280px;">
           Platform penyelamat makanan berlebih untuk kurangi sampah & dapatkan makanan lezat terjangkau.
         </p>
       </div>

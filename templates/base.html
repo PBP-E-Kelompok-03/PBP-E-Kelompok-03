@@ -14,6 +14,7 @@
   {% block extra_css %}{% endblock %}
 </head>
 <body class="ds-root">
+  <a class="ds-skip-link" href="#main">Lewati ke konten utama</a>
   <nav class="navbar" aria-label="Navigasi utama">
     <a class="navbar__brand-wrapper" href="/">
       <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="" class="navbar__logo-img">
@@ -45,7 +46,7 @@
               <a href="{% url 'order:incoming' %}" class="nav-item{% if request.resolver_match.url_name == 'incoming' %} is-active{% endif %}">Pesanan Masuk</a>
             {% endif %}
             <a href="{% url 'order:history' %}" class="nav-item{% if request.resolver_match.url_name == 'history' %} is-active{% endif %}">Riwayat Pesanan</a>
-            <span class="navbar__user-greeting">{{ user.username }}</span>
+            <span class="navbar__user-greeting">{{ user.get_full_name|default:user.username }}</span>
             <a href="{% url 'accounts:logout' %}" class="btn-navbar-logout">Logout</a>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="btn-navbar-cta">Masuk</a>
@@ -71,15 +72,28 @@
   </script>
 
   {% block main %}
-    <main class="container">
+    <main id="main" class="container" tabindex="-1">
       {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert--{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
+        <div role="status" aria-live="polite">
+          {% for message in messages %}
+            <div class="alert alert--{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
       {% endif %}
       {% block content %}{% endblock %}
     </main>
   {% endblock %}
+
+  <div class="ds-toasts" id="ds-toasts" role="status" aria-live="polite"></div>
+  <script>
+    window.dsToast = function (message, type) {
+      var el = document.createElement('div');
+      el.className = 'ds-toast ds-toast--' + (type || 'success');
+      el.textContent = message;
+      document.getElementById('ds-toasts').appendChild(el);
+      setTimeout(function () { el.remove(); }, 4000);
+    };
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>

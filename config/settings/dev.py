@@ -1,3 +1,5 @@
+import tempfile
+
 from decouple import config, Csv
 from .base import *
 
@@ -8,5 +10,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        "TEST": {"NAME": str(Path(tempfile.gettempdir()) / "dibuang_sayang_test.sqlite3")},
+        "OPTIONS": {"timeout": 20, "transaction_mode": "IMMEDIATE"},
     }
 }

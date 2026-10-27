@@ -164,7 +164,7 @@
         }
         if (radius !== null) {
             radiusCircle = L.circle(userLocation, {
-                radius, color: "#006c41", fillOpacity: 0.06, interactive: false,
+                radius, color: "#38761d", fillOpacity: 0.06, interactive: false,
             }).addTo(map);
         }
         if (fitView) {

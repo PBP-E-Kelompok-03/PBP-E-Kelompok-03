@@ -193,52 +193,132 @@ class OrderCancelViewTest(BaseOrderTest):
         self.client.login(username="buyer1", password="pass12345")
         self.assertEqual(self.client.post(self.url).status_code, 400)
 
+    def test_cannot_cancel_confirmed_order(self):
+        self.order_obj.status = Order.Status.CONFIRMED
+        self.order_obj.save()
+        self.client.login(username="buyer1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 400)
+        self.order_obj.refresh_from_db()
+        self.box.refresh_from_db()
+        self.assertEqual(self.order_obj.status, Order.Status.CONFIRMED)
+        self.assertEqual(self.box.stok, 4)
+
 
 class OrderCompleteViewTest(BaseOrderTest):
     def setUp(self):
         super().setUp()
-        self.order_obj = self.order(kode_pickup="COMP01")
+        self.order_obj = self.order(kode_pickup="COMP01", status=Order.Status.CONFIRMED)
         self.url = reverse("order:complete", args=[self.order_obj.id])
+
+    def complete(self, code="COMP01"):
+        return self.client.post(self.url, {"kode_pickup": code})
+
+    def status(self):
+        self.order_obj.refresh_from_db()
+        return self.order_obj.status
 
     def test_seller_can_complete(self):
         self.client.login(username="seller1", password="pass12345")
-        self.assertEqual(self.client.post(self.url).status_code, 200)
-        self.order_obj.refresh_from_db()
-        self.assertEqual(self.order_obj.status, Order.Status.COMPLETED)
+        self.assertEqual(self.complete().status_code, 200)
+        self.assertEqual(self.status(), Order.Status.COMPLETED)
+
+    def test_code_ignores_case_and_spaces(self):
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.complete(" comp01 ").status_code, 200)
+
+    def test_wrong_code_rejected(self):
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.complete("WRONG1").status_code, 400)
+        self.assertEqual(self.status(), Order.Status.CONFIRMED)
+
+    def test_missing_code_rejected(self):
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 400)
+        self.assertEqual(self.status(), Order.Status.CONFIRMED)
+
+    def test_cannot_complete_pending_order(self):
+        self.order_obj.status = Order.Status.PENDING
+        self.order_obj.save()
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.complete().status_code, 400)
+        self.assertEqual(self.status(), Order.Status.PENDING)
 
     def test_buyer_cannot_complete_own_order(self):
         self.client.login(username="buyer1", password="pass12345")
-        self.assertEqual(self.client.post(self.url).status_code, 403)
-        self.order_obj.refresh_from_db()
-        self.assertEqual(self.order_obj.status, Order.Status.PENDING)
+        self.assertEqual(self.complete().status_code, 403)
+        self.assertEqual(self.status(), Order.Status.CONFIRMED)
 
     def test_other_restaurant_owner_cannot_complete(self):
-        other_seller = User.objects.create_user(username="seller2", password="pass12345", role=User.Role.PARTNER)
+        User.objects.create_user(username="seller2", password="pass12345", role=User.Role.PARTNER)
         self.client.login(username="seller2", password="pass12345")
-        self.assertEqual(self.client.post(self.url).status_code, 403)
+        self.assertEqual(self.complete().status_code, 403)
 
-    def test_staff_can_complete(self):
+    def test_staff_can_complete_with_code(self):
         User.objects.create_user(username="admin1", password="pass12345", is_staff=True)
         self.client.login(username="admin1", password="pass12345")
-        self.assertEqual(self.client.post(self.url).status_code, 200)
+        self.assertEqual(self.complete().status_code, 200)
 
     def test_cannot_complete_cancelled_order(self):
         self.order_obj.status = Order.Status.CANCELLED
         self.order_obj.save()
         self.client.login(username="seller1", password="pass12345")
-        self.assertEqual(self.client.post(self.url).status_code, 400)
+        self.assertEqual(self.complete().status_code, 400)
 
     def test_double_complete_second_fails(self):
         self.client.login(username="seller1", password="pass12345")
-        self.client.post(self.url)
-        self.assertEqual(self.client.post(self.url).status_code, 400)
+        self.complete()
+        self.assertEqual(self.complete().status_code, 400)
 
     def test_cancel_after_complete_fails(self):
         self.client.login(username="seller1", password="pass12345")
-        self.client.post(self.url)
+        self.complete()
         self.client.login(username="buyer1", password="pass12345")
         self.assertEqual(self.client.post(reverse("order:cancel", args=[self.order_obj.id])).status_code, 400)
 
+
+class OrderConfirmViewTest(BaseOrderTest):
+    def setUp(self):
+        super().setUp()
+        self.order_obj = self.order(kode_pickup="CNF001")
+        self.url = reverse("order:confirm", args=[self.order_obj.id])
+
+    def status(self):
+        self.order_obj.refresh_from_db()
+        return self.order_obj.status
+
+    def test_seller_can_confirm(self):
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 200)
+        self.assertEqual(self.status(), Order.Status.CONFIRMED)
+
+    def test_staff_can_confirm(self):
+        User.objects.create_user(username="admin1", password="pass12345", is_staff=True)
+        self.client.login(username="admin1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 200)
+
+    def test_buyer_cannot_confirm(self):
+        self.client.login(username="buyer1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 403)
+        self.assertEqual(self.status(), Order.Status.PENDING)
+
+    def test_other_restaurant_owner_cannot_confirm(self):
+        User.objects.create_user(username="seller2", password="pass12345", role=User.Role.PARTNER)
+        self.client.login(username="seller2", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 403)
+
+    def test_anonymous_redirected(self):
+        self.assertEqual(self.client.post(self.url).status_code, 302)
+
+    def test_double_confirm_fails(self):
+        self.client.login(username="seller1", password="pass12345")
+        self.client.post(self.url)
+        self.assertEqual(self.client.post(self.url).status_code, 400)
+
+    def test_cannot_confirm_cancelled_order(self):
+        self.order_obj.status = Order.Status.CANCELLED
+        self.order_obj.save()
+        self.client.login(username="seller1", password="pass12345")
+        self.assertEqual(self.client.post(self.url).status_code, 400)
 
 class OrderIncomingViewTest(BaseOrderTest):
     def setUp(self):
@@ -359,7 +439,9 @@ class OrderExpiryTest(BaseOrderTest):
     def test_seller_cannot_complete_expired_order(self):
         order = self.order(surprise_box=self.stale_box)
         self.client.login(username="seller1", password="pass12345")
-        self.assertEqual(self.client.post(reverse("order:complete", args=[order.id])).status_code, 400)
+        self.assertEqual(
+            self.client.post(reverse("order:complete", args=[order.id]), {"kode_pickup": "ABC123"}).status_code, 400
+        )
 
     def test_buyer_cannot_cancel_expired_order(self):
         order = self.order(surprise_box=self.stale_box)

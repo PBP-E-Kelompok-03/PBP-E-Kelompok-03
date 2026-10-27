@@ -19,7 +19,7 @@
           <div class="ds-order__main">
             <div class="ds-order__thumb" aria-hidden="true"></div>
             <div class="ds-order__info">
-              {% if item.order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu pengambilan</span>
+              {% if item.order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu konfirmasi</span>
               {% elif item.order.status == "confirmed" %}<span class="ds-badge ds-badge--hemat">Siap diambil</span>
               {% elif item.order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>
               {% elif item.order.status == "expired" %}<span class="ds-badge ds-badge--neutral">Kedaluwarsa</span>
@@ -35,7 +35,9 @@
           <div class="ds-order__actions">
             {% if item.order.status == "pending" or item.order.status == "confirmed" %}
               <a class="ds-btn ds-btn--primary ds-btn--sm" href="{% url 'order:confirmation' item.order.id %}">Lihat voucher</a>
-              <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-cancel-order="{{ item.order.id }}" data-kode="{{ item.order.kode_pickup }}">Batalkan</button>
+              {% if item.order.status == "pending" %}
+                <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-cancel-order="{{ item.order.id }}" data-kode="{{ item.order.kode_pickup }}">Batalkan</button>
+              {% endif %}
             {% else %}
               <a class="ds-btn ds-btn--secondary ds-btn--sm" href="{% url 'order:confirmation' item.order.id %}">Lihat detail</a>
             {% endif %}
@@ -78,12 +80,17 @@
   const empty = document.getElementById("tab-empty");
   if (!chips.length) return;
 
-  Object.keys(groups).forEach((key) => {
-    const el = document.querySelector(`[data-count="${key}"]`);
-    if (el) el.textContent = cards.filter((c) => groups[key].includes(c.dataset.status)).length;
-  });
+  let currentTab = "active";
+
+  function refreshCounts() {
+    Object.keys(groups).forEach((key) => {
+      const el = document.querySelector(`[data-count="${key}"]`);
+      if (el) el.textContent = cards.filter((c) => groups[key].includes(c.dataset.status)).length;
+    });
+  }
 
   function show(tab) {
+    currentTab = tab;
     let visible = 0;
     cards.forEach((c) => {
       const on = groups[tab].includes(c.dataset.status);
@@ -98,16 +105,17 @@
     empty.classList.toggle("ds-hidden", visible > 0);
   }
   chips.forEach((chip) => chip.addEventListener("click", () => show(chip.dataset.tab)));
+  refreshCounts();
   show("active");
 
   const modal = document.getElementById("cancel-modal");
   const errorBox = document.getElementById("cancel-error");
   const confirmBtn = document.getElementById("cancel-confirm");
-  let pendingId = null;
+  let pendingBtn = null;
 
   document.querySelectorAll("[data-cancel-order]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      pendingId = btn.dataset.cancelOrder;
+      pendingBtn = btn;
       document.getElementById("cancel-kode").textContent = btn.dataset.kode;
       errorBox.classList.add("ds-hidden");
       modal.classList.remove("ds-hidden");
@@ -118,21 +126,39 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") modal.classList.add("ds-hidden"); });
 
   confirmBtn.addEventListener("click", async () => {
-    confirmBtn.disabled = true;
+    const card = pendingBtn.closest("[data-status]");
+    const prevStatus = card.dataset.status;
+    const oldBadge = card.querySelector(".ds-badge");
+    const newBadge = document.createElement("span");
+    newBadge.className = "ds-badge ds-badge--error";
+    newBadge.textContent = "Dibatalkan";
+
+    oldBadge.replaceWith(newBadge);
+    pendingBtn.remove();
+    card.dataset.status = "cancelled";
+    modal.classList.add("ds-hidden");
+    refreshCounts();
+    show(currentTab);
+
     try {
-      const response = await fetch(`/order/${pendingId}/cancel/`, {
+      const response = await fetch(`/order/${pendingBtn.dataset.cancelOrder}/cancel/`, {
         method: "POST",
         headers: { "X-CSRFToken": "{{ csrf_token }}" },
       });
-      if (response.ok) { location.reload(); return; }
+      if (response.ok) { dsToast("Pesanan dibatalkan."); return; }
       const data = await response.json().catch(() => ({}));
       errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
-      errorBox.classList.remove("ds-hidden");
     } catch (e) {
       errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
-      errorBox.classList.remove("ds-hidden");
     }
-    confirmBtn.disabled = false;
+
+    newBadge.replaceWith(oldBadge);
+    card.querySelector(".ds-order__actions").appendChild(pendingBtn);
+    card.dataset.status = prevStatus;
+    refreshCounts();
+    show(currentTab);
+    errorBox.classList.remove("ds-hidden");
+    modal.classList.remove("ds-hidden");
   });
 })();
 </script>

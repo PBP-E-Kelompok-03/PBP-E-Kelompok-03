@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Pesanan Masuk, Dibuang Sayang{% endblock %}
+{% block extra_css %}
+<style>
+  [data-state="pending"] [data-show="confirmed"],
+  [data-state="confirmed"] [data-show="pending"],
+  [data-state="completed"] { display: none; }
+</style>
+{% endblock %}
 {% block content %}
   <div class="ds-page-head">
     <h1 class="ds-h1">Pesanan Masuk</h1>
-    <p class="ds-text-secondary">Cocokkan kode pickup dari pembeli, lalu tandai selesai saat box diserahkan.</p>
+    <p class="ds-text-secondary">Terima pesanan baru, lalu masukkan kode pickup dari pembeli saat box diserahkan.</p>
   </div>
 
   <div class="ds-field" style="max-width: 360px; margin-bottom: var(--ds-space-4)">
@@ -13,20 +20,23 @@
 
   <div id="complete-error" class="ds-alert ds-alert--error ds-hidden" role="alert" style="margin-bottom: var(--ds-space-4)"></div>
 
-  <h2 class="ds-h3" style="margin-bottom: var(--ds-space-3)">Menunggu pengambilan ({{ active_orders|length }})</h2>
+  <h2 class="ds-h3" style="margin-bottom: var(--ds-space-3)">Menunggu pengambilan (<span id="active-count">{{ active_orders|length }}</span>)</h2>
   <div class="ds-stack" id="incoming-list">
     {% for order in active_orders %}
-      <article class="ds-order" data-kode="{{ order.kode_pickup }}">
+      <article class="ds-order" data-kode="{{ order.kode_pickup }}" data-state="{{ order.status }}">
         <div class="ds-order__main">
           <div class="ds-order__info">
-            <span class="ds-badge ds-badge--warning">{{ order.get_status_display }}</span>
+            <span class="ds-badge ds-badge--warning" data-show="pending">Menunggu konfirmasi</span>
+            <span class="ds-badge ds-badge--hemat" data-show="confirmed">Siap diambil</span>
             <h3 class="ds-h4">{{ order.surprise_box.nama_paket }} × {{ order.jumlah }}</h3>
             <p class="ds-label ds-caption">Kode {{ order.kode_pickup }} · {{ order.pembeli.username }}</p>
             <p class="ds-caption ds-text-secondary">{{ order.surprise_box.restaurant.nama }} · dibuat {{ order.dibuat_pada|date:"d M, H:i" }}</p>
           </div>
         </div>
         <div class="ds-order__actions">
-          <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-complete-order="{{ order.id }}">Selesaikan</button>
+          <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-show="pending" data-confirm-order="{{ order.id }}">Terima Pesanan</button>
+          <input type="text" class="ds-input" data-show="confirmed" placeholder="Kode pickup" aria-label="Kode pickup pesanan {{ order.pembeli.username }}" data-code-input="{{ order.id }}" autocomplete="off">
+          <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-show="confirmed" data-complete-order="{{ order.id }}">Selesaikan</button>
         </div>
       </article>
     {% empty %}
@@ -63,23 +73,45 @@
   });
 
   const errorBox = document.getElementById("complete-error");
-  document.querySelectorAll("[data-complete-order]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      btn.disabled = true;
-      errorBox.classList.add("ds-hidden");
-      try {
-        const response = await fetch(`/order/${btn.dataset.completeOrder}/complete/`, {
-          method: "POST",
-          headers: { "X-CSRFToken": "{{ csrf_token }}" },
-        });
-        if (response.ok) { location.reload(); return; }
-        const data = await response.json().catch(() => ({}));
-        errorBox.textContent = data.error || "Pesanan gagal diselesaikan.";
-      } catch (e) {
-        errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
+  const activeCount = document.getElementById("active-count");
+
+  async function send(btn, url, body, nextState) {
+    const card = btn.closest("[data-state]");
+    const prevState = card.dataset.state;
+    btn.classList.add("is-loading");
+    errorBox.classList.add("ds-hidden");
+    if (nextState === "confirmed") card.dataset.state = nextState;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+      if (response.ok) {
+        card.dataset.state = nextState;
+        if (nextState === "completed") activeCount.textContent = Number(activeCount.textContent) - 1;
+        btn.classList.remove("is-loading");
+        dsToast(nextState === "completed" ? "Pesanan selesai diambil." : "Pesanan diterima.");
+        return;
       }
-      errorBox.classList.remove("ds-hidden");
-      btn.disabled = false;
+      const data = await response.json().catch(() => ({}));
+      errorBox.textContent = data.error || "Aksi gagal.";
+    } catch (e) {
+      errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
+    }
+    card.dataset.state = prevState;
+    btn.classList.remove("is-loading");
+    errorBox.classList.remove("ds-hidden");
+  }
+
+  document.querySelectorAll("[data-confirm-order]").forEach((btn) => {
+    btn.addEventListener("click", () => send(btn, `/order/${btn.dataset.confirmOrder}/confirm/`, "", "confirmed"));
+  });
+  document.querySelectorAll("[data-complete-order]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.completeOrder;
+      const input = document.querySelector(`[data-code-input="${id}"]`);
+      send(btn, `/order/${id}/complete/`, "kode_pickup=" + encodeURIComponent(input.value), "completed");
     });
   });
 })();
