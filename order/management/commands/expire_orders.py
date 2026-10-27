@@ -4,7 +4,7 @@ from order.views import expire_stale_orders
 
 
 class Command(BaseCommand):
-    help = "Tandai pesanan aktif yang melewati jendela pickup sebagai kedaluwarsa."
+    help = "Tandai pesanan aktif yang lebih dari 24 jam sebagai kedaluwarsa dan kembalikan stok."
 
     def handle(self, *args, **options):
         count = expire_stale_orders()

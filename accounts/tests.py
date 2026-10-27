@@ -26,6 +26,15 @@ class AuthViewsTest(TestCase):
             "role": User.Role.BUYER, "password1": "SuperSecret123", "password2": "SuperSecret123",
         })
         self.assertTrue(User.objects.filter(username="newbuyer").exists())
+        self.assertRedirects(response, reverse("accounts:login"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_register_form_has_no_email_field(self):
+        response = self.client.post(reverse("accounts:register"), {
+            "username": "noemail", "email": "victim@example.com",
+            "role": User.Role.BUYER, "password1": "SuperSecret123", "password2": "SuperSecret123",
+        })
+        self.assertEqual(User.objects.get(username="noemail").email, "")
 
     def test_login_success(self):
         response = self.client.post(reverse("accounts:login"), {"username": "dyah", "password": "pass12345"})
@@ -63,8 +72,14 @@ class AuthViewsTest(TestCase):
 
     def test_logout(self):
         self.client.login(username="dyah", password="pass12345")
-        response = self.client.get(reverse("accounts:logout"))
+        response = self.client.post(reverse("accounts:logout"))
         self.assertEqual(response.status_code, 302)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logout_rejects_get(self):
+        self.client.login(username="dyah", password="pass12345")
+        self.assertEqual(self.client.get(reverse("accounts:logout")).status_code, 405)
+        self.assertIn("_auth_user_id", self.client.session)
 
 
 GOOGLE_INFO = {"sub": "12345", "email": "dyah@example.com", "email_verified": True, "name": "Dyah Z"}
@@ -145,3 +160,16 @@ class GoogleOAuthTest(TestCase):
     def test_navbar_shows_full_name(self):
         self.callback()
         self.assertContains(self.client.get(reverse("order:history")), "Dyah Z")
+
+
+class ProfileViewTest(TestCase):
+    def test_requires_login(self):
+        self.assertEqual(self.client.get(reverse("accounts:profile")).status_code, 302)
+
+    def test_shows_role_and_username(self):
+        User.objects.create_user(username="mitra9", password="pass12345", role=User.Role.PARTNER)
+        self.client.login(username="mitra9", password="pass12345")
+        response = self.client.get(reverse("accounts:profile"))
+        self.assertContains(response, "mitra9")
+        self.assertContains(response, "Mitra Restoran")
+

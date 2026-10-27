@@ -10,6 +10,7 @@ urlpatterns = [
     path("checkout/<int:box_id>/", views.checkout_view, name="checkout"),
     path("create/<int:box_id>/", views.create_order, name="create"),
     path("<int:order_id>/cancel/", views.cancel_order, name="cancel"),
+    path("<int:order_id>/reject/", views.reject_order, name="reject"),
     path("<int:order_id>/confirm/", views.confirm_order, name="confirm"),
     path("<int:order_id>/complete/", views.complete_order, name="complete"),
     path("<int:order_id>/confirmation/", views.order_confirmation, name="confirmation"),

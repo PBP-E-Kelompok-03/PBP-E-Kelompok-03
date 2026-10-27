@@ -11,17 +11,18 @@
     <section class="ds-voucher">
       <div class="ds-voucher__head">
         <div>
-          <p class="ds-overline">Batas pengambilan</p>
-          {% if box %}<p class="ds-h4">Sebelum {{ box.pickup_end|time:"H:i" }} WIB</p>{% endif %}
+          <p class="ds-overline">Berlaku sampai</p>
+          <p class="ds-h4">{{ order.kedaluwarsa_pada|date:"d M, H:i" }} WIB</p>
         </div>
         {% if order.status == "pending" or order.status == "confirmed" %}
-          <span class="ds-timer ds-hidden" id="pickup-timer" data-end="{{ box.pickup_end|date:'c' }}" role="timer">Sisa <span id="pickup-left"></span></span>
+          <span class="ds-timer ds-hidden" id="pickup-timer" data-end="{{ order.kedaluwarsa_pada|date:'c' }}" role="timer">Sisa <span id="pickup-left"></span></span>
         {% endif %}
       </div>
       <div class="ds-voucher__body">
         {% if order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu konfirmasi restoran</span>
         {% elif order.status == "confirmed" %}<span class="ds-badge ds-badge--hemat">Siap diambil</span>
         {% elif order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>
+        {% elif order.status == "expired" %}<span class="ds-badge ds-badge--neutral">Kedaluwarsa</span>
         {% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
         <div>
           <p class="ds-overline ds-text-secondary">Kode reservasi</p>
@@ -33,7 +34,7 @@
             {% if box %}<p class="ds-label">{{ order.jumlah }}× {{ box.nama_paket }}</p>{% endif %}
             <p class="ds-caption ds-text-secondary">Bayar tunai di gerai</p>
           </div>
-          {% if box %}<p class="ds-h4 ds-price" id="total" data-unit="{{ box.harga_diskon|unlocalize }}" data-qty="{{ order.jumlah }}"></p>{% endif %}
+          <p class="ds-h4 ds-price" id="total" data-unit="{{ order.harga_satuan|unlocalize }}" data-qty="{{ order.jumlah }}"></p>
         </div>
       </div>
     </section>
@@ -50,13 +51,13 @@
              href="https://www.openstreetmap.org/?mlat={{ restaurant.lat|unlocalize }}&mlon={{ restaurant.lng|unlocalize }}#map=18/{{ restaurant.lat|unlocalize }}/{{ restaurant.lng|unlocalize }}"
              target="_blank" rel="noopener">Buka peta / navigasi</a>
         {% endif %}
-        {% if box %}<p class="ds-pickup-window">Jendela pickup: {{ box.pickup_start|time:"H:i" }} – {{ box.pickup_end|time:"H:i" }} WIB</p>{% endif %}
+        {% if restaurant.jam_buka and restaurant.jam_tutup %}<p class="ds-pickup-window">Jam buka: {{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB</p>{% endif %}
       </section>
 
       <section class="ds-card">
         <h2 class="ds-h4">Cara mengambil pesanan</h2>
         <ol class="ds-steps">
-          <li>Datang ke gerai dalam jendela pickup.</li>
+          <li>Datang ke gerai sebelum pesanan kedaluwarsa.</li>
           <li>Sebutkan kode {{ order.kode_pickup }} ke kasir.</li>
           <li>Kasir memverifikasi, kamu terima box dan bayar tunai.</li>
         </ol>

@@ -1,5 +1,10 @@
+import datetime
+
 from django.db import models
 from django.conf import settings
+
+ORDER_TTL = datetime.timedelta(hours=24)
+
 
 class Order(models.Model):
     class Status(models.TextChoices):
@@ -17,6 +22,7 @@ class Order(models.Model):
         related_name="orders",
     )
     jumlah = models.PositiveIntegerField()
+    harga_satuan = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     kode_pickup = models.CharField(max_length=20, unique=True)
     dibuat_pada = models.DateTimeField(auto_now_add=True)
@@ -29,6 +35,10 @@ class Order(models.Model):
                 name="uniq_active_order_per_box",
             )
         ]
+
+    @property
+    def kedaluwarsa_pada(self):
+        return self.dibuat_pada + ORDER_TTL
 
     def __str__(self):
         return f"Order {self.kode_pickup} ({self.status})"

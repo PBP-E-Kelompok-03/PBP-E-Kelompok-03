@@ -3,9 +3,11 @@ from authlib.integrations.base_client import OAuthError
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from .forms import RegisterForm
 from .google import fetch_google_keys
@@ -69,6 +71,12 @@ def google_callback(request):
     return redirect("landing")
 
 
+@login_required
+def profile_view(request):
+    return render(request, "accounts/profile.html")
+
+
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect("landing")
@@ -80,8 +88,8 @@ def register_view(request):
 
     form = RegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        user = form.save()
-        login(request, user)
-        return redirect("landing")
+        form.save()
+        messages.success(request, "Akun berhasil dibuat. Silakan masuk.")
+        return redirect("accounts:login")
 
     return render(request, "accounts/register.html", {"form": form})
