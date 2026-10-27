@@ -19,7 +19,7 @@
         {% endif %}
       </div>
       <div class="ds-voucher__body">
-        {% if order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu pengambilan</span>
+        {% if order.status == "pending" %}<span class="ds-badge ds-badge--warning">Menunggu konfirmasi restoran</span>
         {% elif order.status == "confirmed" %}<span class="ds-badge ds-badge--hemat">Siap diambil</span>
         {% elif order.status == "completed" %}<span class="ds-badge ds-badge--neutral">Selesai</span>
         {% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
@@ -27,8 +27,7 @@
           <p class="ds-overline ds-text-secondary">Kode reservasi</p>
           <p class="ds-voucher__code voucher-code" style="letter-spacing: -0.5px">{{ order.kode_pickup }}</p>
         </div>
-        <div class="ds-voucher__qr" id="qr" data-code="{{ order.kode_pickup }}" aria-label="QR code {{ order.kode_pickup }}"></div>
-        <p class="ds-caption ds-text-secondary">Kasir akan memindai QR atau memasukkan kode di atas.</p>
+        <p class="ds-caption ds-text-secondary">Sebutkan kode di atas ke kasir saat mengambil pesanan.</p>
         <div class="ds-voucher__summary">
           <div>
             {% if box %}<p class="ds-label">{{ order.jumlah }}× {{ box.nama_paket }}</p>{% endif %}
@@ -58,7 +57,7 @@
         <h2 class="ds-h4">Cara mengambil pesanan</h2>
         <ol class="ds-steps">
           <li>Datang ke gerai dalam jendela pickup.</li>
-          <li>Tunjukkan QR atau sebutkan kode {{ order.kode_pickup }} ke kasir.</li>
+          <li>Sebutkan kode {{ order.kode_pickup }} ke kasir.</li>
           <li>Kasir memverifikasi, kamu terima box dan bayar tunai.</li>
         </ol>
         <div class="ds-alert ds-alert--warning">Bawa wadah atau tas belanja sendiri.</div>
@@ -67,7 +66,7 @@
   </div>
 
   <div class="ds-row" style="max-width: 960px; margin: var(--ds-space-6) auto 0; gap: 12px; flex-wrap: wrap">
-    {% if order.status == "pending" or order.status == "confirmed" %}
+    {% if order.status == "pending" %}
       <button type="button" class="ds-btn ds-btn--secondary" id="cancel-btn" style="flex: 1">Batalkan pesanan</button>
     {% endif %}
 
@@ -100,15 +99,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 (function () {
   const rupiah = (n) => "Rp" + Math.round(Number(n) || 0).toLocaleString("id-ID");
-
-  const qrEl = document.getElementById("qr");
-  if (window.QRCode && qrEl) {
-    new QRCode(qrEl, { text: qrEl.dataset.code, width: 216, height: 216, colorDark: "#18310C", colorLight: "#FFFFFF" });
-  }
 
   const total = document.getElementById("total");
   if (total) total.textContent = rupiah((parseFloat(total.dataset.unit) || 0) * (parseInt(total.dataset.qty, 10) || 1));

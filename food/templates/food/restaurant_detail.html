@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
   body {
-    background-color: #F8F9FF;
+    background-color: var(--ds-bg-page);
   }
 
   .detail-page-wrapper {
@@ -27,7 +27,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -41,19 +41,19 @@
 
   /* 2. Hero Resto Card */
   .resto-hero-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 4px 16px rgba(24, 49, 12, 0.04);
   }
   .resto-hero-banner {
     width: 100%;
     height: 224px;
-    background: #E6EEFF;
+    background: var(--ds-bg-subtle);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -67,7 +67,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
   }
 
   .resto-hero-info {
@@ -93,17 +93,17 @@
     font-weight: 700;
     font-size: 28px;
     line-height: 36px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-verified {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 4px 10px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .resto-hero-header__right {
     display: flex;
@@ -111,23 +111,23 @@
     gap: 10px;
   }
   .pill-rating {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 20px;
     padding: 6px 14px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .pill-stock-hero {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 20px;
     padding: 6px 14px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #FFFFFF;
+    color: var(--ds-white);
   }
 
   .resto-hero-meta {
@@ -140,14 +140,14 @@
   .resto-hero-address {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 15px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin: 0;
   }
   .pickup-alert-box {
-    background: #DC2626;
+    background: var(--ds-error);
     border-radius: 14px;
     padding: 8px 18px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,14 +165,14 @@
     opacity: 0.9;
   }
   .badge-halal {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 10px;
     padding: 6px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
 
   /* 3. Main Two-Column Layout */
@@ -204,40 +204,40 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 22px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-variant-count {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 4px 10px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
 
   .box-menu-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 16px;
     display: flex;
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0px 2px 8px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 2px 8px rgba(24, 49, 12, 0.04);
     transition: border-color 0.2s;
   }
   .box-menu-card--active {
-    border-color: #006C41;
-    background: #FAFCFA;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-bg-page);
   }
 
   .box-menu-thumb {
     width: 130px;
     height: 95px;
-    background: #E6EEFF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     position: relative;
     display: flex;
@@ -250,13 +250,13 @@
     position: absolute;
     top: 6px;
     left: 6px;
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 6px;
     padding: 2px 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 11px;
-    color: #FFFFFF;
+    color: var(--ds-white);
   }
 
   .box-menu-details {
@@ -275,22 +275,22 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-sisa-box {
-    background: #FEF3C7;
+    background: var(--ds-accent-tint);
     border-radius: 6px;
     padding: 2px 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #D97706;
+    color: var(--ds-text-accent);
   }
   .box-menu-desc {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
     margin: 0;
   }
   .box-menu-prices {
@@ -303,13 +303,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     text-decoration: line-through;
-    color: #9CA3AF;
+    color: var(--ds-text-disabled);
   }
   .box-menu-prices .new-price {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
 
   .box-menu-actions {
@@ -319,7 +319,7 @@
     flex-shrink: 0;
   }
   .stepper {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 10px;
     display: inline-flex;
     align-items: center;
@@ -332,7 +332,7 @@
     background: transparent;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -349,13 +349,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .btn-add-item {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border: none;
     border-radius: 10px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -364,13 +364,13 @@
     transition: background 0.15s ease;
   }
   .btn-add-item:hover {
-    background: #005231;
+    background: var(--ds-action-primary-hover);
   }
 
   /* Catatan Pesanan Card */
   .order-notes-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 20px;
     margin-top: 16px;
@@ -382,7 +382,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 17px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .byob-wrapper {
@@ -394,7 +394,7 @@
   .byob-checkbox {
     width: 20px;
     height: 20px;
-    accent-color: #006C41;
+    accent-color: var(--ds-action-primary);
     cursor: pointer;
     margin-top: 2px;
   }
@@ -402,46 +402,46 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .byob-label-sub {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     font-weight: 600;
   }
   .cashier-note-input {
     width: 100%;
-    background: #EFF4FF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-bg-subtle);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 10px;
     padding: 12px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     outline: none;
     box-sizing: border-box;
   }
   .cashier-note-input:focus {
-    border-color: #006C41;
-    background: #FFFFFF;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-white);
   }
 
   /* Right Column: Order Summary Card */
   .summary-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 20px;
     position: sticky;
     top: 96px;
-    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 4px 16px rgba(24, 49, 12, 0.04);
   }
   .summary-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0 0 16px 0;
   }
   .summary-item-line {
@@ -449,10 +449,10 @@
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 12px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--ds-bg-subtle);
   }
   .summary-savings-banner {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 10px 14px;
     display: flex;
@@ -461,7 +461,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 15px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     margin: 14px 0;
   }
   .summary-row {
@@ -470,11 +470,11 @@
     align-items: center;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin-bottom: 8px;
   }
   .summary-total-box {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     padding: 14px 16px;
     margin: 16px 0;
@@ -486,7 +486,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 12px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -494,16 +494,16 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
     font-size: 22px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .btn-confirm-reserve {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 12px;
     height: 46px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 16px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-align: center;
     display: flex;
     align-items: center;
@@ -515,28 +515,28 @@
     cursor: pointer;
   }
   .btn-confirm-reserve:hover {
-    background: #005231;
+    background: var(--ds-action-primary-hover);
   }
   .badge-payment-cash {
-    border: 1px solid #006C41;
+    border: 1px solid var(--ds-action-primary);
     border-radius: 12px;
     height: 42px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 10px;
-    background: #FFFFFF;
+    background: var(--ds-white);
   }
 
   /* Location Miniature Card */
   .mini-map-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 16px;
     margin-top: 16px;
@@ -550,17 +550,17 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .mini-map-card__link {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-decoration: none;
   }
   .mini-map-card__preview {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     height: 100px;
     display: flex;
@@ -569,13 +569,13 @@
     margin-top: 12px;
   }
   .mini-map-card__pill {
-    background: #FFFFFF;
+    background: var(--ds-white);
     border-radius: 20px;
     padding: 6px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
@@ -599,7 +599,7 @@
     gap: 4px;
   }
   .reviews-stars-orange {
-    color: #F59E0B;
+    color: var(--ds-accent-solid);
     font-size: 18px;
     letter-spacing: 2px;
   }
@@ -607,7 +607,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 24px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .reviews-score-wrap {
@@ -617,12 +617,12 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .reviews-score-sub {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
   }
 
   .reviews-grid {
@@ -637,8 +637,8 @@
   }
 
   .review-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 18px;
     display: flex;
@@ -667,38 +667,38 @@
     font-weight: 700;
     font-size: 13px;
   }
-  .avatar-dk { background: #EBF7F0; color: #006C41; }
-  .avatar-aw { background: #FEF3C7; color: #D97706; }
-  .avatar-rz { background: #EFF4FF; color: #006C41; }
+  .avatar-dk { background: var(--ds-brand-tint); color: var(--ds-action-primary); }
+  .avatar-aw { background: var(--ds-accent-tint); color: var(--ds-text-accent); }
+  .avatar-rz { background: var(--ds-bg-subtle); color: var(--ds-action-primary); }
   .review-user-name {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .review-stars {
-    color: #F59E0B;
+    color: var(--ds-accent-solid);
     font-size: 13px;
   }
   .review-comment {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     line-height: 20px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin: 0;
   }
   .review-time {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
-    color: #9CA3AF;
+    color: var(--ds-text-disabled);
   }
 
   /* Footer */
   .detail-footer {
-    background: #072D1D;
+    background: var(--ds-bg-inverse);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 56px 32px 32px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     margin-top: 48px;
   }
   .detail-footer__inner {
@@ -729,13 +729,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #40E576;
+    color: var(--ds-accent-on-inverse);
     margin: 0 0 16px 0;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
   .detail-footer__col a {
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-decoration: none;
     font-size: 14px;
     line-height: 24px;
@@ -744,8 +744,8 @@
     opacity: 0.9;
   }
   .btn-daftar-mitra-detail {
-    background: #40E576;
-    color: #072D1D;
+    background: var(--ds-accent-on-inverse);
+    color: var(--ds-bg-inverse);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -769,7 +769,7 @@
     margin-top: 12px;
     margin-left: 28px;
     padding-left: 12px;
-    border-left: 2px solid #dddddd;
+    border-left: 2px solid var(--ds-border-default);
 }
 
 .restaurant-owner-reply strong {
@@ -804,20 +804,20 @@
 
 /* Edit warna hijau */
 .review-edit-btn {
-    background: #FFFFFF;
-    border: 1px solid #006C41;
-    color: #006C41;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-action-primary);
+    color: var(--ds-action-primary);
 }
 
 /* Hapus warna merah */
 .review-delete-btn {
-    background: #DC2626;
-    border: 1px solid #DC2626;
-    color: #FFFFFF;
+    background: var(--ds-error);
+    border: 1px solid var(--ds-error);
+    color: var(--ds-white);
 }
 
 .review-delete-btn:hover {
-    background: #B91C1C;
+    background: var(--ds-error);
 }
 
 .review-inline-edit {
@@ -842,7 +842,7 @@
     box-sizing: border-box;
     margin-top: 5px;
     padding: 8px;
-    border: 1px solid #D1D5DB;
+    border: 1px solid var(--ds-border-default);
     border-radius: 8px;
     font: inherit;
 }
@@ -851,7 +851,7 @@
     padding: 8px 14px;
     border: none;
     border-radius: 8px;
-    background: #006C41;
+    background: var(--ds-action-primary);
     color: white;
     cursor: pointer;
 }
@@ -936,7 +936,7 @@
 
       <!-- Partner / Staff Management Actions -->
       {% if user.is_authenticated and restaurant.owner == user or user.is_staff %}
-        <div style="display: flex; gap: 10px; padding-top: 8px; border-top: 1px solid #F3F4F6;">
+        <div style="display: flex; gap: 10px; padding-top: 8px; border-top: 1px solid var(--ds-bg-subtle);">
           <a href="{% url 'food:edit_restaurant' restaurant.id %}" class="btn btn--outline" style="padding: 6px 14px; font-size: 13px;">Edit Info Restoran</a>
           <a href="{% url 'food:create_surprise_box' restaurant.id %}" class="btn" style="padding: 6px 14px; font-size: 13px;">+ Tambah Paket</a>
         </div>
@@ -971,7 +971,7 @@
                 <span class="badge-box-hemat">Hemat {{ box.diskon_persen }}%</span>
               {% endif %}
               <span style="font-size: 24px;">🥐</span>
-              <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: #3E4941; font-weight: 500;">Foto produk</span>
+              <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: var(--ds-text-secondary); font-weight: 500;">Foto produk</span>
             </div>
 
             <!-- Details -->
@@ -1007,8 +1007,8 @@
           </article>
         {% endfor %}
       {% else %}
-        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; text-align: center;">
-          <p style="color: #6E7A70; margin: 0;">Belum ada paket Surprise Box aktif di restoran ini.</p>
+        <div style="background: var(--ds-white); border: 1px solid var(--ds-border-default); border-radius: 16px; padding: 24px; text-align: center;">
+          <p style="color: var(--ds-text-placeholder); margin: 0;">Belum ada paket Surprise Box aktif di restoran ini.</p>
           {% if user.is_authenticated and restaurant.owner == user or user.is_staff %}
             <a href="{% url 'food:create_surprise_box' restaurant.id %}" class="btn" style="margin-top: 14px; display: inline-block;">+ Tambah Paket Pertama</a>
           {% endif %}
@@ -1028,7 +1028,7 @@
         </label>
 
         <div>
-          <label for="cashierNote" style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: #121C2A; margin-bottom: 6px;">
+          <label for="cashierNote" style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--ds-text-primary); margin-bottom: 6px;">
             Catatan untuk kasir
           </label>
           <input
@@ -1049,19 +1049,19 @@
         <!-- Selected Item Row -->
         <div class="summary-item-line">
           <div>
-            <div id="summaryItemName" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: #121C2A;">
+            <div id="summaryItemName" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
               1x {{ first_box.nama_paket|default:"Surprise Box" }}
             </div>
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #6E7A70; margin-top: 2px;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: var(--ds-text-placeholder); margin-top: 2px;">
               {{ restaurant.nama }}
             </div>
           </div>
 
           <div style="text-align: right;">
-            <div id="summaryItemPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: #121C2A;">
+            <div id="summaryItemPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
               Rp {{ first_box.harga_diskon|floatformat:0|default:"35.000" }}
             </div>
-            <div id="summaryOldPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; text-decoration: line-through; color: #9CA3AF;">
+            <div id="summaryOldPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; text-decoration: line-through; color: var(--ds-text-disabled);">
               Rp {{ first_box.harga_normal|floatformat:0|default:"100.000" }}
             </div>
           </div>
@@ -1168,9 +1168,9 @@
       <div>
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 38px; width: auto; object-fit: contain;">
-          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF;">Dibuang Sayang</span>
+          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: var(--ds-white);">Dibuang Sayang</span>
         </div>
-        <p style="font-size: 14px; line-height: 20px; color: #EBF7F0; margin: 0; max-width: 280px;">
+        <p style="font-size: 14px; line-height: 20px; color: var(--ds-brand-tint); margin: 0; max-width: 280px;">
           Platform penyelamat makanan berlebih untuk kurangi sampah & dapatkan makanan lezat terjangkau.
         </p>
       </div>

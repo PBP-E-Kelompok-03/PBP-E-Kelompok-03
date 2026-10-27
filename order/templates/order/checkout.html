@@ -15,7 +15,7 @@
         <li aria-current="page">Checkout</li>
       </ol>
       <h1 class="ds-h1">Checkout</h1>
-      <p class="ds-text-secondary">Cek pesananmu, lalu reservasi. Selesaikan dalam 10 menit.</p>
+      <p class="ds-text-secondary">Cek pesananmu, lalu reservasi.</p>
     </div>
 
     <div id="alert-box" aria-live="polite"></div>
@@ -76,7 +76,6 @@
         <div class="ds-row ds-row--between"><span class="ds-text-secondary">Biaya layanan</span><span class="ds-label">Rp0</span></div>
         <hr class="ds-divider">
         <div class="ds-row ds-row--between"><span class="ds-h4">Total</span><span class="ds-h3 ds-price" id="total"></span></div>
-        <div class="ds-timer ds-timer--soft" role="timer">Selesaikan dalam <span id="hold-timer">10:00</span></div>
         <button type="button" class="ds-btn ds-btn--primary ds-btn--block" id="confirm-order-btn"
                 data-box-id="{{ box.id }}" data-max-stock="{{ max_qty|default:0 }}">
           Konfirmasi &amp; Reservasi Sekarang
@@ -138,6 +137,7 @@
   confirmBtn.addEventListener("click", async () => {
     alertBox.innerHTML = "";
     confirmBtn.disabled = true;
+    confirmBtn.classList.add("is-loading");
     try {
       const response = await fetch(`/order/create/${confirmBtn.dataset.boxId}/`, {
         method: "POST",
@@ -153,22 +153,9 @@
     } catch (e) {
       showError("Koneksi bermasalah. Coba lagi.");
     }
+    confirmBtn.classList.remove("is-loading");
     confirmBtn.disabled = false;
   });
-
-  let left = 600;
-  const timerEl = document.getElementById("hold-timer");
-  const tick = setInterval(() => {
-    left -= 1;
-    if (left <= 0) {
-      clearInterval(tick);
-      timerEl.textContent = "00:00";
-      showError("Waktu checkout habis. Muat ulang halaman untuk cek ketersediaan stok.");
-      confirmBtn.disabled = true;
-      return;
-    }
-    timerEl.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
-  }, 1000);
 
   render();
 })();
