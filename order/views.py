@@ -19,6 +19,7 @@ ACTIVE = (Order.Status.PENDING, Order.Status.CONFIRMED)
 
 
 def expire_stale_orders(orders=None):
+    """tandai pesanan aktif yang lewat 24 jam jadi expired dan balikin stoknya"""
     orders = Order.objects.all() if orders is None else orders
     cutoff = timezone.now() - ORDER_TTL
     expired = 0
@@ -32,16 +33,19 @@ def expire_stale_orders(orders=None):
 
 
 def _available_boxes():
+    """box dan restoran yang masih aktif"""
     return SurpriseBox.objects.select_related("restaurant").filter(is_active=True, restaurant__is_active=True)
 
 
 def _error(message, status=400):
+    """balikin json error untuk ajax"""
     return JsonResponse({"error": message}, status=status)
 
 
 @login_required
 @require_POST
 def create_order(request, box_id):
+    """ajax pembeli: kurangi stok, simpan harga, buat pesanan dengan kode pickup"""
     if not request.user.is_buyer:
         return _error("Akun mitra tidak bisa memesan. Gunakan akun pembeli.", 403)
     form = OrderCreateForm(request.POST if "jumlah" in request.POST else {"jumlah": 1})
@@ -81,6 +85,7 @@ def create_order(request, box_id):
 
 @login_required
 def checkout_view(request, box_id):
+    """halaman checkout, khusus pembeli"""
     if not request.user.is_buyer:
         raise PermissionDenied("Akun mitra tidak bisa memesan. Gunakan akun pembeli.")
     box = _available_boxes().filter(pk=box_id).first()
@@ -101,6 +106,7 @@ def checkout_view(request, box_id):
 
 @login_required
 def order_history(request):
+    """riwayat pesanan milik pembeli"""
     expire_stale_orders(Order.objects.filter(pembeli=request.user))
     orders = Order.objects.filter(pembeli=request.user).select_related("surprise_box__restaurant").order_by("-dibuat_pada")
     order_list = [{"order": order, "box": order.surprise_box} for order in orders]
@@ -108,6 +114,7 @@ def order_history(request):
 
 
 def _cancel(order_id, from_statuses):
+    """batalkan pesanan kalau statusnya masih di from_statuses, lalu balikin stok"""
     with transaction.atomic():
         order = get_object_or_404(Order, id=order_id)
         changed = Order.objects.filter(pk=order.pk, status__in=from_statuses).update(
@@ -122,6 +129,7 @@ def _cancel(order_id, from_statuses):
 @require_POST
 @owner_required
 def cancel_order(request, order_id):
+    """ajax pembeli: batalkan pesanan yang masih pending"""
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order, changed = _cancel(order_id, [Order.Status.PENDING])
     if not changed:
@@ -138,6 +146,7 @@ def cancel_order(request, order_id):
 @require_POST
 @seller_required
 def reject_order(request, order_id):
+    """ajax penjual: tolak pesanan pending atau confirmed (jadi cancelled)"""
     expire_stale_orders(Order.objects.filter(pk=order_id))
     _, changed = _cancel(order_id, ACTIVE)
     if not changed:
@@ -149,6 +158,7 @@ def reject_order(request, order_id):
 @require_POST
 @seller_required
 def confirm_order(request, order_id):
+    """ajax penjual: terima pesanan pending jadi confirmed"""
     expire_stale_orders(Order.objects.filter(pk=order_id))
     changed = Order.objects.filter(pk=order_id, status=Order.Status.PENDING).update(
         status=Order.Status.CONFIRMED
@@ -162,6 +172,7 @@ def confirm_order(request, order_id):
 @require_POST
 @seller_required
 def complete_order(request, order_id):
+    """ajax penjual: cocokkan kode pickup, confirmed jadi completed"""
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order, id=order_id)
 
@@ -188,6 +199,7 @@ def complete_order(request, order_id):
 @login_required
 @owner_required
 def order_confirmation(request, order_id):
+    """halaman voucher pesanan milik pembeli"""
     expire_stale_orders(Order.objects.filter(pk=order_id))
     order = get_object_or_404(Order.objects.select_related("surprise_box__restaurant"), id=order_id)
 
@@ -198,6 +210,7 @@ def order_confirmation(request, order_id):
 
 @login_required
 def incoming_orders(request):
+    """halaman pesanan masuk untuk mitra, dipisah aktif dan selesai"""
     orders = Order.objects.select_related("surprise_box__restaurant", "pembeli")
     expire_stale_orders()
     if not request.user.is_staff:

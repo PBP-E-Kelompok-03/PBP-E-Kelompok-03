@@ -9,6 +9,7 @@ STALE_TTL = 60 * 60 * 24
 
 
 def fetch_google_keys():
+    """ambil key public google, pakai cache supaya tidak request terus"""
     keys = cache.get(FRESH_KEY)
     if keys is not None:
         return keys

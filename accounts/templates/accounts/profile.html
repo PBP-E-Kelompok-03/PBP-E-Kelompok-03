@@ -20,6 +20,10 @@
       <p class="ds-label">{{ user.email|default:"-" }}</p>
     </div>
     <div>
+      <p class="ds-overline ds-text-secondary">Login terakhir</p>
+      <p class="ds-label">{{ last_login|default:"-" }}</p>
+    </div>
+    <div>
       <p class="ds-overline ds-text-secondary">Peran</p>
       <span class="ds-badge ds-badge--hemat">{{ user.get_role_display }}</span>
     </div>

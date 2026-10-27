@@ -76,6 +76,13 @@ class AuthViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertNotIn("_auth_user_id", self.client.session)
 
+    def test_login_sets_last_login_cookie_and_logout_deletes_it(self):
+        response = self.client.post(reverse("accounts:login"), {"username": "dyah", "password": "pass12345"})
+        self.assertIn("last_login", response.cookies)
+        self.assertContains(self.client.get(reverse("accounts:profile")), self.client.cookies["last_login"].value)
+        response = self.client.post(reverse("accounts:logout"))
+        self.assertEqual(response.cookies["last_login"].value, "")
+
     def test_logout_rejects_get(self):
         self.client.login(username="dyah", password="pass12345")
         self.assertEqual(self.client.get(reverse("accounts:logout")).status_code, 405)

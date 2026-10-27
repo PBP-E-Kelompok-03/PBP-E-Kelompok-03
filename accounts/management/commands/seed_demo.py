@@ -26,6 +26,7 @@ class Command(BaseCommand):
         parser.add_argument("--orders", action="store_true")
 
     def handle(self, *args, **options):
+        """buat akun demo, pasang restoran ke mitra_demo, opsional contoh pesanan"""
         users = {}
         for data in USERS:
             user, created = User.objects.get_or_create(

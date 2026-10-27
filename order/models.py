@@ -38,6 +38,7 @@ class Order(models.Model):
 
     @property
     def kedaluwarsa_pada(self):
+        """waktu pesanan hangus, 24 jam setelah dibuat"""
         return self.dibuat_pada + ORDER_TTL
 
     def __str__(self):
