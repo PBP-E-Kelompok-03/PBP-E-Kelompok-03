@@ -5,7 +5,7 @@ from .models import Restaurant, SurpriseBox
 class RestaurantForm(forms.ModelForm):
     class Meta:
         model = Restaurant
-        fields = ["nama", "alamat", "lat", "lng", "jam_buka", "jam_tutup"]
+        fields = ["nama", "alamat", "lat", "lng", "jam_buka", "jam_tutup", "image_url"]
         widgets = {
             "nama": forms.TextInput(attrs={"placeholder": "Nama restoran"}),
             "alamat": forms.TextInput(attrs={"placeholder": "Alamat lengkap"}),
@@ -13,18 +13,20 @@ class RestaurantForm(forms.ModelForm):
             "lng": forms.NumberInput(attrs={"placeholder": "Longitude, contoh: 106.801589", "step": "any"}),
             "jam_buka": forms.TimeInput(attrs={"type": "time"}),
             "jam_tutup": forms.TimeInput(attrs={"type": "time"}),
+            "image_url": forms.URLInput(attrs={"placeholder": "https://... (URL Foto Restoran)"}),
         }
 
 
 class SurpriseBoxForm(forms.ModelForm):
     class Meta:
         model = SurpriseBox
-        fields = ["nama_paket", "harga_normal", "harga_diskon", "stok"]
+        fields = ["nama_paket", "harga_normal", "harga_diskon", "stok", "image_url"]
         widgets = {
             "nama_paket": forms.TextInput(attrs={"placeholder": "Contoh: Paket Nasi Campur"}),
             "harga_normal": forms.NumberInput(attrs={"placeholder": "Harga normal (Rp)"}),
             "harga_diskon": forms.NumberInput(attrs={"placeholder": "Harga diskon (Rp)"}),
             "stok": forms.NumberInput(attrs={"placeholder": "Sisa stok", "min": "0"}),
+            "image_url": forms.URLInput(attrs={"placeholder": "https://... (URL Foto Produk)"}),
         }
 
     def clean(self):

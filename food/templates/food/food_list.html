@@ -315,7 +315,7 @@
 
   .resto-card__thumb {
     width: 100%;
-    height: 140px;
+    height: 150px;
     background: var(--ds-bg-subtle);
     border-radius: 12px;
     position: relative;
@@ -324,6 +324,30 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+  }
+  .resto-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    transition: transform 0.35s ease;
+    z-index: 1;
+  }
+  .resto-card:hover .resto-card__img {
+    transform: scale(1.05);
+  }
+  .resto-card__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
   }
   .badge-dist {
     position: absolute;
@@ -337,6 +361,7 @@
     font-size: 12px;
     color: var(--ds-text-primary);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    z-index: 2;
   }
   .badge-card-stock {
     position: absolute;
@@ -349,6 +374,7 @@
     font-size: 12px;
     color: var(--ds-white);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    z-index: 2;
   }
   .badge-card-stock--orange {
     background: var(--ds-accent-solid);
@@ -757,11 +783,19 @@
                 <span class="badge-card-stock badge-card-stock--green">Sisa {{ box.stok }} box</span>
               {% endif %}
 
-              <!-- Center Placeholder Text -->
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                <span style="font-size: 26px;">
+              {% if box.image_url %}
+                <img
+                  src="{{ box.image_url }}"
+                  alt="{{ box.nama_paket }}"
+                  class="resto-card__img"
+                  loading="lazy"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                >
+              {% endif %}
+              <div class="resto-card__placeholder" style="{% if box.image_url %}display: none;{% else %}display: flex;{% endif %}">
+                <span style="font-size: 28px;">
                   {% if 'roti' in box.nama_paket|lower or 'bakery' in box.restaurant.nama|lower %}🥐
-                  {% elif 'bento' in box.nama_paket|lower or 'don' in box.nama_paket|lower %}🍱
+                  {% elif 'bento' in box.nama_paket|lower or 'don' in box.nama_paket|lower or 'nasi' in box.nama_paket|lower %}🍱
                   {% elif 'kopi' in box.nama_paket|lower or 'coffee' in box.restaurant.nama|lower %}☕
                   {% elif 'salad' in box.nama_paket|lower or 'deli' in box.restaurant.nama|lower %}🥗
                   {% else %}🛍️{% endif %}

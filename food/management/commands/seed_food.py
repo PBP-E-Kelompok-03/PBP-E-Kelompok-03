@@ -56,6 +56,7 @@ class Command(BaseCommand):
                     "jam_buka": parse_time(item.get("jam_buka")),
                     "jam_tutup": parse_time(item.get("jam_tutup")),
                     "is_active": item.get("is_active", True),
+                    "image_url": item.get("image_url", ""),
                 },
             )
             restaurants[restaurant.id] = restaurant
@@ -75,6 +76,7 @@ class Command(BaseCommand):
                     "harga_diskon": item.get("harga_diskon", 0),
                     "stok": item.get("stok", 0),
                     "is_active": item.get("is_active", True),
+                    "image_url": item.get("image_url", ""),
                 },
             )
             boxes += 1

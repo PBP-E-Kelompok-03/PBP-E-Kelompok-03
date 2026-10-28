@@ -52,7 +52,7 @@
   }
   .resto-hero-banner {
     width: 100%;
-    height: 224px;
+    height: 240px;
     background: var(--ds-bg-subtle);
     border-radius: 16px;
     display: flex;
@@ -62,6 +62,24 @@
     gap: 8px;
     position: relative;
     overflow: hidden;
+  }
+  .resto-hero-banner__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 16px;
+  }
+  .resto-hero-banner__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
   }
   .resto-hero-banner__label {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -245,6 +263,31 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  .box-menu-thumb__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+  }
+  .box-menu-card:hover .box-menu-thumb__img {
+    transform: scale(1.06);
+  }
+  .box-menu-thumb__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
   }
   .badge-box-hemat {
     position: absolute;
@@ -257,6 +300,7 @@
     font-weight: 700;
     font-size: 11px;
     color: var(--ds-white);
+    z-index: 2;
   }
 
   .box-menu-details {
@@ -890,8 +934,19 @@
   <!-- 2. Resto Hero Banner Card -->
   <section class="resto-hero-card">
     <div class="resto-hero-banner">
-      <span style="font-size: 48px;">🏪</span>
-      <span class="resto-hero-banner__label">Foto produk</span>
+      {% if restaurant.image_url %}
+        <img
+          src="{{ restaurant.image_url }}"
+          alt="{{ restaurant.nama }}"
+          class="resto-hero-banner__img"
+          loading="lazy"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+      {% endif %}
+      <div style="{% if restaurant.image_url %}display: none;{% else %}display: flex;{% endif %} flex-direction: column; align-items: center; gap: 8px;">
+        <span style="font-size: 48px;">🏪</span>
+        <span class="resto-hero-banner__label">Foto Restoran</span>
+      </div>
     </div>
 
     <div class="resto-hero-info">
@@ -961,12 +1016,23 @@
             data-stock="{{ box.stok }}"
           >
             <!-- Thumbnail Box -->
-            <div class="box-menu-thumb">
+            <div class="box-menu-thumb" style="overflow: hidden; position: relative;">
               {% if box.diskon_persen > 0 %}
                 <span class="badge-box-hemat">Hemat {{ box.diskon_persen }}%</span>
               {% endif %}
-              <span style="font-size: 24px;">🥐</span>
-              <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: var(--ds-text-secondary); font-weight: 500;">Foto produk</span>
+              {% if box.image_url %}
+                <img
+                  src="{{ box.image_url }}"
+                  alt="{{ box.nama_paket }}"
+                  class="box-menu-thumb__img"
+                  loading="lazy"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                >
+              {% endif %}
+              <div class="box-menu-thumb__placeholder" style="{% if box.image_url %}display: none;{% else %}display: flex;{% endif %}">
+                <span style="font-size: 26px;">🍱</span>
+                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: var(--ds-text-secondary); font-weight: 500;">Foto produk</span>
+              </div>
             </div>
 
             <!-- Details -->
