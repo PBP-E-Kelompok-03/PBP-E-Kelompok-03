@@ -53,9 +53,9 @@
         <section class="ds-card">
           <h2 class="ds-h4">Instruksi pengambilan</h2>
           <div class="ds-notice">
-            <p class="ds-overline">Batas pengambilan</p>
-            <p class="ds-h4">{{ box.pickup_start|time:"H:i" }} – {{ box.pickup_end|time:"H:i" }} WIB</p>
-            <p class="ds-caption">Pesanan yang tidak diambil sebelum jam tutup pickup tidak dapat diambil lagi.</p>
+            <p class="ds-overline">Jam buka gerai</p>
+            <p class="ds-h4">{% if restaurant.jam_buka and restaurant.jam_tutup %}{{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB{% else %}Hubungi gerai untuk jam buka{% endif %}</p>
+            <p class="ds-caption">Ambil pesananmu dalam 24 jam setelah reservasi. Pesanan yang tidak diambil akan kedaluwarsa otomatis dan stok dikembalikan.</p>
           </div>
           <div class="ds-alert">♻ Bawa wadah atau tas belanja sendiri untuk kurangi sampah plastik.</div>
         </section>
@@ -110,7 +110,8 @@
   const subtotalLabel = document.getElementById("subtotal-label");
   const maxStock = parseInt(confirmBtn.dataset.maxStock, 10) || 0;
   const unit = parseFloat(subtotal.dataset.unit) || 0;
-  let jumlah = 1;
+  const wanted = parseInt(new URLSearchParams(location.search).get("jumlah"), 10) || 1;
+  let jumlah = Math.min(Math.max(wanted, 1), Math.max(maxStock, 1));
 
   function render() {
     valueEl.textContent = jumlah;

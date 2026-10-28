@@ -25,9 +25,10 @@
               {% elif item.order.status == "expired" %}<span class="ds-badge ds-badge--neutral">Kedaluwarsa</span>
               {% else %}<span class="ds-badge ds-badge--error">Dibatalkan</span>{% endif %}
               <h2 class="ds-h4">{% if item.box %}{{ item.box.nama_paket }}{% else %}Paket tidak tersedia{% endif %}</h2>
+              {% if item.box %}<p class="ds-caption ds-text-secondary">{{ item.box.restaurant.nama }}</p>{% endif %}
               <p class="ds-label ds-caption">Kode {{ item.order.kode_pickup }} · {{ item.order.jumlah }} box</p>
-              {% if item.box and item.order.status == "pending" or item.box and item.order.status == "confirmed" %}
-                <p class="ds-caption ds-text-accent">Ambil {{ item.box.pickup_start|time:"H:i" }} – {{ item.box.pickup_end|time:"H:i" }} WIB</p>
+              {% if item.order.status == "pending" or item.order.status == "confirmed" %}
+                <p class="ds-caption ds-text-accent">Berlaku sampai {{ item.order.kedaluwarsa_pada|date:"d M, H:i" }} WIB</p>
               {% endif %}
               <p class="ds-caption ds-text-secondary">Dibuat {{ item.order.dibuat_pada|date:"d M Y, H:i" }}</p>
             </div>

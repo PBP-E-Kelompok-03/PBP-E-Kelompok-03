@@ -36,8 +36,6 @@ class SurpriseBox(models.Model):
     harga_normal = models.DecimalField(max_digits=12, decimal_places=2)
     harga_diskon = models.DecimalField(max_digits=12, decimal_places=2)
     stok = models.PositiveIntegerField(default=0)
-    pickup_start = models.DateTimeField(null=True, blank=True)
-    pickup_end = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:

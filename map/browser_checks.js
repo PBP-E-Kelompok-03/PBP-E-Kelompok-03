@@ -70,9 +70,8 @@
         assert(win.geoRequests.length === 1, "Geolocation requested automatically exactly once");
         assert(markers().length === 4 && listItems().length === 4, "All database restaurants rendered");
         assert(cardDirectionsMatch(doc), "Each card navigates to its database coordinates before geolocation succeeds");
-        assert(doc.querySelectorAll(".restaurant-marker--available").length === 2, "Available stock uses green markers");
+        assert(doc.querySelectorAll(".restaurant-marker--available").length === 3, "Available stock uses green markers");
         assert(doc.querySelectorAll(".restaurant-marker--sold_out").length === 1, "Zero stock uses sold-out marker");
-        assert(doc.querySelectorAll(".restaurant-marker--unavailable").length === 1, "Expired pickup uses unavailable marker");
         assert(!doc.querySelector(".leaflet-overlay-pane path"), "No fake user marker before geolocation succeeds");
         doc.querySelector("#locate-user").click();
         assert(win.geoRequests.length === 1, "Duplicate geolocation request prevented while pending");

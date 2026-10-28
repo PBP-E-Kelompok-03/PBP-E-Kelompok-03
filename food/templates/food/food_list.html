@@ -694,66 +694,6 @@
     </div>
   {% endif %}
 
-  <!-- 1. Alamat Sekarang Pengguna (Current Location) -->
-  <section class="location-bar">
-    <div class="location-bar__info">
-      <span class="location-bar__overline">LOKASI KAMU</span>
-      <span class="location-bar__title" id="currentLocationText">Senopati, Jakarta Selatan</span>
-    </div>
-
-    <div class="location-bar__actions">
-      <!-- Radius Dropdown Selector -->
-      <div class="radius-dropdown-wrapper">
-        <button type="button" class="btn-radius" id="btnRadius" onclick="toggleRadiusDropdown(event)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-          </svg>
-          <span id="radiusLabel">Radius 3 km</span>
-          <svg id="radiusChevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.2s ease;">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-
-        <div class="radius-dropdown-menu" id="radiusDropdownMenu">
-          <div class="radius-dropdown-header">Pilih Radius Jarak</div>
-          <button type="button" class="radius-option-item" onclick="selectRadius('1 km')">
-            <div>
-              <div>Radius 1 km</div>
-              <div class="radius-option-sub">Jarak sangat dekat (&lt; 15 mnt)</div>
-            </div>
-            <span class="radius-check-icon">✓</span>
-          </button>
-          <button type="button" class="radius-option-item radius-option-item--active" onclick="selectRadius('3 km')">
-            <div>
-              <div>Radius 3 km</div>
-              <div class="radius-option-sub">Sekitar Senopati (Default)</div>
-            </div>
-            <span class="radius-check-icon">✓</span>
-          </button>
-          <button type="button" class="radius-option-item" onclick="selectRadius('5 km')">
-            <div>
-              <div>Radius 5 km</div>
-              <div class="radius-option-sub">Kebayoran Baru &amp; Blok M</div>
-            </div>
-            <span class="radius-check-icon">✓</span>
-          </button>
-          <button type="button" class="radius-option-item" onclick="selectRadius('10 km')">
-            <div>
-              <div>Radius 10 km</div>
-              <div class="radius-option-sub">Cakupan Jakarta Selatan</div>
-            </div>
-            <span class="radius-check-icon">✓</span>
-          </button>
-        </div>
-      </div>
-
-      <button type="button" class="btn-change-loc" onclick="changeLocationPrompt()">
-        Ubah lokasi
-      </button>
-    </div>
-  </section>
-
   <!-- 2. Search Bar Khusus Pencarian Gerai / Makanan -->
   <section class="search-section">
     <form class="search-input-wrapper" method="get" action="{% url 'food:list' %}">
@@ -792,12 +732,9 @@
   <div class="resto-list-header">
     <div class="resto-list-header__left">
       <h2 class="resto-list-header__title">
-        <span id="visibleCount">{{ total_restaurants }}</span> restoran siap diambil hari ini
+        <span id="visibleCount">{{ total_restaurants }}</span> restoran dengan paket tersedia
       </h2>
-      <span class="badge-stock">{{ total_stock|default:"17" }} box tersedia</span>
-    </div>
-    <div class="resto-list-header__sort">
-      Jarak terdekat
+      <span class="badge-stock">{{ total_stock }} box tersedia</span>
     </div>
   </div>
 
@@ -813,16 +750,6 @@
           <div>
             <!-- Thumbnail Box with Badges -->
             <div class="resto-card__thumb">
-              <!-- Distance Badge -->
-              <span class="badge-dist">
-                {% if forloop.counter == 1 %}0.4 km
-                {% elif forloop.counter == 2 %}0.8 km
-                {% elif forloop.counter == 3 %}1.1 km
-                {% elif forloop.counter == 4 %}1.5 km
-                {% elif forloop.counter == 5 %}1.8 km
-                {% else %}{{ forloop.counter|add:2 }}00 m{% endif %}
-              </span>
-
               <!-- Stock Badge -->
               {% if box.stok <= 3 %}
                 <span class="badge-card-stock badge-card-stock--orange">Sisa {{ box.stok }} box</span>
@@ -859,15 +786,11 @@
                   <span class="restaurant-review-count">· 0 ulasan</span>
               </div>
 
-              <div class="resto-card__pickup">
-                {% if box.pickup_start and box.pickup_end %}
-                  {{ box.pickup_start|date:"H:i" }} – {{ box.pickup_end|date:"H:i" }} WIB
-                {% elif box.restaurant.jam_buka and box.restaurant.jam_tutup %}
-                  {{ box.restaurant.jam_buka|time:"H:i" }} – {{ box.restaurant.jam_tutup|time:"H:i" }} WIB
-                {% else %}
-                  19:30 – 21:00 WIB
-                {% endif %}
-              </div>
+              {% if box.restaurant.jam_buka and box.restaurant.jam_tutup %}
+                <div class="resto-card__pickup">
+                  Buka {{ box.restaurant.jam_buka|time:"H:i" }} – {{ box.restaurant.jam_tutup|time:"H:i" }} WIB
+                </div>
+              {% endif %}
 
               <div class="resto-card__prices">
                 <span class="price-new-val">Rp {{ box.harga_diskon|floatformat:0 }}</span>
@@ -904,7 +827,7 @@
     <div class="highlight-header">
       <h2 class="highlight-title">Surprise Box hari ini</h2>
       <div class="badge-highlight-stats">
-        {{ total_stock|default:"42" }} box tersisa malam ini
+        {{ total_stock }} box tersedia
       </div>
     </div>
 
@@ -912,10 +835,10 @@
       <!-- Big Bento Hero Card Promo -->
       <div class="banner-promo">
         <h3 class="banner-promo__title">
-          Roti artisan dan bento halal, diskon hingga 70%
+          Surprise box hemat dari restoran sekitarmu
         </h3>
         <p class="banner-promo__desc">
-          Ambil langsung di kasir sebelum gerai tutup.
+          Reservasi dulu, ambil di gerai dalam 24 jam.
         </p>
         <a href="{% url 'map:map' %}" class="btn-lihat-peta">
           Lihat gerai di peta
@@ -926,7 +849,7 @@
       <div class="card-map-widget">
         <div class="card-map-widget__header">
           <span class="card-map-widget__title">Peta sekitar</span>
-          <span class="card-map-widget__open-count">{{ total_restaurants }} gerai buka</span>
+          <span class="card-map-widget__open-count">{{ total_restaurants }} gerai</span>
         </div>
 
         <div class="card-map-widget__preview">
@@ -1045,57 +968,6 @@
       countElem.textContent = visible;
     }
   }
-
-  function changeLocationPrompt() {
-    const loc = prompt("Masukkan lokasi kamu:", "Senopati, Jakarta Selatan");
-    if (loc && loc.trim()) {
-      document.getElementById('currentLocationText').textContent = loc.trim();
-    }
-  }
-
-  function toggleRadiusDropdown(event) {
-    if (event) event.stopPropagation();
-    const menu = document.getElementById('radiusDropdownMenu');
-    const chevron = document.getElementById('radiusChevron');
-    const isShowing = menu.classList.contains('show');
-
-    if (isShowing) {
-      menu.classList.remove('show');
-      if (chevron) chevron.style.transform = 'rotate(0deg)';
-    } else {
-      menu.classList.add('show');
-      if (chevron) chevron.style.transform = 'rotate(180deg)';
-    }
-  }
-
-  function selectRadius(val) {
-    document.getElementById('radiusLabel').textContent = 'Radius ' + val;
-
-    // Update active highlight in menu
-    document.querySelectorAll('.radius-option-item').forEach(btn => {
-      if (btn.textContent.includes('Radius ' + val)) {
-        btn.classList.add('radius-option-item--active');
-      } else {
-        btn.classList.remove('radius-option-item--active');
-      }
-    });
-
-    const menu = document.getElementById('radiusDropdownMenu');
-    if (menu) menu.classList.remove('show');
-    const chevron = document.getElementById('radiusChevron');
-    if (chevron) chevron.style.transform = 'rotate(0deg)';
-  }
-
-  // Close dropdown on click outside
-  document.addEventListener('click', function(e) {
-    const wrapper = document.querySelector('.radius-dropdown-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
-      const menu = document.getElementById('radiusDropdownMenu');
-      if (menu) menu.classList.remove('show');
-      const chevron = document.getElementById('radiusChevron');
-      if (chevron) chevron.style.transform = 'rotate(0deg)';
-    }
-  });
 
   // Mengambil rating asli untuk setiap kartu restoran
   document.addEventListener('DOMContentLoaded', () => {

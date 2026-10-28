@@ -4,7 +4,7 @@
 <style>
   [data-state="pending"] [data-show="confirmed"],
   [data-state="confirmed"] [data-show="pending"],
-  [data-state="completed"] { display: none; }
+  [data-state="completed"], [data-state="cancelled"] { display: none; }
 </style>
 {% endblock %}
 {% block content %}
@@ -37,6 +37,7 @@
           <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-show="pending" data-confirm-order="{{ order.id }}">Terima Pesanan</button>
           <input type="text" class="ds-input" data-show="confirmed" placeholder="Kode pickup" aria-label="Kode pickup pesanan {{ order.pembeli.username }}" data-code-input="{{ order.id }}" autocomplete="off">
           <button type="button" class="ds-btn ds-btn--primary ds-btn--sm" data-show="confirmed" data-complete-order="{{ order.id }}">Selesaikan</button>
+          <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-reject-order="{{ order.id }}">Tolak</button>
         </div>
       </article>
     {% empty %}
@@ -89,9 +90,9 @@
       });
       if (response.ok) {
         card.dataset.state = nextState;
-        if (nextState === "completed") activeCount.textContent = Number(activeCount.textContent) - 1;
+        if (nextState !== "confirmed") activeCount.textContent = Number(activeCount.textContent) - 1;
         btn.classList.remove("is-loading");
-        dsToast(nextState === "completed" ? "Pesanan selesai diambil." : "Pesanan diterima.");
+        dsToast({ confirmed: "Pesanan diterima.", completed: "Pesanan selesai diambil.", cancelled: "Pesanan ditolak." }[nextState]);
         return;
       }
       const data = await response.json().catch(() => ({}));
@@ -106,6 +107,11 @@
 
   document.querySelectorAll("[data-confirm-order]").forEach((btn) => {
     btn.addEventListener("click", () => send(btn, `/order/${btn.dataset.confirmOrder}/confirm/`, "", "confirmed"));
+  });
+  document.querySelectorAll("[data-reject-order]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (confirm("Tolak pesanan ini? Stok akan dikembalikan.")) send(btn, `/order/${btn.dataset.rejectOrder}/reject/`, "", "cancelled");
+    });
   });
   document.querySelectorAll("[data-complete-order]").forEach((btn) => {
     btn.addEventListener("click", () => {

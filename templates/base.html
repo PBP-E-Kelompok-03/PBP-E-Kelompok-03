@@ -45,9 +45,14 @@
               <a href="{% url 'food:my_restaurants' %}" class="nav-item{% if request.resolver_match.url_name == 'my_restaurants' %} is-active{% endif %}">Restoran Saya</a>
               <a href="{% url 'order:incoming' %}" class="nav-item{% if request.resolver_match.url_name == 'incoming' %} is-active{% endif %}">Pesanan Masuk</a>
             {% endif %}
-            <a href="{% url 'order:history' %}" class="nav-item{% if request.resolver_match.url_name == 'history' %} is-active{% endif %}">Riwayat Pesanan</a>
-            <span class="navbar__user-greeting">{{ user.get_full_name|default:user.username }}</span>
-            <a href="{% url 'accounts:logout' %}" class="btn-navbar-logout">Logout</a>
+            {% if user.role != "partner" %}
+              <a href="{% url 'order:history' %}" class="nav-item{% if request.resolver_match.url_name == 'history' %} is-active{% endif %}">Riwayat Pesanan</a>
+            {% endif %}
+            <a href="{% url 'accounts:profile' %}" class="navbar__user-greeting">{{ user.get_full_name|default:user.username }}</a>
+            <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0">
+              {% csrf_token %}
+              <button type="submit" class="btn-navbar-logout">Logout</button>
+            </form>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="btn-navbar-cta">Masuk</a>
           {% endif %}

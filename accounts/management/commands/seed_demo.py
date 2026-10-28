@@ -1,7 +1,4 @@
-import datetime
-
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
 from accounts.models import User
 from food.models import Restaurant, SurpriseBox
@@ -27,9 +24,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--orders", action="store_true")
-        parser.add_argument("--open-window", action="store_true", help="Buka jendela pickup box demo selama 4 jam dari sekarang.")
 
     def handle(self, *args, **options):
+        """buat akun demo, pasang restoran ke mitra_demo, opsional contoh pesanan"""
         users = {}
         for data in USERS:
             user, created = User.objects.get_or_create(
@@ -42,17 +39,7 @@ class Command(BaseCommand):
             self.stdout.write(f"{'dibuat' if created else 'diperbarui'}: {user.username}")
 
         mitra = users["mitra_demo"]
-        owned = Restaurant.objects.filter(surprise_boxes__id__in=[o[1] for o in ORDERS], owner__isnull=True)
-        owned.update(owner=mitra)
-
-        if options["open_window"]:
-            now = timezone.now()
-            SurpriseBox.objects.filter(pk__in=[o[1] for o in ORDERS]).update(
-                pickup_start=now - datetime.timedelta(hours=1),
-                pickup_end=now + datetime.timedelta(hours=4),
-                is_active=True,
-            )
-            self.stdout.write("jendela pickup box demo dibuka")
+        Restaurant.objects.filter(owner__isnull=True).update(owner=mitra)
 
         if options["orders"]:
             buyer = users["pembeli_demo"]

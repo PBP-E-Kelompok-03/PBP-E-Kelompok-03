@@ -559,8 +559,6 @@
       "harga_normal": 40000,
       "harga_diskon": 24000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -570,8 +568,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -581,8 +577,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -592,8 +586,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -603,8 +595,6 @@
       "harga_normal": 30000,
       "harga_diskon": 12000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -614,8 +604,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -625,8 +613,6 @@
       "harga_normal": 35000,
       "harga_diskon": 17500,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -636,8 +622,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -647,8 +631,6 @@
       "harga_normal": 40000,
       "harga_diskon": 16000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -658,8 +640,6 @@
       "harga_normal": 40000,
       "harga_diskon": 16000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -669,8 +649,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -680,8 +658,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -691,8 +667,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -702,8 +676,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -713,8 +685,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -724,8 +694,6 @@
       "harga_normal": 40000,
       "harga_diskon": 16000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -735,8 +703,6 @@
       "harga_normal": 50000,
       "harga_diskon": 20000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -746,8 +712,6 @@
       "harga_normal": 35000,
       "harga_diskon": 17500,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -757,8 +721,6 @@
       "harga_normal": 25000,
       "harga_diskon": 12500,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -768,8 +730,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -779,8 +739,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -790,8 +748,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -801,8 +757,6 @@
       "harga_normal": 20000,
       "harga_diskon": 8000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -812,8 +766,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -823,8 +775,6 @@
       "harga_normal": 40000,
       "harga_diskon": 16000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -834,8 +784,6 @@
       "harga_normal": 40000,
       "harga_diskon": 24000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -845,8 +793,6 @@
       "harga_normal": 35000,
       "harga_diskon": 17500,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -856,8 +802,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -867,8 +811,6 @@
       "harga_normal": 40000,
       "harga_diskon": 20000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -878,8 +820,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -889,8 +829,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -900,8 +838,6 @@
       "harga_normal": 40000,
       "harga_diskon": 24000,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -911,8 +847,6 @@
       "harga_normal": 35000,
       "harga_diskon": 17500,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -922,8 +856,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -933,8 +865,6 @@
       "harga_normal": 50000,
       "harga_diskon": 20000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -944,8 +874,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -955,8 +883,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -966,8 +892,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -977,8 +901,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -988,8 +910,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -999,8 +919,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1010,8 +928,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1021,8 +937,6 @@
       "harga_normal": 40000,
       "harga_diskon": 20000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1032,8 +946,6 @@
       "harga_normal": 50000,
       "harga_diskon": 20000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1043,8 +955,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1054,8 +964,6 @@
       "harga_normal": 25000,
       "harga_diskon": 12500,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1065,8 +973,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1076,8 +982,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1087,8 +991,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1098,8 +1000,6 @@
       "harga_normal": 35000,
       "harga_diskon": 17500,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1109,8 +1009,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1120,8 +1018,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1131,8 +1027,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1142,8 +1036,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1153,8 +1045,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1164,8 +1054,6 @@
       "harga_normal": 15000,
       "harga_diskon": 7500,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1175,8 +1063,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1186,8 +1072,6 @@
       "harga_normal": 50000,
       "harga_diskon": 30000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1197,8 +1081,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1208,8 +1090,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1219,8 +1099,6 @@
       "harga_normal": 25000,
       "harga_diskon": 10000,
       "stok": 0,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1230,8 +1108,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 9,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1241,8 +1117,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1252,8 +1126,6 @@
       "harga_normal": 15000,
       "harga_diskon": 9000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1263,8 +1135,6 @@
       "harga_normal": 50000,
       "harga_diskon": 20000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1274,8 +1144,6 @@
       "harga_normal": 25000,
       "harga_diskon": 15000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1285,8 +1153,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1296,8 +1162,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1307,8 +1171,6 @@
       "harga_normal": 40000,
       "harga_diskon": 20000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1318,8 +1180,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1329,8 +1189,6 @@
       "harga_normal": 30000,
       "harga_diskon": 18000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1340,8 +1198,6 @@
       "harga_normal": 40000,
       "harga_diskon": 20000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1351,8 +1207,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1362,8 +1216,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1373,8 +1225,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1384,8 +1234,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1395,8 +1243,6 @@
       "harga_normal": 50000,
       "harga_diskon": 30000,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1406,8 +1252,6 @@
       "harga_normal": 25000,
       "harga_diskon": 12500,
       "stok": 8,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1417,8 +1261,6 @@
       "harga_normal": 15000,
       "harga_diskon": 7500,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1428,8 +1270,6 @@
       "harga_normal": 40000,
       "harga_diskon": 16000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1439,8 +1279,6 @@
       "harga_normal": 15000,
       "harga_diskon": 7500,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1450,8 +1288,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1461,8 +1297,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1472,8 +1306,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1483,8 +1315,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1494,8 +1324,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1505,8 +1333,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1516,8 +1342,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1527,8 +1351,6 @@
       "harga_normal": 15000,
       "harga_diskon": 6000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1538,8 +1360,6 @@
       "harga_normal": 20000,
       "harga_diskon": 10000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1549,8 +1369,6 @@
       "harga_normal": 20000,
       "harga_diskon": 12000,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1560,8 +1378,6 @@
       "harga_normal": 25000,
       "harga_diskon": 10000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1571,8 +1387,6 @@
       "harga_normal": 35000,
       "harga_diskon": 21000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1582,8 +1396,6 @@
       "harga_normal": 25000,
       "harga_diskon": 15000,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1593,8 +1405,6 @@
       "harga_normal": 15000,
       "harga_diskon": 7500,
       "stok": 10,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1604,8 +1414,6 @@
       "harga_normal": 50000,
       "harga_diskon": 25000,
       "stok": 6,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1615,8 +1423,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 5,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1626,8 +1432,6 @@
       "harga_normal": 50000,
       "harga_diskon": 20000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1637,8 +1441,6 @@
       "harga_normal": 15000,
       "harga_diskon": 7500,
       "stok": 2,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1648,8 +1450,6 @@
       "harga_normal": 30000,
       "harga_diskon": 12000,
       "stok": 4,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1659,8 +1459,6 @@
       "harga_normal": 35000,
       "harga_diskon": 14000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1670,8 +1468,6 @@
       "harga_normal": 30000,
       "harga_diskon": 15000,
       "stok": 1,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1681,8 +1477,6 @@
       "harga_normal": 25000,
       "harga_diskon": 10000,
       "stok": 3,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     },
     {
@@ -1692,8 +1486,6 @@
       "harga_normal": 25000,
       "harga_diskon": 15000,
       "stok": 7,
-      "pickup_start": "17:00",
-      "pickup_end": "20:00",
       "is_active": true
     }
   ]

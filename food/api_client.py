@@ -252,8 +252,6 @@ class FoodApiClient:
                     "harga_diskon": float(b.harga_diskon),
                     "diskon_persen": b.diskon_persen,
                     "stok": b.stok,
-                    "pickup_start": b.pickup_start.isoformat() if b.pickup_start else None,
-                    "pickup_end": b.pickup_end.isoformat() if b.pickup_end else None,
                 }
                 for b in qs
             ]

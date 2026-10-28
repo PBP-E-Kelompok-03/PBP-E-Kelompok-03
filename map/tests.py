@@ -110,15 +110,13 @@ class MapViewTests(TestCase):
         self.restaurant(nama="Out of bounds", lat=91, lng=181)
         self.assertEqual([r["id"] for r in self.data()], [valid.pk])
 
-    @patch("food.views._load_dummy_data")
-    def test_empty_or_inactive_database_never_uses_dummy_restaurants(self, load_dummy):
+    def test_empty_or_inactive_database_never_uses_dummy_restaurants(self):
         self.assertEqual(self.data(), [])
         self.restaurant(is_active=False)
         response = self.client.get("/map/")
         self.assertEqual(response.context["restaurants"], [])
         self.assertContains(response, "Belum ada restoran dengan koordinat yang valid.")
         self.assertContains(response, 'id="restaurant-map"')
-        load_dummy.assert_not_called()
 
     def test_existing_rows_with_missing_coordinates_are_not_mapped(self):
         self.restaurant(lat=None, lng=None)
@@ -162,28 +160,6 @@ class MapViewTests(TestCase):
             self.assertFalse(row["is_available"])
             self.assertEqual(row["available_stock"], 0)
             self.assertIsNone(row["min_discount_price"])
-
-    def test_price_excludes_future_and_expired_pickup_windows(self):
-        now = timezone.now()
-        restaurant = self.restaurant()
-        self.box(restaurant, harga_diskon=500, pickup_end=now - datetime.timedelta(seconds=1))
-        self.box(restaurant, harga_diskon=1000, pickup_start=now + datetime.timedelta(hours=1))
-        self.box(restaurant, harga_diskon=15000, pickup_start=now, pickup_end=now)
-        with patch("map.services.timezone.now", return_value=now):
-            row = self.data()[0]
-        self.assertEqual(row["total_stock"], 9)
-        self.assertEqual(row["available_stock"], 3)
-        self.assertEqual(Decimal(row["min_discount_price"]), 15000)
-
-    def test_stock_outside_pickup_window_is_not_mislabeled_sold_out(self):
-        restaurant = self.restaurant()
-        self.box(restaurant, pickup_end=timezone.now() - datetime.timedelta(hours=1))
-        row = self.data()[0]
-        self.assertTrue(row["has_stock"])
-        self.assertFalse(row["is_available"])
-        self.assertEqual(row["stock_status"], "unavailable")
-        self.assertEqual(row["stock_label"], "Di luar waktu pickup")
-        self.assertIsNone(row["min_discount_price"])
 
     def test_stock_and_price_update_when_cheapest_box_sells_out(self):
         restaurant = self.restaurant()
@@ -250,8 +226,8 @@ class MapViewTests(TestCase):
         restaurant = self.restaurant()
         self.box(restaurant, stok=0, harga_diskon=Decimal("12345.67"))
         response = self.client.get(reverse("food:restaurant_detail", args=[restaurant.pk]))
-        self.assertContains(response, "discountPrice: 12345.67,")
-        self.assertNotContains(response, "discountPrice: 12345,67,")
+        self.assertContains(response, ", 12345.67, ")
+        self.assertNotContains(response, "12345,67")
         self.assertContains(response, "0 paket tersisa")
         self.assertNotContains(response, "4 paket tersisa")
 

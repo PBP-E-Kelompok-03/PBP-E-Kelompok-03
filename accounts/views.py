@@ -3,9 +3,12 @@ from authlib.integrations.base_client import OAuthError
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from .forms import RegisterForm
 from .google import fetch_google_keys
@@ -13,7 +16,15 @@ from .models import User
 from .oauth import oauth
 
 
+def _set_last_login(response):
+    """simpan waktu login di cookie last_login"""
+    response.set_cookie("last_login", timezone.localtime().strftime("%Y-%m-%dT%H:%M"))
+    return response
+
+
 class AccountLoginView(LoginView):
+    """login username dan password, lalu simpan cookie last_login"""
+
     template_name = "accounts/login.html"
     redirect_authenticated_user = True
     next_page = "landing"
@@ -23,8 +34,12 @@ class AccountLoginView(LoginView):
         context["google_enabled"] = bool(settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET)
         return context
 
+    def form_valid(self, form):
+        return _set_last_login(super().form_valid(form))
+
 
 def google_login(request):
+    """kirim user ke halaman login google"""
     if not (settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET):
         messages.error(request, "Login dengan Google belum dikonfigurasi.")
         return redirect("accounts:login")
@@ -33,6 +48,7 @@ def google_login(request):
 
 
 def google_callback(request):
+    """terima balikan google, buat atau ambil user, login, simpan cookie last_login"""
     keys = fetch_google_keys()
     if keys:
         oauth.google.server_metadata["jwks"] = keys
@@ -66,22 +82,33 @@ def google_callback(request):
         user.save(update_fields=["password"])
 
     login(request, user)
-    return redirect("landing")
+    return _set_last_login(redirect("landing"))
 
 
+@login_required
+def profile_view(request):
+    """halaman profil, menampilkan cookie last_login"""
+    return render(request, "accounts/profile.html", {"last_login": request.COOKIES.get("last_login")})
+
+
+@require_POST
 def logout_view(request):
+    """logout lewat post saja, hapus cookie last_login"""
     logout(request)
-    return redirect("landing")
+    response = redirect("landing")
+    response.delete_cookie("last_login")
+    return response
 
 
 def register_view(request):
+    """daftar akun baru, lalu arahkan ke login"""
     if request.user.is_authenticated:
         return redirect("landing")
 
     form = RegisterForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        user = form.save()
-        login(request, user)
-        return redirect("landing")
+        form.save()
+        messages.success(request, "Akun berhasil dibuat. Silakan masuk.")
+        return redirect("accounts:login")
 
     return render(request, "accounts/register.html", {"form": form})

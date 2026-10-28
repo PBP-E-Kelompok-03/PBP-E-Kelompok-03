@@ -18,8 +18,6 @@ class SurpriseBoxAdmin(admin.ModelAdmin):
         "harga_normal",
         "harga_diskon",
         "stok",
-        "pickup_start",
-        "pickup_end",
         "is_active",
     )
     list_filter = ("is_active", "restaurant")

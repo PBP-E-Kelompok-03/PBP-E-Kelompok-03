@@ -101,6 +101,11 @@ class FoodViewsTest(TestCase):
         response = self.client.get(reverse("food:create_restaurant"))
         self.assertEqual(response.status_code, 302)
 
+    def test_buyer_cannot_create_restaurant(self):
+        self.client.login(username="buyer1", password="password123")
+        response = self.client.get(reverse("food:create_restaurant"))
+        self.assertEqual(response.status_code, 403)
+
     def test_create_restaurant_success(self):
         self.client.login(username="mitra1", password="password123")
         response = self.client.post(
@@ -328,3 +333,18 @@ class FoodDatabaseExclusivityTest(TestCase):
         res_box = self.client.get(reverse("food:api_surprise_boxes"))
         self.assertEqual(res_box.status_code, 200)
         self.assertEqual(res_box.json(), {"surprise_boxes": []})
+
+
+class SeedFoodCommandTest(TestCase):
+    def test_seed_assigns_demo_owner_and_if_empty_skips(self):
+        from django.core.management import call_command
+
+        call_command("seed_food", stdout=io.StringIO())
+        owner = User.objects.get(username="mitra_demo")
+        self.assertFalse(owner.has_usable_password())
+        self.assertTrue(Restaurant.objects.exists())
+        self.assertFalse(Restaurant.objects.exclude(owner=owner).exists())
+
+        Restaurant.objects.filter(pk=Restaurant.objects.first().pk).update(nama="Diubah")
+        call_command("seed_food", "--if-empty", stdout=io.StringIO())
+        self.assertTrue(Restaurant.objects.filter(nama="Diubah").exists())

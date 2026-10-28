@@ -1,9 +1,7 @@
-import datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import tag
 from django.urls import reverse
-from django.utils import timezone
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -37,15 +35,12 @@ class OrderSeleniumBase(StaticLiveServerTestCase):
         self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
         seller = User.objects.create_user(username="seller1", password="pass12345", role=User.Role.PARTNER)
         restaurant = Restaurant.objects.create(nama="Kedai Selenium", alamat="Jl. Test", owner=seller)
-        now = timezone.now()
         self.box = SurpriseBox.objects.create(
             restaurant=restaurant,
             nama_paket="Paket Selenium",
             harga_normal=40000,
             harga_diskon=24000,
             stok=5,
-            pickup_start=now - datetime.timedelta(hours=1),
-            pickup_end=now + datetime.timedelta(hours=2),
         )
         self.wait = WebDriverWait(self.driver, 10)
         self.login()
