@@ -151,3 +151,33 @@ static/css/        # design tokens (tokens.css) & style dasar (base.css)
 docs/ERD.md        # kontrak data & ERD antarmodul (dikunci)
 fixtures/          # dummy data (50+ restoran & surprise box) untuk mock API
 ```
+
+## AI Disclosure
+
+### Khansa Nathania K — Fitur Rating & Review
+
+**AI Tools:** ChatGPT (OpenAI)
+
+**Tujuan Penggunaan:**
+
+ChatGPT digunakan sebagai alat bantu pembelajaran dan pendukung pengembangan fitur Rating & Review pada aplikasi Dibuang Sayang.
+
+**Bentuk Penggunaan AI:**
+
+- Membantu memahami konsep Django, seperti model, views, URL routing, ORM, dan relasi antarmodel.
+- Membantu memberikan saran implementasi fitur pembuatan, pengeditan, penghapusan (*soft delete*), dan balasan review oleh restoran.
+- Membantu memahami validasi hak akses, penanganan review duplikat, dan potensi *race condition*.
+- Membantu proses debugging dan perbaikan error pada backend serta pengujian otomatis GitHub Actions.
+- Membantu memahami pengujian menggunakan Django Test Framework dan Selenium.
+- Membantu penyesuaian tampilan frontend, termasuk avatar restoran dan konsistensi tipografi pada balasan review.
+
+**Strategi Penggunaan dan Validasi:**
+
+AI digunakan melalui diskusi interaktif untuk memperoleh penjelasan konsep, contoh kode, serta alternatif penyelesaian masalah. Saran yang diberikan ditinjau dan disesuaikan dengan struktur proyek, kemudian diperiksa melalui pengujian lokal dan GitHub Actions.
+
+**Keterbatasan dan Perbaikan Manual:**
+Saran AI tidak selalu langsung sesuai dengan struktur kode dan lingkungan pengembangan. Oleh karena itu, dilakukan penyesuaian manual, termasuk perbaikan respons `JsonResponse`, penyesuaian pengujian Selenium Safari pada lingkungan Linux, serta pemeriksaan kembali sintaks JavaScript dan integrasi frontend.
+
+**Dokumentasi Percakapan AI:**
+
+[Riwayat Penggunaan ChatGPT — Pengembangan Rating & Review](https://chatgpt.com/share/6ae36b96-5f80-83ec-94c6-63fcfe3175a1)
