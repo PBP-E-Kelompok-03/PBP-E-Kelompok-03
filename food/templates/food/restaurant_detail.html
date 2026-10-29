@@ -905,14 +905,13 @@
     margin-top: 8px;
 }
 
-
-/* Samakan ukuran font balasan dengan komentar pembeli */
-.restaurant-owner-reply,
-.restaurant-owner-reply * {
-    font-size: 16px !important;
-    line-height: 1.5 !important;
+.restaurant-owner-reply .review-card__user {
+    margin-bottom: 8px;
 }
 
+.restaurant-owner-reply .avatar-circle {
+    flex-shrink: 0;
+}
 
 </style>
 {% endblock %}
@@ -1372,6 +1371,37 @@
     // 3. MENAMPILKAN SEMUA REVIEW RESTORAN
     // =====================================================
 
+    function buatBalasanRestoran(nama, teks) {
+        const replyBox = document.createElement('div');
+        replyBox.className = 'restaurant-owner-reply';
+
+        // Header restoran: avatar + nama
+        const header = document.createElement('div');
+        header.className = 'review-card__user';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar-circle avatar-dk';
+        avatar.textContent = String(nama || 'Restoran')
+            .trim().charAt(0).toUpperCase();
+
+        const namaRestoran = document.createElement('span');
+        namaRestoran.className = 'review-user-name';
+        namaRestoran.textContent = nama || 'Restoran';
+
+        header.appendChild(avatar);
+        header.appendChild(namaRestoran);
+
+        // Isi balasan dengan font yang sama seperti komentar pembeli
+        const balasan = document.createElement('p');
+        balasan.className = 'review-comment';
+        balasan.textContent = teks;
+
+        replyBox.appendChild(header);
+        replyBox.appendChild(balasan);
+
+        return replyBox;
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
 
         try {
@@ -1501,33 +1531,16 @@
                     // =====================================
 
                     if (review.owner_reply) {
+                        const replyBox = buatBalasanRestoran(
+                                review.restaurant_name,
+                                review.owner_reply
+                            );
 
-                        // Membuat kotak balasan restoran
-                        const replyBox = document.createElement('div');
-
-                        replyBox.className = 'restaurant-owner-reply';
-
-                        // Nama restoran asli
-                        const replyTitle = document.createElement('strong');
-
-                        replyTitle.textContent = review.restaurant_name;
-
-                        // Isi balasan restoran
-                        const replyText = document.createElement('p');
-
-                        replyText.textContent = review.owner_reply;
-
-                        replyBox.appendChild(replyTitle);
-                        replyBox.appendChild(replyText);
-
-                        // Balasan diletakkan di bawah komentar
-                        card.querySelector(
-                            '.review-comment'
-                        ).insertAdjacentElement(
-                            'afterend',
-                            replyBox
-                        );
-                    }
+                            // Balasan diletakkan di bawah komentar
+                            card.querySelector('.review-comment')
+                                .insertAdjacentElement('afterend', replyBox);
+                                                
+                    }                      
 
                     // =====================================
                     // TOMBOL BALAS KHUSUS AKUN RESTORAN
@@ -1619,22 +1632,13 @@
                                 }
 
                                 // Menampilkan balasan di bawah komentar
-                                const replyBox = document.createElement('div');
-                                replyBox.className = 'restaurant-owner-reply';
+                                const replyBox = buatBalasanRestoran(
+                                    review.restaurant_name,
+                                    data.owner_reply
+                                );
 
-                                const replyTitle = document.createElement('strong');
-                                replyTitle.textContent = review.restaurant_name;
-
-                                const replyText = document.createElement('p');
-                                replyText.textContent = data.owner_reply;
-
-                                replyBox.appendChild(replyTitle);
-                                replyBox.appendChild(replyText);
-
-                                card.querySelector(
-                                    '.review-comment'
-                                ).insertAdjacentElement('afterend', replyBox);
-
+                                card.querySelector('.review-comment')
+                                .insertAdjacentElement('afterend', replyBox);
                                 // Review sudah dibalas, tombol Balas dihilangkan
                                 review.owner_reply = data.owner_reply;
                                 replyActions.remove();
