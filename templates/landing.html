@@ -72,13 +72,18 @@
         </div>
       </div>
 
-      <!-- Center Column: Visual Product Box -->
+      <!-- Center Column: Live Stats -->
       <div style="display: flex; justify-content: center;">
-        <div style="width: 100%; max-width: 320px; height: 300px; background: var(--ds-bg-subtle); border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; box-shadow: 0px 8px 24px rgba(24, 49, 12, 0.06);">
-          <div style="font-size: 64px; margin-bottom: 12px;">🛍️</div>
-          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 15px; line-height: 22px; color: var(--ds-text-secondary); margin: 0;">
-            Kantong ramah lingkungan Dibuang Sayang dengan bahan makanan surplus segar
-          </p>
+        <div style="width: 100%; max-width: 320px; background: var(--ds-bg-subtle); border-radius: 16px; display: flex; flex-direction: column; gap: 20px; padding: 28px 24px; text-align: center; box-shadow: 0px 8px 24px rgba(24, 49, 12, 0.06);">
+          <div>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 36px; line-height: 1; color: var(--ds-action-primary); margin: 0 0 4px 0;">{{ total_boxes }}</p>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: var(--ds-text-secondary); margin: 0;">Surprise box tersedia hari ini</p>
+          </div>
+          <hr class="ds-divider">
+          <div>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 36px; line-height: 1; color: var(--ds-action-primary); margin: 0 0 4px 0;">{{ total_restaurants }}</p>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: var(--ds-text-secondary); margin: 0;">Gerai mitra aktif</p>
+          </div>
         </div>
       </div>
 
@@ -126,7 +131,7 @@
         Tingkatkan profit, kurangi food waste
       </h2>
       <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 400; font-size: 15px; line-height: 22px; color: var(--ds-brand-tint); margin: 0;">
-        Ubah surplus harian jadi pendapatan baru dan capai target ESG bersama {{ total_restaurants }} mitra.
+        Ubah surplus harian jadi pendapatan baru, gabung bersama {{ total_restaurants }} gerai mitra lainnya.
       </p>
     </div>
 
@@ -144,10 +149,10 @@
 
       <div style="background: var(--ds-white); border-radius: 16px; padding: 20px; box-shadow: 0px 8px 24px rgba(24, 49, 12, 0.1), 0px 2px 4px rgba(24, 49, 12, 0.08); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
         <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 24px; color: var(--ds-text-primary); margin: 0 0 6px 0;">
-          Dasbor inventaris
+          Kelola box sendiri
         </h3>
         <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ds-text-secondary); margin: 0;">
-          Pantau stok, penjualan, dan verifikasi QR dalam satu portal.
+          Tambah, ubah, dan hapus Surprise Box kapan saja dari dashboard gerai.
         </p>
       </div>
 
@@ -162,10 +167,10 @@
 
       <div style="background: var(--ds-white); border-radius: 16px; padding: 20px; box-shadow: 0px 8px 24px rgba(24, 49, 12, 0.1), 0px 2px 4px rgba(24, 49, 12, 0.08); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
         <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 18px; line-height: 24px; color: var(--ds-text-primary); margin: 0 0 6px 0;">
-          Laporan ESG
+          Verifikasi pickup
         </h3>
         <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ds-text-secondary); margin: 0;">
-          Metrik dampak lingkungan siap pakai untuk laporan bisnismu.
+          Terima pesanan masuk dan cocokkan kode pickup langsung dari halaman gerai.
         </p>
       </div>
 
@@ -181,8 +186,8 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 24px;">
           <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Pendaftaran gratis</div>
           <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Tanpa biaya langganan</div>
-          <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Integrasi kasir 5 menit</div>
-          <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Pendampingan keamanan pangan</div>
+          <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Buat gerai dalam 5 menit</div>
+          <div style="color: var(--ds-text-secondary); font-size: 15px;">✓ Kelola pesanan masuk real-time</div>
         </div>
       </div>
 
@@ -222,8 +227,7 @@
         <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
           <a href="{% url 'food:list' %}" style="color: var(--ds-white); text-decoration: none;">Cari makanan</a>
           <a href="#cara-kerja" style="color: var(--ds-white); text-decoration: none;">Cara kerja</a>
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Aplikasi</a>
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Tanya jawab</a>
+          <a href="{% url 'map:map' %}" style="color: var(--ds-white); text-decoration: none;">Peta gerai</a>
         </div>
       </div>
 
@@ -235,19 +239,6 @@
         <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
           <a href="{% url 'accounts:register' %}" style="color: var(--ds-accent-on-inverse); text-decoration: none; font-weight: 600;">Daftar jadi mitra</a>
           <a href="{% url 'accounts:login' %}" style="color: var(--ds-white); text-decoration: none;">Portal gerai</a>
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Standar keamanan pangan</a>
-        </div>
-      </div>
-
-      <!-- Col 4: Perusahaan / Tentang -->
-      <div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ds-accent-on-inverse); margin-bottom: 16px;">
-          Tentang
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Misi kami</a>
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Kebijakan privasi</a>
-          <a href="#" style="color: var(--ds-white); text-decoration: none;">Hubungi kami</a>
         </div>
       </div>
 

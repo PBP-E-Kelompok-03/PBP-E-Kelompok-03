@@ -6,6 +6,8 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from order.forms import MAX_PER_ORDER
+
 from .api_client import FoodApiClient
 from .forms import RestaurantForm, SurpriseBoxForm
 from .models import Restaurant, SurpriseBox
@@ -59,6 +61,7 @@ def restaurant_detail(request, restaurant_id):
             "boxes": boxes,
             "first_box": first_box,
             "total_stock": total_stock,
+            "max_per_order": MAX_PER_ORDER,
         },
     )
 

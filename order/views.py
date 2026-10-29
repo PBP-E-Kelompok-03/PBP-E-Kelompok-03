@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from accounts.ratelimit import rate_limit
 from food.models import SurpriseBox
 
 from .decorators import owner_required, seller_required
@@ -16,6 +17,8 @@ from .forms import MAX_PER_ORDER, OrderCreateForm, PickupCodeForm
 from .models import ORDER_TTL, Order
 
 ACTIVE = (Order.Status.PENDING, Order.Status.CONFIRMED)
+COMPLETE_LIMIT = 30
+COMPLETE_WINDOW = 300
 
 
 def expire_stale_orders(orders=None):
@@ -170,6 +173,7 @@ def confirm_order(request, order_id):
 
 @login_required
 @require_POST
+@rate_limit("complete", COMPLETE_LIMIT, COMPLETE_WINDOW, key_func=lambda request: request.user.id)
 @seller_required
 def complete_order(request, order_id):
     """ajax penjual: cocokkan kode pickup, confirmed jadi completed"""

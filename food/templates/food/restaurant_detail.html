@@ -1039,7 +1039,7 @@
             <div class="box-menu-details">
               <div class="box-menu-top-line">
                 <h3 class="box-menu-name">{{ box.nama_paket }}</h3>
-                <span class="badge-sisa-box">Sisa {{ box.stok }} box</span>
+                <span class="badge-sisa-box">Sisa {{ box.stok }} box{% if box.stok > max_per_order %} · maks. {{ max_per_order }}/pesanan{% endif %}</span>
               </div>
 
               <div class="box-menu-prices">
@@ -1273,7 +1273,7 @@
     const qtyElem = document.getElementById('qty' + boxId);
     const card = document.getElementById('menuCard' + boxId);
     if (!qtyElem) return;
-    const stock = parseInt(card.dataset.stock, 10) || 1;
+    const stock = Math.min(parseInt(card.dataset.stock, 10) || 1, {{ max_per_order }});
     const qty = Math.min(Math.max(1, (parseInt(qtyElem.textContent) || 1) + change), stock);
     qtyElem.textContent = qty;
 

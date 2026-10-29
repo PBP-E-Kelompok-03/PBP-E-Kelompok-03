@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 from authlib.integrations.base_client import OAuthError
 from django.conf import settings
@@ -8,12 +10,14 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 
 from .forms import RegisterForm
 from .google import fetch_google_keys
 from .models import User
 from .oauth import oauth
+from .ratelimit import LOGIN_LIMIT, LOGIN_WINDOW, rate_limit
 
 
 def _set_last_login(response):
@@ -22,6 +26,7 @@ def _set_last_login(response):
     return response
 
 
+@method_decorator(rate_limit("login", LOGIN_LIMIT, LOGIN_WINDOW), name="dispatch")
 class AccountLoginView(LoginView):
     """login username dan password, lalu simpan cookie last_login"""
 
@@ -87,8 +92,12 @@ def google_callback(request):
 
 @login_required
 def profile_view(request):
-    """halaman profil, menampilkan cookie last_login"""
-    return render(request, "accounts/profile.html", {"last_login": request.COOKIES.get("last_login")})
+    """halaman profil, menampilkan cookie last_login dengan format tanggal yang rapi"""
+    try:
+        last_login = datetime.strptime(request.COOKIES.get("last_login"), "%Y-%m-%dT%H:%M").strftime("%d-%m-%Y %H:%M WIB")
+    except (TypeError, ValueError):
+        last_login = None
+    return render(request, "accounts/profile.html", {"last_login": last_login})
 
 
 @require_POST
@@ -100,6 +109,7 @@ def logout_view(request):
     return response
 
 
+@rate_limit("register", LOGIN_LIMIT, LOGIN_WINDOW)
 def register_view(request):
     """daftar akun baru, lalu arahkan ke login"""
     if request.user.is_authenticated:
