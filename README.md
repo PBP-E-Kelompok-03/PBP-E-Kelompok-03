@@ -293,3 +293,29 @@ AI digunakan sebagai asisten perancangan arsitektur (*pair programming*), pembua
 
 #### Dokumentasi Percakapan AI
 - [Riwayat Penggunaan Gemini — Modul Food & Restaurant](https://share.gemini.google/wkLmv6P0EESJ)
+
+### Modul Location & Map (Muhammad Akbar Rinaldy)
+AI Tools: ChatGPT (OpenAI)
+
+Tujuan Penggunaan:
+
+ChatGPT digunakan sebagai alat bantu pembelajaran dan pendukung pengembangan modul Location & Map pada aplikasi Dibuang Sayang.
+
+Bentuk Penggunaan AI:
+- Membantu memahami integrasi Leaflet.js dan OpenStreetMap dengan Django untuk menampilkan peta interaktif.
+- Membantu memberikan saran implementasi penanda (marker) restoran, popup informasi, serta integrasi data lokasi dari database melalui Django ORM dan respons JSON.
+- Membantu memahami penggunaan Browser Geolocation API, perhitungan jarak, dan penyaringan restoran berdasarkan radius lokasi pengguna.
+- Membantu memberikan saran penanganan koordinat tidak valid, penolakan izin lokasi, serta kegagalan pemuatan peta dan pembaruan data.
+- Membantu integrasi informasi stok, harga, foto restoran, dan tautan petunjuk arah menuju lokasi restoran melalui Google Maps.
+- Membantu proses debugging serta penyusunan pengujian menggunakan Django Test Framework untuk memeriksa data restoran, validasi koordinat, dan hak akses pengelolaan foto.
+- Membantu penyesuaian tampilan frontend, termasuk kartu restoran, penanda status ketersediaan, dan konsistensi informasi antara peta dan daftar restoran.
+Strategi Penggunaan dan Validasi:
+
+AI digunakan melalui diskusi interaktif untuk memperoleh penjelasan konsep, contoh kode, dan alternatif penyelesaian masalah. Saran yang diberikan ditinjau dan disesuaikan dengan struktur proyek serta integrasi antarmodul. Validasi mencakup pemeriksaan kesesuaian data dengan database, pengujian otomatis pada backend, dan pemeriksaan interaksi peta melalui browser, termasuk penggunaan lokasi pengguna dan filter radius.
+
+Keterbatasan dan Perbaikan Manual:
+
+Saran AI tidak selalu langsung sesuai dengan struktur model, format data, dan lingkungan pengembangan proyek. Oleh karena itu, penyesuaian manual diperlukan pada pengolahan koordinat, sinkronisasi stok dan harga, pembentukan tautan Google Maps, serta integrasi JavaScript dengan template Django. Perilaku geolokasi dan pemuatan peta juga perlu diperiksa secara langsung karena dipengaruhi oleh izin browser, koneksi internet, dan ketersediaan layanan eksternal.
+AI chat:
+- https://chatgpt.com/share/6ae48ab4-ebe8-83ec-8f2c-edd83c740416
+- https://chatgpt.com/share/6ae48b25-e240-83ec-93c6-cb359c76b8cb
