@@ -263,3 +263,33 @@ List tersebut di ambil dari log yang masih ada. Untuk log yang terhapus, AI ters
 #### Keterbatasan yang masih ada
 - Jam buka dan tutup restoran belum digunakan untuk membatasi pesanan. Karena jadwal pickup dan expired 24 jam, sehingga jam buka dan tutup restoran hanya sebagai informasi tambahan bagi pembeli terkait waktu pickup.
 - Pengguna yang masuk lewat Google secara default dan otomatis menjadi pembeli, sehingga restoran harus membuat akun sendiri, tidak bisa lewat Google.
+
+
+### Modul Food & Restaurant (Kapitra Fachriza Utomo)
+
+**AI Tools:** Antigravity / Gemini  
+*Catatan:* Antigravity tidak menyediakan fitur *share chat* publik seperti platform web biasa. Namun, karena pemakaian Antigravity selalu dibarengi dengan penyusunan *Markdown Plan* sebelum eksekusi setiap *task*, seluruh dokumentasi dan rencana kerja lengkap dapat dilihat pada folder [`docs/plans/`](docs/plans/).
+
+**Tujuan Penggunaan:**
+AI digunakan sebagai asisten perancangan arsitektur (*pair programming*), pembuatan rencana kerja (*action plan*), *debugging* kendala lingkungan produksi (PWS PostgreSQL vs lokal SQLite), penulisan unit test untuk skenario ekstrem, dan optimasi performa UI/UX pada modul Food & Restaurant.
+
+#### Rangkuman Bantuan & Penyesuaian AI
+
+| # | Bantuan AI | Keterbatasan & Penyesuaian Manual |
+| :-- | :--- | :--- |
+| 1 | **Rencana Arsitektur & Resilience API Client**: Merancang `FoodApiClient` dengan timeout (5s), caching Django (TTL 300s), dan fallback tangguh saat terjadi gangguan jaringan/database. | Perlu penyesuaian manual agar query database tidak membaca file `dummy_data.json` secara runtime melainkan murni dari Django ORM dan menampilkan *empty state* yang ramah pengguna. |
+| 2 | **Diagnostik Error 500 PWS**: Mengidentifikasi akar masalah `ProgrammingError: relation "food_surprisebox" does not exist` di server PWS. | Menyadari bahwa `manage.py` secara default mengarah ke `config.settings.dev` (SQLite). Dilakukan penyesuaian instruksi eksekusi migrasi dan seeding dengan menyertakan flag `--settings=config.settings.prod`. |
+| 3 | **Integrasi Foto & Seeding Data**: Membantu pemetaan 9 link foto Pinterest CDN ke 55 restoran dan 104 Surprise Box pada `fixtures/dummy_data.json`, serta perancangan migrasi `image_url`. | Model field Django tidak menerima argumen `required=True` (hanya berlaku di Form). Dilakukan koreksi manual ke `blank=True, null=True, max_length=1000` untuk mengakomodasi URL CDN yang panjang. |
+| 4 | **UI Resilience (HTML/CSS)**: Menyusun efek hover zoom dan fallback atribut `onerror` pada tag gambar agar tampilan tidak rusak saat internet lambat/offline. | Penyesuaian layout dan z-index manual pada badge sisa stok dan badge diskon agar tetap berada di atas foto produk. |
+| 5 | **Bugfix PostgreSQL Sequence Collision**: Menganalisis tabrakan Primary Key (`UniqueViolation: Key (id)=(1) already exists`) saat mitra menambah restoran baru di PWS. | Menghindari hardcoded SQL khusus Postgres di migrasi agar tidak merusak database SQLite lokal, melainkan menggunakan `connection.ops.sequence_reset_sql` di `seed_food.py` dan command `reset_sequences.py`. |
+
+#### Strategi Penggunaan dan Validasi
+- **Perencanaan Sebelum Eksekusi**: Setiap penambahan fitur atau refaktor diawali dengan dokumen rencana kerja terstruktur (`plan.md`) yang tersimpan di folder [`docs/plans/`](docs/plans/).
+- **Uji Regresi Berkelanjutan**: Setiap perubahan kode divalidasi dengan menjalankan unit test modul `food` (27 test) dan full test suite proyek (213 test) sebelum melakukan commit.
+- **Pemeriksaan Diff & Keamanan**: Seluruh perubahan dicek secara manual melalui `git diff` untuk memastikan tidak ada credential/kunci rahasia yang bocor dan struktur kode tetap mematuhi konvensi Django.
+
+#### Keterbatasan yang Masih Ada
+- **CDN Eksternal**: Penggunaan tautan gambar Pinterest bergantung pada ketersediaan CDN pihak ketiga. Meskipun telah dilengkapi *fallback* emoji otomatis (`onerror`), solusi jangka panjang yang ideal adalah *cloud storage* mandiri (seperti AWS S3 atau Cloudinary).
+
+#### Dokumentasi Percakapan AI
+- [Riwayat Penggunaan Gemini — Modul Food & Restaurant](https://share.gemini.google/wkLmv6P0EESJ)
