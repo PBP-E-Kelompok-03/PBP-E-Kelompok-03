@@ -93,6 +93,13 @@ class FoodViewsTest(TestCase):
         self.assertContains(response, "Bistro Kenari")
         self.assertContains(response, "Paket Roti Spesial")
 
+    def test_restaurant_detail_caps_quantity_like_checkout(self):
+        SurpriseBox.objects.filter(restaurant=self.restaurant).update(stok=9)
+        response = self.client.get(reverse("food:restaurant_detail", args=[self.restaurant.id]))
+        self.assertEqual(response.context["max_per_order"], 3)
+        self.assertContains(response, "maks. 3/pesanan")
+        self.assertContains(response, "Math.min(parseInt(card.dataset.stock, 10) || 1, 3)")
+
     def test_restaurant_detail_not_found(self):
         response = self.client.get(reverse("food:restaurant_detail", args=[999999]))
         self.assertEqual(response.status_code, 404)

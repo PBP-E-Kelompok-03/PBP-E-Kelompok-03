@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load l10n %}
+{% load l10n static %}
 {% block title %}Voucher Pesanan, Dibuang Sayang{% endblock %}
 {% block content %}
   <div class="ds-page-head" style="align-items: center; text-align: center">
@@ -100,6 +100,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/order-ajax.js' %}" data-csrf="{{ csrf_token }}"></script>
 <script>
 (function () {
   const rupiah = (n) => "Rp" + Math.round(Number(n) || 0).toLocaleString("id-ID");
@@ -130,17 +131,9 @@
     cancelBtn.addEventListener("click", async () => {
       const errorBox = document.getElementById("cancel-error");
       cancelBtn.disabled = true;
-      try {
-        const response = await fetch("{% url 'order:cancel' order.id %}", {
-          method: "POST",
-          headers: { "X-CSRFToken": "{{ csrf_token }}" },
-        });
-        if (response.ok) { location.reload(); return; }
-        const data = await response.json().catch(() => ({}));
-        errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
-      } catch (e) {
-        errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
-      }
+      const { ok, data } = await orderAjax.post("{% url 'order:cancel' order.id %}");
+      if (ok) { location.reload(); return; }
+      errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
       errorBox.classList.remove("ds-hidden");
       cancelBtn.disabled = false;
     });

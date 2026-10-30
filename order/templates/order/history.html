@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Riwayat Pesanan, Dibuang Sayang{% endblock %}
 {% block content %}
   <div class="ds-page-head">
@@ -73,6 +74,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/order-ajax.js' %}" data-csrf="{{ csrf_token }}"></script>
 <script>
 (function () {
   const groups = { active: ["pending", "confirmed"], completed: ["completed"], cancelled: ["cancelled", "expired"] };
@@ -141,17 +143,9 @@
     refreshCounts();
     show(currentTab);
 
-    try {
-      const response = await fetch(`/order/${pendingBtn.dataset.cancelOrder}/cancel/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}" },
-      });
-      if (response.ok) { dsToast("Pesanan dibatalkan."); return; }
-      const data = await response.json().catch(() => ({}));
-      errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
-    } catch (e) {
-      errorBox.textContent = "Koneksi bermasalah. Coba lagi.";
-    }
+    const { ok, data } = await orderAjax.post(`/order/${pendingBtn.dataset.cancelOrder}/cancel/`);
+    if (ok) { dsToast("Pesanan dibatalkan."); return; }
+    errorBox.textContent = data.error || "Pesanan gagal dibatalkan.";
 
     newBadge.replaceWith(oldBadge);
     card.querySelector(".ds-order__actions").appendChild(pendingBtn);

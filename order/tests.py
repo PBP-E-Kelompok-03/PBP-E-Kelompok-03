@@ -1,6 +1,7 @@
 import datetime
 import threading
 
+from django.core.cache import cache
 from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -30,6 +31,7 @@ def make_box(owner=None, stok=5, **extra):
 
 class BaseOrderTest(TestCase):
     def setUp(self):
+        cache.clear()
         self.buyer = User.objects.create_user(username="buyer1", password="pass12345")
         self.other = User.objects.create_user(username="buyer2", password="pass12345")
         self.seller = User.objects.create_user(username="seller1", password="pass12345", role=User.Role.PARTNER)
@@ -316,13 +318,15 @@ class OrderIncomingViewTest(BaseOrderTest):
 
     def test_seller_sees_orders_for_own_restaurant(self):
         self.client.login(username="seller1", password="pass12345")
-        self.assertContains(self.client.get(reverse("order:incoming")), "INC001")
+        response = self.client.get(reverse("order:incoming"))
+        self.assertContains(response, "Pembeli: buyer1")
+        self.assertNotContains(response, "INC001")
 
     def test_seller_does_not_see_other_restaurants(self):
         other = User.objects.create_user(username="seller2", password="pass12345", role=User.Role.PARTNER)
         make_box(owner=other)
         self.client.login(username="seller2", password="pass12345")
-        self.assertNotContains(self.client.get(reverse("order:incoming")), "INC001")
+        self.assertNotContains(self.client.get(reverse("order:incoming")), "Pembeli: buyer1")
 
     def test_buyer_gets_403(self):
         self.client.login(username="buyer1", password="pass12345")
@@ -603,3 +607,54 @@ class OrderStockRaceConditionTest(TransactionTestCase):
         self.assertEqual(sorted(statuses), [201, 400])
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(SurpriseBox.objects.get(pk=self.box.pk).stok, 0)
+
+
+class OrderGuardEdgeTest(BaseOrderTest):
+    def test_anonymous_user_is_never_a_seller(self):
+        from django.contrib.auth.models import AnonymousUser
+
+        from .decorators import _is_seller
+
+        self.assertFalse(_is_seller(self.order(), AnonymousUser()))
+
+    def test_duplicate_active_order_race_is_reported_as_conflict(self):
+        from unittest.mock import patch
+
+        from django.db import IntegrityError
+
+        self.client.login(username="buyer1", password="pass12345")
+        with patch.object(Order, "save", side_effect=IntegrityError):
+            response = self.client.post(reverse("order:create", args=[self.box.id]), {"jumlah": 2})
+        self.assertEqual(response.status_code, 409)
+        self.box.refresh_from_db()
+        self.assertEqual(self.box.stok, 5)
+
+
+class OrderCompleteRateLimitTest(BaseOrderTest):
+    def setUp(self):
+        super().setUp()
+        self.order_obj = self.order(kode_pickup="COMP01", status=Order.Status.CONFIRMED)
+        self.url = reverse("order:complete", args=[self.order_obj.id])
+        self.client.login(username="seller1", password="pass12345")
+
+    def test_wrong_codes_are_blocked_after_limit(self):
+        for _ in range(30):
+            self.assertEqual(self.client.post(self.url, {"kode_pickup": "SALAH1"}).status_code, 400)
+        self.assertEqual(self.client.post(self.url, {"kode_pickup": "SALAH1"}).status_code, 429)
+
+    def test_correct_code_is_also_blocked_after_limit(self):
+        for _ in range(30):
+            self.client.post(self.url, {"kode_pickup": "SALAH1"})
+        self.assertEqual(self.client.post(self.url, {"kode_pickup": "COMP01"}).status_code, 429)
+        self.order_obj.refresh_from_db()
+        self.assertEqual(self.order_obj.status, Order.Status.CONFIRMED)
+
+    def test_limit_is_counted_per_seller_account(self):
+        for _ in range(31):
+            self.client.post(self.url, {"kode_pickup": "SALAH1"})
+        seller2 = User.objects.create_user(username="seller2", password="pass12345", role=User.Role.PARTNER)
+        order2 = self.order(surprise_box=make_box(owner=seller2), kode_pickup="COMP02", status=Order.Status.CONFIRMED)
+        second = Client()
+        second.login(username="seller2", password="pass12345")
+        response = second.post(reverse("order:complete", args=[order2.id]), {"kode_pickup": "COMP02"})
+        self.assertEqual(response.status_code, 200)

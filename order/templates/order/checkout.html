@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load l10n %}
+{% load l10n static %}
 {% block title %}Checkout, Dibuang Sayang{% endblock %}
 {% block content %}
   {% if not box %}
@@ -88,6 +88,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/order-ajax.js' %}" data-csrf="{{ csrf_token }}"></script>
 <script>
 (function () {
   const confirmBtn = document.getElementById("confirm-order-btn");
@@ -139,21 +140,12 @@
     alertBox.innerHTML = "";
     confirmBtn.disabled = true;
     confirmBtn.classList.add("is-loading");
-    try {
-      const response = await fetch(`/order/create/${confirmBtn.dataset.boxId}/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
-        body: `jumlah=${jumlah}`,
-      });
-      const data = await response.json();
-      if (response.ok) {
-        window.location.href = `/order/${data.id}/confirmation/`;
-        return;
-      }
-      showError(data.error || "Reservasi gagal.");
-    } catch (e) {
-      showError("Koneksi bermasalah. Coba lagi.");
+    const { ok, data } = await orderAjax.post(`/order/create/${confirmBtn.dataset.boxId}/`, { jumlah });
+    if (ok) {
+      window.location.href = `/order/${data.id}/confirmation/`;
+      return;
     }
+    showError(data.error || "Reservasi gagal.");
     confirmBtn.classList.remove("is-loading");
     confirmBtn.disabled = false;
   });

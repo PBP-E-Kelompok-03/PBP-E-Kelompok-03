@@ -1038,7 +1038,7 @@
             <div class="box-menu-details">
               <div class="box-menu-top-line">
                 <h3 class="box-menu-name">{{ box.nama_paket }}</h3>
-                <span class="badge-sisa-box">Sisa {{ box.stok }} box</span>
+                <span class="badge-sisa-box">Sisa {{ box.stok }} box{% if box.stok > max_per_order %} · maks. {{ max_per_order }}/pesanan{% endif %}</span>
               </div>
 
               <div class="box-menu-prices">
@@ -1190,56 +1190,6 @@
 
 </div>
 
-<!-- Footer Figma DS -->
-<footer class="detail-footer">
-  <div class="detail-footer__inner">
-    <div class="detail-footer__grid">
-      <!-- Col 1: Brand Info -->
-      <div>
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-          <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 38px; width: auto; object-fit: contain;">
-          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: var(--ds-white);">Dibuang Sayang</span>
-        </div>
-        <p style="font-size: 14px; line-height: 20px; color: var(--ds-brand-tint); margin: 0; max-width: 280px;">
-          Platform penyelamat makanan berlebih untuk kurangi sampah & dapatkan makanan lezat terjangkau.
-        </p>
-      </div>
-
-      <!-- Col 2: Kategori -->
-      <div class="detail-footer__col">
-        <h4>Kategori</h4>
-        <a href="{% url 'food:list' %}?q=Bakery">Bakery dan pastry</a>
-        <a href="{% url 'food:list' %}?q=Bento">Makanan berat</a>
-        <a href="{% url 'food:list' %}?q=Kopi">Kopi dan kafe</a>
-        <a href="{% url 'food:list' %}?q=Salad">Salad</a>
-      </div>
-
-      <!-- Col 3: Mitra -->
-      <div class="detail-footer__col">
-        <h4>Mitra</h4>
-        <a href="{% url 'accounts:register' %}" class="btn-daftar-mitra-detail">Daftar jadi mitra</a>
-        <a href="{% url 'food:my_restaurants' %}" style="margin-top: 14px;">Portal gerai mitra</a>
-      </div>
-
-      <!-- Col 4: Ikuti Kami -->
-      <div class="detail-footer__col">
-        <h4>Ikuti kami</h4>
-        <a href="#">Instagram</a>
-        <a href="#">TikTok</a>
-        <a href="#">Komunitas</a>
-      </div>
-    </div>
-
-    <!-- Bottom Bar -->
-    <div class="detail-footer__bottom">
-      <div>© 2026 Dibuang Sayang</div>
-      <div style="display: flex; gap: 20px;">
-        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Kebijakan privasi</a>
-        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Syarat layanan</a>
-      </div>
-    </div>
-  </div>
-</footer>
 {% endblock %}
 
 {% block extra_js %}
@@ -1272,7 +1222,7 @@
     const qtyElem = document.getElementById('qty' + boxId);
     const card = document.getElementById('menuCard' + boxId);
     if (!qtyElem) return;
-    const stock = parseInt(card.dataset.stock, 10) || 1;
+    const stock = Math.min(parseInt(card.dataset.stock, 10) || 1, {{ max_per_order }});
     const qty = Math.min(Math.max(1, (parseInt(qtyElem.textContent) || 1) + change), stock);
     qtyElem.textContent = qty;
 
