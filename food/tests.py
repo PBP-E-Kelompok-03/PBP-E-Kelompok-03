@@ -373,3 +373,57 @@ class SeedFoodCommandTest(TestCase):
                 call_command("reset_sequences", stdout=out)
                 self.assertIn("Successfully reset PostgreSQL sequences", out.getvalue())
                 mock_cursor.execute.assert_called_once_with("SELECT 1;")
+
+    def test_restaurant_form_image_url_helpers(self):
+        from food.forms import RestaurantForm
+        form = RestaurantForm(data={
+            "nama": "Warung Test",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": "i.pinimg.com/736x/test.jpg"
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["image_url"], "https://i.pinimg.com/736x/test.jpg")
+
+        form_pin = RestaurantForm(data={
+            "nama": "Warung Test Pin",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": "https://pinterest.com/pin/123456789/"
+        })
+        self.assertFalse(form_pin.is_valid())
+        self.assertIn("image_url", form_pin.errors)
+
+        # Test base64 data URI direct upload
+        b64_sample = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD..."
+        form_b64 = RestaurantForm(data={
+            "nama": "Warung Test B64",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": b64_sample
+        })
+        self.assertTrue(form_b64.is_valid())
+        self.assertEqual(form_b64.cleaned_data["image_url"], b64_sample)
+
+    def test_surprise_box_form_image_url_helpers(self):
+        from food.forms import SurpriseBoxForm
+        form = SurpriseBoxForm(data={
+            "nama_paket": "Box Test",
+            "harga_normal": 50000,
+            "harga_diskon": 25000,
+            "stok": 5,
+            "image_url": "i.pinimg.com/736x/box.jpg"
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["image_url"], "https://i.pinimg.com/736x/box.jpg")
+
+        # Test base64 data URI direct upload for surprise box
+        b64_sample = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD..."
+        form_box_b64 = SurpriseBoxForm(data={
+            "nama_paket": "Box Test B64",
+            "harga_normal": 50000,
+            "harga_diskon": 25000,
+            "stok": 5,
+            "image_url": b64_sample
+        })
+        self.assertTrue(form_box_b64.is_valid())
+        self.assertEqual(form_box_b64.cleaned_data["image_url"], b64_sample)
+
+
