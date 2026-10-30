@@ -3,6 +3,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import tag
 from django.urls import reverse
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -94,7 +95,8 @@ class OrderReservationSeleniumTest(OrderSeleniumBase):
         self.click(self.open_checkout())
         self.wait.until(EC.url_contains("/confirmation/"))
         self.click(self.wait.until(EC.element_to_be_clickable((By.ID, "cancel-btn"))))
-        self.wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), "Pesanan dibatalkan"))
+        reload_safe_wait = WebDriverWait(self.driver, 10, ignored_exceptions=(WebDriverException,))
+        reload_safe_wait.until(EC.text_to_be_present_in_element((By.TAG_NAME, "h1"), "Pesanan dibatalkan"))
 
         self.assertEqual(Order.objects.get().status, Order.Status.CANCELLED)
         self.box.refresh_from_db()
