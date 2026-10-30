@@ -355,3 +355,21 @@ class SeedFoodCommandTest(TestCase):
         Restaurant.objects.filter(pk=Restaurant.objects.first().pk).update(nama="Diubah")
         call_command("seed_food", "--if-empty", stdout=io.StringIO())
         self.assertTrue(Restaurant.objects.filter(nama="Diubah").exists())
+
+
+    def test_reset_sequences_command(self):
+        from django.core.management import call_command
+        out = io.StringIO()
+        call_command("reset_sequences", stdout=out)
+        self.assertIn("No sequence reset needed", out.getvalue())
+
+    def test_reset_sequences_command_executes_sql(self):
+        from django.core.management import call_command
+        out = io.StringIO()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__.return_value = mock_cursor
+        with patch("django.db.connection.ops.sequence_reset_sql", return_value=["SELECT 1;"]):
+            with patch("django.db.connection.cursor", return_value=mock_cursor):
+                call_command("reset_sequences", stdout=out)
+                self.assertIn("Successfully reset PostgreSQL sequences", out.getvalue())
+                mock_cursor.execute.assert_called_once_with("SELECT 1;")

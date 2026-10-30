@@ -4,6 +4,8 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.management.color import no_style
+from django.db import connection
 
 from accounts.models import User
 from food.models import Restaurant, SurpriseBox
@@ -81,3 +83,11 @@ class Command(BaseCommand):
             )
             boxes += 1
         self.stdout.write(self.style.SUCCESS(f"Loaded {boxes} surprise boxes successfully."))
+
+        # Reset sequences for PostgreSQL so newly created restaurants/boxes do not collide with seeded IDs
+        sequence_sql = connection.ops.sequence_reset_sql(no_style(), [Restaurant, SurpriseBox])
+        if sequence_sql:
+            with connection.cursor() as cursor:
+                for sql in sequence_sql:
+                    cursor.execute(sql)
+            self.stdout.write(self.style.SUCCESS("Database sequences reset successfully."))
