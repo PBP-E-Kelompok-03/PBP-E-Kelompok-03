@@ -18,7 +18,7 @@ class Restaurant(models.Model):
     jam_tutup = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     dibuat_pada = models.DateTimeField(auto_now_add=True)
-    image_url = models.URLField(max_length=1000, blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True, help_text="Tautan foto atau data gambar Base64")
 
     class Meta:
         ordering = ["nama"]
@@ -38,7 +38,7 @@ class SurpriseBox(models.Model):
     harga_diskon = models.DecimalField(max_digits=12, decimal_places=2)
     stok = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    image_url = models.URLField(max_length=1000, blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True, help_text="Tautan foto atau data gambar Base64")
 
     class Meta:
         ordering = ["-id"]

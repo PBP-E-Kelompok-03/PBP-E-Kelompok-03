@@ -11,17 +11,76 @@
   <h2 style="margin-top: 0;">{{ title }}</h2>
   <p style="color: var(--color-text-muted); margin-bottom: var(--space-md);">Restoran: <strong>{{ restaurant.nama }}</strong></p>
 
-  <form method="post">
+  <form method="post" id="box-form">
     {% csrf_token %}
 
     {% if form.non_field_errors %}
-      <div class="alert alert--error">{{ form.non_field_errors.0 }}</div>
+      <div class="alert alert--error" style="margin-bottom: var(--space-md);">
+        {{ form.non_field_errors.0 }}
+      </div>
     {% endif %}
 
     {% for field in form %}
-      <div class="form-field">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
+      <div class="form-field" style="margin-bottom: var(--space-md);">
+        <label for="{{ field.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 4px;">
+          {{ field.label }}
+        </label>
+
+        {% if field.name == 'image_url' %}
+          <!-- Area Upload Foto Langsung dari Komputer / HP -->
+          <div id="file-drop-area" style="border: 2px dashed var(--color-border); border-radius: var(--radius-md, 8px); padding: 18px 12px; text-align: center; background: var(--color-bg-subtle, #f8f9fa); cursor: pointer; transition: border-color 0.2s;">
+            <input type="file" id="local-image-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+            <button type="button" id="btn-browse-file" class="btn" style="padding: 7px 16px; font-size: 13px; cursor: pointer;">
+              Pilih Foto mu
+            </button>
+            <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 6px;">
+              Mendukung file JPG, PNG, atau WebP (otomatis dioptimasi)
+            </div>
+          </div>
+
+          <!-- Divider Atau Pakai URL -->
+          <div style="display: flex; align-items: center; margin: 12px 0 8px 0;">
+            <div style="flex: 1; border-bottom: 1px solid var(--color-border);"></div>
+            <span style="padding: 0 10px; font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; font-weight: 600;">atau gunakan tautan gambar (URL)</span>
+            <div style="flex: 1; border-bottom: 1px solid var(--color-border);"></div>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="flex: 1;">
+              {{ field }}
+            </div>
+            <button type="button" id="btn-sample-image" class="btn btn--outline" style="font-size: 11px; padding: 8px 12px; white-space: nowrap; cursor: pointer;" data-sample-url="https://i.pinimg.com/736x/c1/8b/e8/c18be8699eff9ef668ef93171dc9aacf.jpg">
+              Contoh Foto
+            </button>
+          </div>
+
+          <!-- Live Image Preview Card -->
+          <div id="image-preview-container" style="margin-top: 12px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--color-text-muted);">Pratinjau Foto Produk:</span>
+              <button type="button" id="btn-remove-image" style="background: none; border: none; color: var(--color-danger, #dc3545); font-size: 11px; cursor: pointer; text-decoration: underline;">
+                ✕ Hapus Foto
+              </button>
+            </div>
+            <div style="position: relative; width: 100%; min-height: 140px; max-height: 240px; border-radius: var(--radius-md, 8px); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-bg-subtle, #f8f9fa); display: flex; align-items: center; justify-content: center;">
+              <img id="image-preview-img" src="" alt="Pratinjau Foto Produk" style="max-width: 100%; max-height: 240px; object-fit: cover; display: none;">
+              <div id="image-preview-loading" style="padding: 24px; font-size: 13px; color: var(--color-text-muted); display: none;">Memproses gambar...</div>
+              <div id="image-preview-error" style="padding: 16px; font-size: 13px; color: var(--color-danger); text-align: center; display: none;">
+                ⚠️ Gambar tidak dapat dimuat.<br><small>Pastikan file gambar valid atau gunakan tautan langsung (.jpg, .png).</small>
+              </div>
+            </div>
+            <div id="image-preview-status" style="font-size: 11px; color: var(--color-success, #28a745); margin-top: 4px; display: none; font-weight: 500;"></div>
+          </div>
+        {% else %}
+          {{ field }}
+        {% endif %}
+
+        {% if field.help_text and field.name != 'image_url' %}
+          <div style="color: var(--color-text-muted); font-size: 12px; margin-top: 4px;">
+            {{ field.help_text }}
+          </div>
+        {% endif %}
+
         {% if field.errors %}
           <div style="color: var(--color-danger); font-size: var(--font-size-sm); margin-top: 4px;">
             {{ field.errors.0 }}
@@ -36,4 +95,190 @@
     </div>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const urlInput = document.getElementById('id_image_url');
+  const fileInput = document.getElementById('local-image-input');
+  const browseBtn = document.getElementById('btn-browse-file');
+  const dropArea = document.getElementById('file-drop-area');
+  const sampleBtn = document.getElementById('btn-sample-image');
+  const removeBtn = document.getElementById('btn-remove-image');
+
+  const container = document.getElementById('image-preview-container');
+  const img = document.getElementById('image-preview-img');
+  const loading = document.getElementById('image-preview-loading');
+  const error = document.getElementById('image-preview-error');
+  const status = document.getElementById('image-preview-status');
+
+  // Trigger file picker
+  if (browseBtn && fileInput) {
+    browseBtn.addEventListener('click', () => fileInput.click());
+  }
+  if (dropArea && fileInput) {
+    dropArea.addEventListener('click', (e) => {
+      if (e.target !== browseBtn) fileInput.click();
+    });
+    // Drag & drop support
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.style.borderColor = 'var(--color-primary, #007bff)';
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropArea.style.borderColor = 'var(--color-border)';
+      });
+    });
+    dropArea.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        processLocalFile(files[0]);
+      }
+    });
+  }
+
+  // Handle selected local file
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files.length > 0) {
+        processLocalFile(this.files[0]);
+      }
+    });
+  }
+
+  function processLocalFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      alert('Harap pilih file gambar (JPG, PNG, atau WebP).');
+      return;
+    }
+
+    container.style.display = 'block';
+    loading.style.display = 'block';
+    error.style.display = 'none';
+    img.style.display = 'none';
+    status.style.display = 'none';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const tempImg = new Image();
+      tempImg.onload = function() {
+        // Smart client-side resizing (max 1000px dimension)
+        const maxDim = 1000;
+        let width = tempImg.width;
+        let height = tempImg.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(tempImg, 0, 0, width, height);
+
+        // Convert to high-quality compressed JPEG
+        const base64Data = canvas.toDataURL('image/jpeg', 0.82);
+
+        if (urlInput) urlInput.value = base64Data;
+        img.src = base64Data;
+        loading.style.display = 'none';
+        img.style.display = 'block';
+        status.textContent = `✓ Foto berhasil dimuat dari perangkat (${Math.round(base64Data.length / 1024)} KB)`;
+        status.style.display = 'block';
+      };
+      tempImg.onerror = function() {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+      };
+      tempImg.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Handle URL input
+  function updateFromUrl() {
+    let url = urlInput ? urlInput.value.trim() : '';
+    if (!url) {
+      container.style.display = 'none';
+      img.style.display = 'none';
+      error.style.display = 'none';
+      loading.style.display = 'none';
+      status.style.display = 'none';
+      return;
+    }
+
+    if (url.startsWith('data:image/')) {
+      // Already base64
+      container.style.display = 'block';
+      img.src = url;
+      img.style.display = 'block';
+      loading.style.display = 'none';
+      error.style.display = 'none';
+      status.textContent = '✓ Foto dari perangkat tersimpan';
+      status.style.display = 'block';
+      return;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+    }
+
+    container.style.display = 'block';
+    loading.style.display = 'block';
+    error.style.display = 'none';
+    img.style.display = 'none';
+    status.style.display = 'none';
+
+    const testImg = new Image();
+    testImg.onload = function() {
+      loading.style.display = 'none';
+      error.style.display = 'none';
+      img.src = url;
+      img.style.display = 'block';
+      status.textContent = '✓ Tautan gambar valid';
+      status.style.display = 'block';
+    };
+    testImg.onerror = function() {
+      loading.style.display = 'none';
+      img.style.display = 'none';
+      error.style.display = 'block';
+    };
+    testImg.src = url;
+  }
+
+  if (urlInput) {
+    urlInput.addEventListener('input', updateFromUrl);
+    urlInput.addEventListener('change', updateFromUrl);
+    if (urlInput.value) updateFromUrl();
+  }
+
+  if (sampleBtn && urlInput) {
+    sampleBtn.addEventListener('click', function() {
+      urlInput.value = sampleBtn.dataset.sampleUrl;
+      updateFromUrl();
+    });
+  }
+
+  if (removeBtn && urlInput) {
+    removeBtn.addEventListener('click', function() {
+      urlInput.value = '';
+      if (fileInput) fileInput.value = '';
+      container.style.display = 'none';
+      img.style.display = 'none';
+      error.style.display = 'none';
+      status.style.display = 'none';
+    });
+  }
+});
+</script>
 {% endblock %}
