@@ -19,7 +19,7 @@
 - [Panduan Memulai (Quick Start)](#-panduan-memulai-quick-start)
 - [Alur Pengguna (User Flow)](#-alur-pengguna-user-flow)
 - [Roadmap Pengembangan](#-roadmap-pengembangan)
-- [Screenshot](#screenshot)
+- [Figma](#figma)
 - [AI Disclosure](#ai-disclosure)
 - [Lisensi](#-lisensi)
 
@@ -158,7 +158,10 @@ docs/ERD.md        # kontrak data & ERD antarmodul (dikunci)
 fixtures/          # dummy data (50+ restoran & surprise box) untuk mock API
 ```
 
-## Screenshot
+## Figma
+
+### Link Figma
+https://www.figma.com/design/87bYuDE7p079Zgpc7mhNz1/PBP?node-id=0-1&t=QHitKt0uAL6yV7LT-1
 
 ### Umum
 
