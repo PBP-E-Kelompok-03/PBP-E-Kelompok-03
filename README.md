@@ -20,6 +20,8 @@
 - [Alur Pengguna (User Flow)](#-alur-pengguna-user-flow)
 - [Roadmap Pengembangan](#-roadmap-pengembangan)
 - [Figma](#figma)
+- [PWS](#pws)
+- [Web](#web)
 - [AI Disclosure](#ai-disclosure)
 - [Lisensi](#-lisensi)
 
@@ -162,6 +164,16 @@ fixtures/          # dummy data (50+ restoran & surprise box) untuk mock API
 
 ### Link Figma
 https://www.figma.com/design/87bYuDE7p079Zgpc7mhNz1/PBP?node-id=0-1&t=QHitKt0uAL6yV7LT-1
+
+## PWS
+
+### Link PWS
+https://pws.cs.ui.ac.id/web/project/dyah.zhafira/dibuang-sayang 
+
+## WEB
+
+### Link Web
+https://dyah-zhafira-dibuang-sayang.pws.cs.ui.ac.id
 
 ### Umum
 
