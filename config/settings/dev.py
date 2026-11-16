@@ -4,7 +4,7 @@ from decouple import config, Csv
 from .base import *
 
 DEBUG = True
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1,10.0.2.2", cast=Csv())
 
 DATABASES = {
     "default": {

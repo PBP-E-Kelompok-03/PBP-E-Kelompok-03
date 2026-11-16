@@ -27,6 +27,8 @@ urlpatterns = [
     path("food/", include("food.urls")),
     path("map/", include("map.urls")),
     path("order/", include("order.urls")),
+    path("api/auth/", include("accounts.api_urls")),
+    path("api/order/", include("order.api_urls")),
 
     # URL untuk fitur Review 
     path("review/", include("review.urls")),
