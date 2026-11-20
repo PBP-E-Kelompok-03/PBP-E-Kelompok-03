@@ -1,6 +1,7 @@
 
 from django.urls import path
 from . import views
+from . import api_views
 
 # Nama aplikasi untuk membedakan URL dengan aplikasi lain
 app_name = "review"
@@ -37,5 +38,18 @@ urlpatterns = [
         name="restaurant_reviews"
     ),
 
+
+        # API Review untuk Flutter
+    path(
+        "api/box/<int:surprise_box_id>/",
+        api_views.api_list_reviews,
+        name="api_list_reviews"
+    ),
+
+    path(
+        "api/create/<int:order_id>/",
+        api_views.api_create_review,
+        name="api_create_review"
+    ),
 
 ]
