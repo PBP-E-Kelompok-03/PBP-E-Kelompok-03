@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .forms import RegisterForm
+from .ratelimit import LOGIN_LIMIT, LOGIN_WINDOW, rate_limit
 
 
 class UserSerializer(serializers.Serializer):
@@ -13,6 +14,7 @@ class UserSerializer(serializers.Serializer):
     role = serializers.CharField()
 
 
+@rate_limit("login", LOGIN_LIMIT, LOGIN_WINDOW, as_json=True)
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login_api(request):
@@ -27,6 +29,7 @@ def login_api(request):
     return Response({"status": True, "message": "Login berhasil.", **UserSerializer(user).data})
 
 
+@rate_limit("register", LOGIN_LIMIT, LOGIN_WINDOW, as_json=True)
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register_api(request):

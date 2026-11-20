@@ -1,8 +1,9 @@
 from functools import wraps
 
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
+LIMIT_MESSAGE = "Terlalu banyak percobaan. Coba lagi nanti."
 LOGIN_LIMIT = 10
 LOGIN_WINDOW = 300
 
@@ -15,8 +16,8 @@ def client_ip(request):
     return request.META.get("REMOTE_ADDR", "")
 
 
-def rate_limit(scope, limit, window, key_func=client_ip):
-    """batasi post per ip: lebih dari limit dalam window detik dijawab 429"""
+def rate_limit(scope, limit, window, key_func=client_ip, as_json=False):
+    """batasi post per ip: lebih dari limit dalam window detik dijawab 429 (json kalau as_json)"""
     def decorator(view):
         @wraps(view)
         def wrapper(request, *args, **kwargs):
@@ -30,7 +31,9 @@ def rate_limit(scope, limit, window, key_func=client_ip):
                 cache.set(key, 1, window)
                 count = 1
             if count > limit:
-                return HttpResponse("Terlalu banyak percobaan. Coba lagi nanti.", status=429)
+                if as_json:
+                    return JsonResponse({"status": False, "error": LIMIT_MESSAGE, "message": LIMIT_MESSAGE}, status=429)
+                return HttpResponse(LIMIT_MESSAGE, status=429)
             return view(request, *args, **kwargs)
 
         return wrapper

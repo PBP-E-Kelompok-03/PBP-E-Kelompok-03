@@ -16,10 +16,10 @@ class BoxSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    nama_paket = serializers.CharField(source="surprise_box.nama_paket", default="")
-    restoran = serializers.CharField(source="surprise_box.restaurant.nama", default="")
-    alamat = serializers.CharField(source="surprise_box.restaurant.alamat", default="")
-    pembeli = serializers.CharField(source="pembeli.username")
+    nama_paket = serializers.CharField(source="surprise_box.nama_paket", read_only=True, default="")
+    restoran = serializers.CharField(source="surprise_box.restaurant.nama", read_only=True, default="")
+    alamat = serializers.CharField(source="surprise_box.restaurant.alamat", read_only=True, default="")
+    pembeli = serializers.CharField(source="pembeli.username", read_only=True)
     total = serializers.SerializerMethodField()
 
     class Meta:
@@ -30,7 +30,15 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def get_total(self, order):
-        return order.jumlah * order.harga_satuan
+        return f"{order.jumlah * order.harga_satuan:.2f}"
+
+    def to_representation(self, order):
+        """kode pickup hanya dikirim ke pembeli pemilik pesanan"""
+        data = super().to_representation(order)
+        request = self.context.get("request")
+        if request is None or request.user.id != order.pembeli_id:
+            data.pop("kode_pickup")
+        return data
 
 
 class OrderCreateSerializer(serializers.Serializer):

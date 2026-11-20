@@ -26,6 +26,9 @@ class ApiTest(TestCase):
 
 
 class AuthApiTest(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_register_login_me_logout(self):
         res = self.client.post(
             "/api/auth/register/",
@@ -118,3 +121,63 @@ class OrderApiTest(ApiTest):
         self.client.force_login(self.seller)
         self.assertEqual(self.post(f"/api/order/orders/{order['id']}/reject/").json()["status"], "cancelled")
         self.assertEqual(Order.objects.get().status, "cancelled")
+
+
+class OrderApiPrivacyTest(ApiTest):
+    def list_as(self, user):
+        self.client.force_login(user)
+        return self.client.get("/api/order/orders/").json()
+
+    def test_buyer_sees_own_pickup_code(self):
+        created = self.make_order()
+        self.assertIn("kode_pickup", created)
+        self.assertEqual(self.list_as(self.buyer)[0]["kode_pickup"], created["kode_pickup"])
+
+    def test_seller_never_receives_pickup_code(self):
+        self.make_order()
+        item = self.list_as(self.seller)[0]
+        self.assertNotIn("kode_pickup", item)
+        self.assertEqual(item["pembeli"], "buyer1")
+
+    def test_staff_does_not_receive_pickup_code(self):
+        self.make_order()
+        staff = User.objects.create_user(username="staff1", password="pass12345", is_staff=True)
+        self.assertNotIn("kode_pickup", self.list_as(staff)[0])
+
+    def test_seller_detail_hides_pickup_code_too(self):
+        order = self.make_order()
+        self.client.force_login(self.seller)
+        detail = self.client.get(f"/api/order/orders/{order['id']}/").json()
+        self.assertNotIn("kode_pickup", detail)
+
+    def test_money_fields_are_strings_with_two_decimals(self):
+        order = self.make_order()
+        self.assertEqual(order["harga_satuan"], "24000.00")
+        self.assertEqual(order["total"], "48000.00")
+
+
+class ApiRateLimitTest(ApiTest):
+    def test_login_blocked_after_limit_with_json_body(self):
+        for _ in range(10):
+            self.assertEqual(self.post("/api/auth/login/", {"username": "buyer1", "password": "salah"}).status_code, 401)
+        res = self.post("/api/auth/login/", {"username": "buyer1", "password": "salah"})
+        self.assertEqual(res.status_code, 429)
+        self.assertEqual(res.json()["status"], False)
+        self.assertIn("Terlalu banyak percobaan", res.json()["message"])
+
+    def test_register_blocked_after_limit(self):
+        for _ in range(10):
+            self.post("/api/auth/register/", {})
+        self.assertEqual(self.post("/api/auth/register/", {}).status_code, 429)
+
+    def test_complete_blocked_after_limit_even_with_correct_code(self):
+        order = self.make_order()
+        url = f"/api/order/orders/{order['id']}"
+        self.client.force_login(self.seller)
+        self.post(f"{url}/confirm/")
+        for _ in range(30):
+            self.assertEqual(self.post(f"{url}/complete/", {"kode_pickup": "SALAH"}).status_code, 400)
+        res = self.post(f"{url}/complete/", {"kode_pickup": order["kode_pickup"]})
+        self.assertEqual(res.status_code, 429)
+        self.assertIn("error", res.json())
+        self.assertEqual(Order.objects.get().status, Order.Status.CONFIRMED)

@@ -2,16 +2,18 @@ import uuid
 
 from django.db import IntegrityError, transaction
 from django.db.models import F
+from django.utils.decorators import method_decorator
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from accounts.ratelimit import rate_limit
 from food.models import SurpriseBox
 
 from .models import Order
 from .serializers import BoxSerializer, OrderCreateSerializer, OrderSerializer, PickupCodeSerializer
-from .views import ACTIVE, _available_boxes, _cancel, expire_stale_orders
+from .views import ACTIVE, COMPLETE_LIMIT, COMPLETE_WINDOW, _available_boxes, _cancel, expire_stale_orders
 
 
 def _fail(message, code=status.HTTP_400_BAD_REQUEST):
@@ -73,7 +75,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
                 )
         except IntegrityError:
             return _fail("Kamu sudah punya pesanan aktif untuk paket ini.", status.HTTP_409_CONFLICT)
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        return Response(OrderSerializer(order, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
@@ -102,6 +104,9 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
         return Response({"message": "Pesanan diterima.", "status": Order.Status.CONFIRMED})
 
     @action(detail=True, methods=["post"])
+    @method_decorator(
+        rate_limit("complete", COMPLETE_LIMIT, COMPLETE_WINDOW, key_func=lambda request: request.user.id, as_json=True)
+    )
     def complete(self, request, pk=None):
         order = self.get_seller_order()
         serializer = PickupCodeSerializer(data=request.data)
