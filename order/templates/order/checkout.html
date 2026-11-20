@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load l10n %}
+{% load l10n static %}
 {% block title %}Checkout, Dibuang Sayang{% endblock %}
 {% block content %}
   {% if not box %}
@@ -15,7 +15,7 @@
         <li aria-current="page">Checkout</li>
       </ol>
       <h1 class="ds-h1">Checkout</h1>
-      <p class="ds-text-secondary">Cek pesananmu, lalu reservasi. Selesaikan dalam 10 menit.</p>
+      <p class="ds-text-secondary">Cek pesananmu, lalu reservasi.</p>
     </div>
 
     <div id="alert-box" aria-live="polite"></div>
@@ -53,9 +53,9 @@
         <section class="ds-card">
           <h2 class="ds-h4">Instruksi pengambilan</h2>
           <div class="ds-notice">
-            <p class="ds-overline">Batas pengambilan</p>
-            <p class="ds-h4">{{ box.pickup_start|time:"H:i" }} – {{ box.pickup_end|time:"H:i" }} WIB</p>
-            <p class="ds-caption">Pesanan yang tidak diambil sebelum jam tutup pickup tidak dapat diambil lagi.</p>
+            <p class="ds-overline">Jam buka gerai</p>
+            <p class="ds-h4">{% if restaurant.jam_buka and restaurant.jam_tutup %}{{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB{% else %}Hubungi gerai untuk jam buka{% endif %}</p>
+            <p class="ds-caption">Ambil pesananmu dalam 24 jam setelah reservasi. Pesanan yang tidak diambil akan kedaluwarsa otomatis dan stok dikembalikan.</p>
           </div>
           <div class="ds-alert">♻ Bawa wadah atau tas belanja sendiri untuk kurangi sampah plastik.</div>
         </section>
@@ -76,7 +76,6 @@
         <div class="ds-row ds-row--between"><span class="ds-text-secondary">Biaya layanan</span><span class="ds-label">Rp0</span></div>
         <hr class="ds-divider">
         <div class="ds-row ds-row--between"><span class="ds-h4">Total</span><span class="ds-h3 ds-price" id="total"></span></div>
-        <div class="ds-timer ds-timer--soft" role="timer">Selesaikan dalam <span id="hold-timer">10:00</span></div>
         <button type="button" class="ds-btn ds-btn--primary ds-btn--block" id="confirm-order-btn"
                 data-box-id="{{ box.id }}" data-max-stock="{{ max_qty|default:0 }}">
           Konfirmasi &amp; Reservasi Sekarang
@@ -89,6 +88,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/order-ajax.js' %}" data-csrf="{{ csrf_token }}"></script>
 <script>
 (function () {
   const confirmBtn = document.getElementById("confirm-order-btn");
@@ -111,7 +111,8 @@
   const subtotalLabel = document.getElementById("subtotal-label");
   const maxStock = parseInt(confirmBtn.dataset.maxStock, 10) || 0;
   const unit = parseFloat(subtotal.dataset.unit) || 0;
-  let jumlah = 1;
+  const wanted = parseInt(new URLSearchParams(location.search).get("jumlah"), 10) || 1;
+  let jumlah = Math.min(Math.max(wanted, 1), Math.max(maxStock, 1));
 
   function render() {
     valueEl.textContent = jumlah;
@@ -138,37 +139,16 @@
   confirmBtn.addEventListener("click", async () => {
     alertBox.innerHTML = "";
     confirmBtn.disabled = true;
-    try {
-      const response = await fetch(`/order/create/${confirmBtn.dataset.boxId}/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
-        body: `jumlah=${jumlah}`,
-      });
-      const data = await response.json();
-      if (response.ok) {
-        window.location.href = `/order/${data.id}/confirmation/`;
-        return;
-      }
-      showError(data.error || "Reservasi gagal.");
-    } catch (e) {
-      showError("Koneksi bermasalah. Coba lagi.");
-    }
-    confirmBtn.disabled = false;
-  });
-
-  let left = 600;
-  const timerEl = document.getElementById("hold-timer");
-  const tick = setInterval(() => {
-    left -= 1;
-    if (left <= 0) {
-      clearInterval(tick);
-      timerEl.textContent = "00:00";
-      showError("Waktu checkout habis. Muat ulang halaman untuk cek ketersediaan stok.");
-      confirmBtn.disabled = true;
+    confirmBtn.classList.add("is-loading");
+    const { ok, data } = await orderAjax.post(`/order/create/${confirmBtn.dataset.boxId}/`, { jumlah });
+    if (ok) {
+      window.location.href = `/order/${data.id}/confirmation/`;
       return;
     }
-    timerEl.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
-  }, 1000);
+    showError(data.error || "Reservasi gagal.");
+    confirmBtn.classList.remove("is-loading");
+    confirmBtn.disabled = false;
+  });
 
   render();
 })();

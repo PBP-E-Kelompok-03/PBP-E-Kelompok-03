@@ -7,6 +7,7 @@ from .models import Order
 
 
 def _order_guard(check, message):
+    """bikin decorator yang menolak (403) kalau check(order, user) gagal"""
     def decorator(view):
         @wraps(view)
         def wrapper(request, order_id, *args, **kwargs):
@@ -23,10 +24,12 @@ def _order_guard(check, message):
 
 
 def _is_owner(order, user):
+    """true kalau user adalah pembeli pesanan ini"""
     return user.is_authenticated and order.pembeli_id == user.id
 
 
 def _is_seller(order, user):
+    """true kalau user pemilik restoran pesanan ini atau staff"""
     if not user.is_authenticated:
         return False
     if user.is_staff:
@@ -37,5 +40,5 @@ def _is_seller(order, user):
 
 owner_required = _order_guard(_is_owner, "Kamu tidak berhak mengakses pesanan ini.")
 seller_required = _order_guard(
-    _is_seller, "Hanya pemilik restoran yang boleh menyelesaikan pesanan."
+    _is_seller, "Hanya pemilik restoran yang boleh mengelola pesanan ini."
 )

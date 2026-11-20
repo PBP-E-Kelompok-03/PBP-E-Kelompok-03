@@ -61,6 +61,13 @@ class Review(models.Model):
     # "Makanannya enak, porsinya banyak, dan harganya murah."
     comment = models.TextField()
 
+    # BALASAN PEMILIK RESTORAN
+    # Balasan bersifat opsional sehingga restoran tidak wajib membalas.
+    owner_reply = models.TextField(
+        blank=True,
+        default=""
+    )
+
     # WAKTU PEMBUATAN REVIEW
     # DateTimeField menyimpan tanggal dan waktu.
     #

@@ -10,19 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Menangani pengiriman ulasan menggunakan AJAX
     form.addEventListener("submit", async function (event) {
-
-        // Mencegah halaman reload ketika form dikirim
         event.preventDefault();
-
-        // Mengambil rating, komentar, dan CSRF token dari form
         const formData = new FormData(form);
-
-        // Menonaktifkan tombol selama proses pengiriman
         button.disabled = true;
         message.textContent = "Mengirim ulasan...";
 
         try {
-            // Mengirim data review ke Django menggunakan Fetch API
+            // kirim data ke django
             const response = await fetch(form.action, {
                 method: "POST",
                 body: formData,
@@ -30,21 +24,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     "X-Requested-With": "XMLHttpRequest"
                 }
             });
-
-            // Membaca respons JSON dari Django
             const data = await response.json();
-
-            // Jika review berhasil disimpan
             if (response.ok && data.success) {
                 message.textContent = data.message;
                 message.style.color = "green";
 
-                // Mengosongkan form setelah berhasil
                 form.reset();
                 button.textContent = "Ulasan Terkirim";
 
             } else {
-                // Menampilkan pesan jika review gagal dikirim
                 const errors = data.errors
                     ? Object.values(data.errors).flat().join(" ")
                     : data.error || "Gagal mengirim ulasan.";
@@ -56,7 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
         } catch (error) {
-            // Menangani kesalahan jaringan atau respons server
             message.textContent = "Terjadi kesalahan saat mengirim ulasan.";
             message.style.color = "red";
 

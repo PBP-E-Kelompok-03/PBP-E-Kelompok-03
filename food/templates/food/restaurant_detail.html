@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}{{ restaurant.nama }} — Dibuang Sayang{% endblock %}
 
 {% block extra_css %}
 <style>
   body {
-    background-color: #F8F9FF;
+    background-color: var(--ds-bg-page);
   }
 
   .detail-page-wrapper {
@@ -27,7 +27,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -41,19 +41,19 @@
 
   /* 2. Hero Resto Card */
   .resto-hero-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 4px 16px rgba(24, 49, 12, 0.04);
   }
   .resto-hero-banner {
     width: 100%;
-    height: 224px;
-    background: #E6EEFF;
+    height: 240px;
+    background: var(--ds-bg-subtle);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -63,11 +63,29 @@
     position: relative;
     overflow: hidden;
   }
+  .resto-hero-banner__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 16px;
+  }
+  .resto-hero-banner__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+  }
   .resto-hero-banner__label {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
   }
 
   .resto-hero-info {
@@ -93,17 +111,17 @@
     font-weight: 700;
     font-size: 28px;
     line-height: 36px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-verified {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 4px 10px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .resto-hero-header__right {
     display: flex;
@@ -111,23 +129,23 @@
     gap: 10px;
   }
   .pill-rating {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 20px;
     padding: 6px 14px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .pill-stock-hero {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 20px;
     padding: 6px 14px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #FFFFFF;
+    color: var(--ds-white);
   }
 
   .resto-hero-meta {
@@ -140,14 +158,14 @@
   .resto-hero-address {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 15px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin: 0;
   }
   .pickup-alert-box {
-    background: #DC2626;
+    background: var(--ds-error);
     border-radius: 14px;
     padding: 8px 18px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,14 +183,14 @@
     opacity: 0.9;
   }
   .badge-halal {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 10px;
     padding: 6px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
 
   /* 3. Main Two-Column Layout */
@@ -204,40 +222,40 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 22px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-variant-count {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 4px 10px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
 
   .box-menu-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 16px;
     display: flex;
     gap: 16px;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0px 2px 8px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 2px 8px rgba(24, 49, 12, 0.04);
     transition: border-color 0.2s;
   }
   .box-menu-card--active {
-    border-color: #006C41;
-    background: #FAFCFA;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-bg-page);
   }
 
   .box-menu-thumb {
     width: 130px;
     height: 95px;
-    background: #E6EEFF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     position: relative;
     display: flex;
@@ -245,18 +263,44 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+  }
+  .box-menu-thumb__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+  }
+  .box-menu-card:hover .box-menu-thumb__img {
+    transform: scale(1.06);
+  }
+  .box-menu-thumb__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
   }
   .badge-box-hemat {
     position: absolute;
     top: 6px;
     left: 6px;
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 6px;
     padding: 2px 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 11px;
-    color: #FFFFFF;
+    color: var(--ds-white);
+    z-index: 2;
   }
 
   .box-menu-details {
@@ -275,22 +319,22 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .badge-sisa-box {
-    background: #FEF3C7;
+    background: var(--ds-accent-tint);
     border-radius: 6px;
     padding: 2px 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 12px;
-    color: #D97706;
+    color: var(--ds-text-accent);
   }
   .box-menu-desc {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
     margin: 0;
   }
   .box-menu-prices {
@@ -303,13 +347,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
     text-decoration: line-through;
-    color: #9CA3AF;
+    color: var(--ds-text-disabled);
   }
   .box-menu-prices .new-price {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
 
   .box-menu-actions {
@@ -319,7 +363,7 @@
     flex-shrink: 0;
   }
   .stepper {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 10px;
     display: inline-flex;
     align-items: center;
@@ -332,7 +376,7 @@
     background: transparent;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -349,13 +393,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .btn-add-item {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border: none;
     border-radius: 10px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -364,13 +408,13 @@
     transition: background 0.15s ease;
   }
   .btn-add-item:hover {
-    background: #005231;
+    background: var(--ds-action-primary-hover);
   }
 
   /* Catatan Pesanan Card */
   .order-notes-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 20px;
     margin-top: 16px;
@@ -382,7 +426,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 17px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .byob-wrapper {
@@ -394,7 +438,7 @@
   .byob-checkbox {
     width: 20px;
     height: 20px;
-    accent-color: #006C41;
+    accent-color: var(--ds-action-primary);
     cursor: pointer;
     margin-top: 2px;
   }
@@ -402,46 +446,46 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .byob-label-sub {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     font-weight: 600;
   }
   .cashier-note-input {
     width: 100%;
-    background: #EFF4FF;
-    border: 1px solid #6E7A70;
+    background: var(--ds-bg-subtle);
+    border: 1px solid var(--ds-text-placeholder);
     border-radius: 10px;
     padding: 12px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     outline: none;
     box-sizing: border-box;
   }
   .cashier-note-input:focus {
-    border-color: #006C41;
-    background: #FFFFFF;
+    border-color: var(--ds-action-primary);
+    background: var(--ds-white);
   }
 
   /* Right Column: Order Summary Card */
   .summary-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 20px;
     position: sticky;
     top: 96px;
-    box-shadow: 0px 4px 16px rgba(18, 28, 42, 0.04);
+    box-shadow: 0px 4px 16px rgba(24, 49, 12, 0.04);
   }
   .summary-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0 0 16px 0;
   }
   .summary-item-line {
@@ -449,10 +493,10 @@
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 12px;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid var(--ds-bg-subtle);
   }
   .summary-savings-banner {
-    background: #EBF7F0;
+    background: var(--ds-brand-tint);
     border-radius: 8px;
     padding: 10px 14px;
     display: flex;
@@ -461,7 +505,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 15px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     margin: 14px 0;
   }
   .summary-row {
@@ -470,11 +514,11 @@
     align-items: center;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin-bottom: 8px;
   }
   .summary-total-box {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     padding: 14px 16px;
     margin: 16px 0;
@@ -486,7 +530,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 12px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -494,16 +538,16 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
     font-size: 22px;
-    color: #006C41;
+    color: var(--ds-action-primary);
   }
   .btn-confirm-reserve {
-    background: #006C41;
+    background: var(--ds-action-primary);
     border-radius: 12px;
     height: 46px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 16px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-align: center;
     display: flex;
     align-items: center;
@@ -515,28 +559,28 @@
     cursor: pointer;
   }
   .btn-confirm-reserve:hover {
-    background: #005231;
+    background: var(--ds-action-primary-hover);
   }
   .badge-payment-cash {
-    border: 1px solid #006C41;
+    border: 1px solid var(--ds-action-primary);
     border-radius: 12px;
     height: 42px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 10px;
-    background: #FFFFFF;
+    background: var(--ds-white);
   }
 
   /* Location Miniature Card */
   .mini-map-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 16px;
     margin-top: 16px;
@@ -550,17 +594,17 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 15px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .mini-map-card__link {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #006C41;
+    color: var(--ds-action-primary);
     text-decoration: none;
   }
   .mini-map-card__preview {
-    background: #EFF4FF;
+    background: var(--ds-bg-subtle);
     border-radius: 12px;
     height: 100px;
     display: flex;
@@ -569,13 +613,13 @@
     margin-top: 12px;
   }
   .mini-map-card__pill {
-    background: #FFFFFF;
+    background: var(--ds-white);
     border-radius: 20px;
     padding: 6px 16px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 13px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
@@ -599,7 +643,7 @@
     gap: 4px;
   }
   .reviews-stars-orange {
-    color: #F59E0B;
+    color: var(--ds-accent-solid);
     font-size: 18px;
     letter-spacing: 2px;
   }
@@ -607,7 +651,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 24px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
     margin: 0;
   }
   .reviews-score-wrap {
@@ -617,12 +661,12 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 16px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .reviews-score-sub {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13px;
-    color: #6E7A70;
+    color: var(--ds-text-placeholder);
   }
 
   .reviews-grid {
@@ -637,8 +681,8 @@
   }
 
   .review-card {
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
+    background: var(--ds-white);
+    border: 1px solid var(--ds-border-default);
     border-radius: 16px;
     padding: 18px;
     display: flex;
@@ -667,38 +711,38 @@
     font-weight: 700;
     font-size: 13px;
   }
-  .avatar-dk { background: #EBF7F0; color: #006C41; }
-  .avatar-aw { background: #FEF3C7; color: #D97706; }
-  .avatar-rz { background: #EFF4FF; color: #006C41; }
+  .avatar-dk { background: var(--ds-brand-tint); color: var(--ds-action-primary); }
+  .avatar-aw { background: var(--ds-accent-tint); color: var(--ds-text-accent); }
+  .avatar-rz { background: var(--ds-bg-subtle); color: var(--ds-action-primary); }
   .review-user-name {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
-    color: #121C2A;
+    color: var(--ds-text-primary);
   }
   .review-stars {
-    color: #F59E0B;
+    color: var(--ds-accent-solid);
     font-size: 13px;
   }
   .review-comment {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 14px;
     line-height: 20px;
-    color: #3E4941;
+    color: var(--ds-text-secondary);
     margin: 0;
   }
   .review-time {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
-    color: #9CA3AF;
+    color: var(--ds-text-disabled);
   }
 
   /* Footer */
   .detail-footer {
-    background: #072D1D;
+    background: var(--ds-bg-inverse);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     padding: 56px 32px 32px;
-    color: #FFFFFF;
+    color: var(--ds-white);
     margin-top: 48px;
   }
   .detail-footer__inner {
@@ -729,13 +773,13 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
-    color: #40E576;
+    color: var(--ds-accent-on-inverse);
     margin: 0 0 16px 0;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
   .detail-footer__col a {
-    color: #FFFFFF;
+    color: var(--ds-white);
     text-decoration: none;
     font-size: 14px;
     line-height: 24px;
@@ -744,8 +788,8 @@
     opacity: 0.9;
   }
   .btn-daftar-mitra-detail {
-    background: #40E576;
-    color: #072D1D;
+    background: var(--ds-accent-on-inverse);
+    color: var(--ds-bg-inverse);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -763,6 +807,112 @@
     flex-wrap: wrap;
     gap: 12px;
   }
+
+  /* Balasan restoran sedikit menjorok ke kanan */
+.restaurant-owner-reply {
+    margin-top: 12px;
+    margin-left: 28px;
+    padding-left: 12px;
+    border-left: 2px solid var(--ds-border-default);
+}
+
+.restaurant-owner-reply strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.restaurant-owner-reply p {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* Tombol Edit dan Hapus dalam kartu review */
+.review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.review-edit-btn,
+.review-delete-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Edit warna hijau */
+.review-edit-btn {
+    background: var(--ds-white);
+    border: 1px solid var(--ds-action-primary);
+    color: var(--ds-action-primary);
+}
+
+/* Hapus warna merah */
+.review-delete-btn {
+    background: var(--ds-error);
+    border: 1px solid var(--ds-error);
+    color: var(--ds-white);
+}
+
+.review-delete-btn:hover {
+    background: var(--ds-error);
+}
+
+.review-inline-edit {
+    margin-top: 14px;
+}
+
+.review-inline-edit[hidden] {
+    display: none;
+}
+
+.review-inline-edit label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.review-inline-edit select,
+.review-inline-edit textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid var(--ds-border-default);
+    border-radius: 8px;
+    font: inherit;
+}
+
+.review-inline-edit button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ds-action-primary);
+    color: white;
+    cursor: pointer;
+}
+
+.review-action-feedback {
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.restaurant-owner-reply .review-card__user {
+    margin-bottom: 8px;
+}
+
+.restaurant-owner-reply .avatar-circle {
+    flex-shrink: 0;
+}
+
 </style>
 {% endblock %}
 
@@ -783,8 +933,19 @@
   <!-- 2. Resto Hero Banner Card -->
   <section class="resto-hero-card">
     <div class="resto-hero-banner">
-      <span style="font-size: 48px;">🏪</span>
-      <span class="resto-hero-banner__label">Foto produk</span>
+      {% if restaurant.image_url %}
+        <img
+          src="{{ restaurant.image_url }}"
+          alt="{{ restaurant.nama }}"
+          class="resto-hero-banner__img"
+          loading="lazy"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+      {% endif %}
+      <div style="{% if restaurant.image_url %}display: none;{% else %}display: flex;{% endif %} flex-direction: column; align-items: center; gap: 8px;">
+        <span style="font-size: 48px;">🏪</span>
+        <span class="resto-hero-banner__label">Foto Restoran</span>
+      </div>
     </div>
 
     <div class="resto-hero-info">
@@ -800,7 +961,7 @@
               · <span id="restaurantReviewCountTop">0 ulasan</span>
           </div>
           <div class="pill-stock-hero">
-            {{ total_stock|default:"4" }} paket tersisa
+            {{ total_stock|default_if_none:0 }} paket tersisa
           </div>
         </div>
       </div>
@@ -814,22 +975,17 @@
         <div class="pickup-alert-box">
           <span class="pickup-alert-box__title">
             {% if restaurant.jam_buka and restaurant.jam_tutup %}
-              Ambil {{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB
+              Buka {{ restaurant.jam_buka|time:"H:i" }} – {{ restaurant.jam_tutup|time:"H:i" }} WIB
             {% else %}
-              Ambil 19:30 – 21:00 WIB
+              Jam buka belum diatur
             {% endif %}
           </span>
-          <span class="pickup-alert-box__sub">Sisa 1 jam 15 menit</span>
-        </div>
-
-        <div class="badge-halal">
-          Halal
         </div>
       </div>
 
       <!-- Partner / Staff Management Actions -->
       {% if user.is_authenticated and restaurant.owner == user or user.is_staff %}
-        <div style="display: flex; gap: 10px; padding-top: 8px; border-top: 1px solid #F3F4F6;">
+        <div style="display: flex; gap: 10px; padding-top: 8px; border-top: 1px solid var(--ds-bg-subtle);">
           <a href="{% url 'food:edit_restaurant' restaurant.id %}" class="btn btn--outline" style="padding: 6px 14px; font-size: 13px;">Edit Info Restoran</a>
           <a href="{% url 'food:create_surprise_box' restaurant.id %}" class="btn" style="padding: 6px 14px; font-size: 13px;">+ Tambah Paket</a>
         </div>
@@ -850,30 +1006,40 @@
       {% if boxes %}
         {% for box in boxes %}
           <article
-            class="box-menu-card {% if forloop.first %}box-menu-card--active{% endif %}"
+            class="box-menu-card"
             id="menuCard{{ box.id }}"
             data-id="{{ box.id }}"
             data-name="{{ box.nama_paket }}"
-            data-price-discount="{{ box.harga_diskon }}"
-            data-price-normal="{{ box.harga_normal }}"
+            data-price-discount="{{ box.harga_diskon|unlocalize }}"
+            data-price-normal="{{ box.harga_normal|unlocalize }}"
             data-stock="{{ box.stok }}"
           >
             <!-- Thumbnail Box -->
-            <div class="box-menu-thumb">
+            <div class="box-menu-thumb" style="overflow: hidden; position: relative;">
               {% if box.diskon_persen > 0 %}
                 <span class="badge-box-hemat">Hemat {{ box.diskon_persen }}%</span>
               {% endif %}
-              <span style="font-size: 24px;">🥐</span>
-              <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: #3E4941; font-weight: 500;">Foto produk</span>
+              {% if box.image_url %}
+                <img
+                  src="{{ box.image_url }}"
+                  alt="{{ box.nama_paket }}"
+                  class="box-menu-thumb__img"
+                  loading="lazy"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                >
+              {% endif %}
+              <div class="box-menu-thumb__placeholder" style="{% if box.image_url %}display: none;{% else %}display: flex;{% endif %}">
+                <span style="font-size: 26px;">🍱</span>
+                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: var(--ds-text-secondary); font-weight: 500;">Foto produk</span>
+              </div>
             </div>
 
             <!-- Details -->
             <div class="box-menu-details">
               <div class="box-menu-top-line">
                 <h3 class="box-menu-name">{{ box.nama_paket }}</h3>
-                <span class="badge-sisa-box">Sisa {{ box.stok }} box</span>
+                <span class="badge-sisa-box">Sisa {{ box.stok }} box{% if box.stok > max_per_order %} · maks. {{ max_per_order }}/pesanan{% endif %}</span>
               </div>
-              <p class="box-menu-desc">Aneka pastry, roti lezat, dan hidangan segar berkualitas tinggi.</p>
 
               <div class="box-menu-prices">
                 <span class="old-price">Rp {{ box.harga_normal|floatformat:0 }}</span>
@@ -892,7 +1058,7 @@
               <button
                 type="button"
                 class="btn-add-item"
-                onclick="selectBox({{ box.id }}, '{{ box.nama_paket|escapejs }}', {{ box.harga_diskon }}, {{ box.harga_normal }}, {{ box.stok }})"
+                onclick="selectBox({{ box.id }}, '{{ box.nama_paket|escapejs }}', {{ box.harga_diskon|unlocalize }}, {{ box.harga_normal|unlocalize }}, {{ box.stok }})"
               >
                 Pilih
               </button>
@@ -900,38 +1066,13 @@
           </article>
         {% endfor %}
       {% else %}
-        <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; text-align: center;">
-          <p style="color: #6E7A70; margin: 0;">Belum ada paket Surprise Box aktif di restoran ini.</p>
+        <div style="background: var(--ds-white); border: 1px solid var(--ds-border-default); border-radius: 16px; padding: 24px; text-align: center;">
+          <p style="color: var(--ds-text-placeholder); margin: 0;">Belum ada paket Surprise Box aktif di restoran ini.</p>
           {% if user.is_authenticated and restaurant.owner == user or user.is_staff %}
             <a href="{% url 'food:create_surprise_box' restaurant.id %}" class="btn" style="margin-top: 14px; display: inline-block;">+ Tambah Paket Pertama</a>
           {% endif %}
         </div>
       {% endif %}
-
-      <!-- Catatan Pesanan Card (BYOB & Note) -->
-      <section class="order-notes-card">
-        <h3 class="order-notes-title">Catatan pesanan</h3>
-
-        <label class="byob-wrapper">
-          <input type="checkbox" id="byobCheckbox" class="byob-checkbox" checked onchange="toggleByobBonus(this)">
-          <div>
-            <div class="byob-label-title">Bawa wadah sendiri</div>
-            <div class="byob-label-sub" id="byobSub">Bonus 20 Eco-Points</div>
-          </div>
-        </label>
-
-        <div>
-          <label for="cashierNote" style="display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: #121C2A; margin-bottom: 6px;">
-            Catatan untuk kasir
-          </label>
-          <input
-            type="text"
-            id="cashierNote"
-            class="cashier-note-input"
-            placeholder="Contoh: alergi kacang"
-          >
-        </div>
-      </section>
     </div>
 
     <!-- RIGHT COLUMN: Sticky Order Summary & Miniature Map -->
@@ -939,23 +1080,23 @@
       <aside class="summary-card">
         <h3 class="summary-title">Ringkasan</h3>
 
+        <p id="summaryEmpty" style="color: var(--ds-text-secondary); margin: 0 0 16px;">Pilih salah satu paket untuk melihat ringkasan.</p>
+
+        <div id="summaryContent" hidden>
         <!-- Selected Item Row -->
         <div class="summary-item-line">
           <div>
-            <div id="summaryItemName" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: #121C2A;">
-              1x {{ first_box.nama_paket|default:"Surprise Box" }}
+            <div id="summaryItemName" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
             </div>
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #6E7A70; margin-top: 2px;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: var(--ds-text-placeholder); margin-top: 2px;">
               {{ restaurant.nama }}
             </div>
           </div>
 
           <div style="text-align: right;">
-            <div id="summaryItemPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: #121C2A;">
-              Rp {{ first_box.harga_diskon|floatformat:0|default:"35.000" }}
+            <div id="summaryItemPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; color: var(--ds-text-primary);">
             </div>
-            <div id="summaryOldPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; text-decoration: line-through; color: #9CA3AF;">
-              Rp {{ first_box.harga_normal|floatformat:0|default:"100.000" }}
+            <div id="summaryOldPrice" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; text-decoration: line-through; color: var(--ds-text-disabled);">
             </div>
           </div>
         </div>
@@ -964,34 +1105,29 @@
         <div class="summary-savings-banner">
           <span>Hemat</span>
           <span id="summarySavings">
-            {% if first_box %}
-              Rp {{ first_box.harga_normal|add:"-first_box.harga_diskon"|default:"65.000" }}
-            {% else %}
-              Rp 65.000
-            {% endif %}
           </span>
         </div>
 
         <!-- Subtotal & Service fee -->
         <div class="summary-row">
           <span>Subtotal</span>
-          <span id="summarySubtotal">Rp {{ first_box.harga_diskon|floatformat:0|default:"35.000" }}</span>
+          <span id="summarySubtotal"></span>
         </div>
         <div class="summary-row">
           <span>Biaya layanan</span>
-          <span>Rp 2.000</span>
+          <span>Rp 0</span>
         </div>
 
         <!-- Total Box -->
         <div class="summary-total-box">
           <span class="summary-total-label">TOTAL</span>
-          <span class="summary-total-value" id="summaryTotal">
-            Rp 37.000
-          </span>
+          <span class="summary-total-value" id="summaryTotal"></span>
         </div>
 
         <!-- Action Button -->
-        {% if first_box %}
+        {% if user.is_partner %}
+          <p style="color: var(--ds-text-secondary); margin: 0;">Akun mitra tidak bisa memesan. Masuk dengan akun pembeli.</p>
+        {% elif first_box %}
           <a href="{% url 'order:checkout' first_box.id %}" id="btnConfirmReservation" class="btn-confirm-reserve">
             Konfirmasi reservasi
           </a>
@@ -1000,6 +1136,7 @@
             Konfirmasi reservasi
           </button>
         {% endif %}
+        </div>
 
         <!-- Supported payment -->
         <div class="badge-payment-cash">
@@ -1043,6 +1180,9 @@
   </div>
   </div>
 
+<form id="review-action-csrf" hidden>
+    {% csrf_token %}
+</form>
   <div class="reviews-grid" id="restaurantReviewsGrid">
           <p>Belum ada ulasan untuk restoran ini.</p>
   </div>
@@ -1050,67 +1190,11 @@
 
 </div>
 
-<!-- Footer Figma DS -->
-<footer class="detail-footer">
-  <div class="detail-footer__inner">
-    <div class="detail-footer__grid">
-      <!-- Col 1: Brand Info -->
-      <div>
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-          <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 38px; width: auto; object-fit: contain;">
-          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF;">Dibuang Sayang</span>
-        </div>
-        <p style="font-size: 14px; line-height: 20px; color: #EBF7F0; margin: 0; max-width: 280px;">
-          Platform penyelamat makanan berlebih untuk kurangi sampah & dapatkan makanan lezat terjangkau.
-        </p>
-      </div>
-
-      <!-- Col 2: Kategori -->
-      <div class="detail-footer__col">
-        <h4>Kategori</h4>
-        <a href="{% url 'food:list' %}?q=Bakery">Bakery dan pastry</a>
-        <a href="{% url 'food:list' %}?q=Bento">Makanan berat</a>
-        <a href="{% url 'food:list' %}?q=Kopi">Kopi dan kafe</a>
-        <a href="{% url 'food:list' %}?q=Salad">Salad</a>
-      </div>
-
-      <!-- Col 3: Mitra -->
-      <div class="detail-footer__col">
-        <h4>Mitra</h4>
-        <a href="{% url 'accounts:register' %}" class="btn-daftar-mitra-detail">Daftar jadi mitra</a>
-        <a href="{% url 'food:my_restaurants' %}" style="margin-top: 14px;">Portal gerai mitra</a>
-      </div>
-
-      <!-- Col 4: Ikuti Kami -->
-      <div class="detail-footer__col">
-        <h4>Ikuti kami</h4>
-        <a href="#">Instagram</a>
-        <a href="#">TikTok</a>
-        <a href="#">Komunitas</a>
-      </div>
-    </div>
-
-    <!-- Bottom Bar -->
-    <div class="detail-footer__bottom">
-      <div>© 2026 Dibuang Sayang</div>
-      <div style="display: flex; gap: 20px;">
-        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Kebijakan privasi</a>
-        <a href="#" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">Syarat layanan</a>
-      </div>
-    </div>
-  </div>
-</footer>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  let currentBox = {
-    id: {% if first_box %}{{ first_box.id }}{% else %}null{% endif %},
-    name: '{% if first_box %}{{ first_box.nama_paket|escapejs }}{% else %}Surprise Box{% endif %}',
-    discountPrice: {% if first_box %}{{ first_box.harga_diskon|default:35000 }}{% else %}35000{% endif %},
-    normalPrice: {% if first_box %}{{ first_box.harga_normal|default:100000 }}{% else %}100000{% endif %},
-    qty: 1
-  };
+  let currentBox = { id: null, name: '', discountPrice: 0, normalPrice: 0, qty: 1 };
 
   function formatRp(num) {
     return 'Rp ' + Math.round(num).toLocaleString('id-ID');
@@ -1120,27 +1204,26 @@
     const subtotal = currentBox.discountPrice * currentBox.qty;
     const normalTotal = currentBox.normalPrice * currentBox.qty;
     const savings = Math.max(normalTotal - subtotal, 0);
-    const serviceFee = 2000;
-    const total = subtotal + serviceFee;
 
     document.getElementById('summaryItemName').textContent = currentBox.qty + 'x ' + currentBox.name;
     document.getElementById('summaryItemPrice').textContent = formatRp(subtotal);
     document.getElementById('summaryOldPrice').textContent = formatRp(normalTotal);
     document.getElementById('summarySavings').textContent = formatRp(savings);
     document.getElementById('summarySubtotal').textContent = formatRp(subtotal);
-    document.getElementById('summaryTotal').textContent = formatRp(total);
+    document.getElementById('summaryTotal').textContent = formatRp(subtotal);
 
     const btn = document.getElementById('btnConfirmReservation');
-    if (btn && currentBox.id) {
-      btn.href = '/order/checkout/' + currentBox.id + '/';
+    if (btn) {
+      btn.href = '/order/checkout/' + currentBox.id + '/?jumlah=' + currentBox.qty;
     }
   }
 
   function updateQty(boxId, change) {
     const qtyElem = document.getElementById('qty' + boxId);
+    const card = document.getElementById('menuCard' + boxId);
     if (!qtyElem) return;
-    let qty = parseInt(qtyElem.textContent) || 1;
-    qty = Math.max(1, qty + change);
+    const stock = Math.min(parseInt(card.dataset.stock, 10) || 1, {{ max_per_order }});
+    const qty = Math.min(Math.max(1, (parseInt(qtyElem.textContent) || 1) + change), stock);
     qtyElem.textContent = qty;
 
     if (currentBox.id === boxId) {
@@ -1150,153 +1233,727 @@
   }
 
   function selectBox(boxId, name, discountPrice, normalPrice, stock) {
-    // highlight selected card
     document.querySelectorAll('.box-menu-card').forEach(c => c.classList.remove('box-menu-card--active'));
-    const card = document.getElementById('menuCard' + boxId);
-    if (card) {
-      card.classList.add('box-menu-card--active');
-    }
+    document.getElementById('menuCard' + boxId).classList.add('box-menu-card--active');
 
     const qtyElem = document.getElementById('qty' + boxId);
-    const qty = qtyElem ? (parseInt(qtyElem.textContent) || 1) : 1;
-
     currentBox = {
       id: boxId,
       name: name,
       discountPrice: discountPrice,
       normalPrice: normalPrice,
-      qty: qty
+      qty: qtyElem ? (parseInt(qtyElem.textContent) || 1) : 1
     };
 
+    document.getElementById('summaryEmpty').hidden = true;
+    document.getElementById('summaryContent').hidden = false;
     updateSummaryDisplay();
   }
-
-  function toggleByobBonus(chk) {
-    const sub = document.getElementById('byobSub');
-    if (chk.checked) {
-      sub.textContent = 'Bonus 20 Eco-Points';
-      sub.style.color = '#006C41';
-    } else {
-      sub.textContent = 'Tidak menggunakan wadah sendiri';
-      sub.style.color = '#6E7A70';
-    }
-  }
-
-  
-
-  // Menjalankan fungsi Food saat halaman selesai dimuat
-  document.addEventListener('DOMContentLoaded', () => {
-      updateSummaryDisplay();
-  });
 
 </script>
 
 <!-- JavaScript khusus Rating & Review -->
 <script>
-  document.addEventListener('DOMContentLoaded', async () => {
-      try {
-          // Mengambil rating dan ulasan dari API Django
-          const response = await fetch(
-              "{% url 'review:restaurant_reviews' restaurant.id %}"
-          );
 
-          if (!response.ok) {
-              throw new Error('Gagal mengambil data review');
-          }
+    // =====================================================
+    // 1. MENAMPILKAN RATA-RATA RATING RESTORAN
+    // =====================================================
 
-          const data = await response.json();
+    function tampilkanRingkasanReview(data) {
 
-          // Rating di bagian atas halaman
-          document.getElementById('restaurantRatingTop').textContent =
-              data.rata_rata;
+        const rataRata = Number(data.rata_rata) || 0;
+        const jumlah = Number(data.jumlah_ulasan) || 0;
 
-          document.getElementById('restaurantReviewCountTop').textContent =
-              data.jumlah_ulasan + ' ulasan';
+        // Menghitung jumlah bintang rata-rata
+        const jumlahBintang = Math.max(
+            0,
+            Math.min(5, Math.round(rataRata))
+        );
 
-          // Rating di bagian Ulasan
-          document.getElementById('restaurantRating').textContent =
-              data.rata_rata + ' dari 5';
+        // Rating di bagian atas restoran
+        document.getElementById('restaurantRatingTop').textContent =
+            data.rata_rata;
 
-          document.getElementById('restaurantReviewCount').textContent =
-              data.jumlah_ulasan + ' ulasan';
-              // Menampilkan bintang sesuai rata-rata rating restoran
-          const nilaiRating = Math.max(
-              0,
-              Math.min(5, Math.round(Number(data.rata_rata) || 0))
-          );
+        document.getElementById('restaurantReviewCountTop').textContent =
+            jumlah + ' ulasan';
 
-          document.getElementById('restaurantStars').textContent =
-              '★'.repeat(nilaiRating) + '☆'.repeat(5 - nilaiRating);
+        // Rating di bagian daftar ulasan
+        document.getElementById('restaurantRating').textContent =
+            data.rata_rata + ' dari 5';
 
-          // Menampilkan komentar pembeli
-          const reviewsGrid = document.getElementById('restaurantReviewsGrid');
-          reviewsGrid.replaceChildren();
+        document.getElementById('restaurantReviewCount').textContent =
+            jumlah + ' ulasan';
 
-          if (data.reviews.length === 0) {
-              const pesan = document.createElement('p');
-              pesan.textContent = 'Belum ada ulasan untuk restoran ini.';
-              reviewsGrid.appendChild(pesan);
-          } else {
-              data.reviews.forEach((review, index) => {
-                  const card = document.createElement('article');
-                  card.className = 'review-card';
+        // Bintang rata-rata restoran
+        document.getElementById('restaurantStars').textContent =
+            '★'.repeat(jumlahBintang) +
+            '☆'.repeat(5 - jumlahBintang);
+    }
 
-                  card.innerHTML = `
-                      <div>
-                          <div class="review-card__header">
-                              <div class="review-card__user">
-                                  <div class="avatar-circle"></div>
-                                  <span class="review-user-name"></span>
-                              </div>
-                              <span class="review-stars"></span>
-                          </div>
-                          <p class="review-comment" style="margin-top: 10px;"></p>
-                      </div>
-                      <span class="review-time"></span>
-                  `;
 
-                  // Nama pembeli
-                  const nama = String(review.nama || 'Pembeli');
+    // =====================================================
+    // 2. MEMPERBARUI RATING SETELAH EDIT / HAPUS
+    // =====================================================
 
-                  card.querySelector('.review-user-name').textContent = nama;
+    async function refreshReviewRatingSummary() {
 
-                  // Inisial avatar pembeli
-                  const inisial = nama.trim()
-                      .split(/\s+/)
-                      .slice(0, 2)
-                      .map(kata => kata.charAt(0).toUpperCase())
-                      .join('');
+        // Mengambil data terbaru dari database Django
+        const response = await fetch(
+            "{% url 'review:restaurant_reviews' restaurant.id %}",
+            {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            }
+        );
 
-                  const avatar = card.querySelector('.avatar-circle');
-                  avatar.textContent = inisial;
+        if (!response.ok) {
+            throw new Error('Gagal memperbarui statistik review');
+        }
 
-                  avatar.classList.add(
-                      ['avatar-dk', 'avatar-aw', 'avatar-rz'][index % 3]
-                  );
+        const data = await response.json();
 
-                  // Bintang sesuai rating pembeli
-                  const rating = Math.max(
-                      0,
-                      Math.min(5, Math.round(Number(review.rating) || 0))
-                  );
+        // Memperbarui tampilan tanpa reload
+        tampilkanRingkasanReview(data);
+    }
 
-                  card.querySelector('.review-stars').textContent =
-                      '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
-                  // Komentar dan tanggal
-                  card.querySelector('.review-comment').textContent =
-                      review.komentar;
+    // =====================================================
+    // 3. MENAMPILKAN SEMUA REVIEW RESTORAN
+    // =====================================================
 
-                  card.querySelector('.review-time').textContent =
-                      review.tanggal;
+    function buatBalasanRestoran(nama, teks) {
+        const replyBox = document.createElement('div');
+        replyBox.className = 'restaurant-owner-reply';
 
-                  reviewsGrid.appendChild(card);
-              });
-          }
+        // Header restoran: avatar + nama
+        const header = document.createElement('div');
+        header.className = 'review-card__user';
 
-      } catch (error) {
-          console.error('Gagal mengambil review:', error);
-      }
-  });
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar-circle avatar-dk';
+        avatar.textContent = String(nama || 'Restoran')
+            .trim().charAt(0).toUpperCase();
+
+        const namaRestoran = document.createElement('span');
+        namaRestoran.className = 'review-user-name';
+        namaRestoran.textContent = nama || 'Restoran';
+
+        header.appendChild(avatar);
+        header.appendChild(namaRestoran);
+
+        // Isi balasan dengan font yang sama seperti komentar pembeli
+        const balasan = document.createElement('p');
+        balasan.className = 'review-comment';
+        balasan.textContent = teks;
+
+        replyBox.appendChild(header);
+        replyBox.appendChild(balasan);
+
+        return replyBox;
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        try {
+
+            // Mengambil daftar review dari Django
+            const response = await fetch(
+                "{% url 'review:restaurant_reviews' restaurant.id %}",
+                {
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Gagal mengambil data review');
+            }
+
+            const data = await response.json();
+
+            // Menampilkan rata-rata rating saat halaman dibuka
+            tampilkanRingkasanReview(data);
+
+            const reviewsGrid = document.getElementById(
+                'restaurantReviewsGrid'
+            );
+
+            // Mengosongkan isi lama
+            reviewsGrid.replaceChildren();
+
+
+            // Jika restoran belum memiliki ulasan
+            if (data.reviews.length === 0) {
+
+                const pesan = document.createElement('p');
+
+                pesan.textContent =
+                    'Belum ada ulasan untuk restoran ini.';
+
+                reviewsGrid.appendChild(pesan);
+
+            } else {
+
+                // Membuat kartu untuk setiap review
+                data.reviews.forEach((review, index) => {
+
+                    const card = document.createElement('article');
+                    card.className = 'review-card';
+
+                    // Struktur kartu mengikuti desain restoran lama
+                    card.innerHTML = `
+                        <div>
+                            <div class="review-card__header">
+
+                                <div class="review-card__user">
+                                    <div class="avatar-circle"></div>
+                                    <span class="review-user-name"></span>
+                                </div>
+
+                                <span class="review-stars"></span>
+
+                            </div>
+
+                            <p class="review-comment"
+                               style="margin-top: 10px;"></p>
+                        </div>
+
+                        <span class="review-time"></span>
+                    `;
+
+
+                    // =====================================
+                    // USERNAME DAN AVATAR PEMBELI
+                    // =====================================
+
+                    const nama = String(review.nama || 'Pembeli');
+
+                    card.querySelector(
+                        '.review-user-name'
+                    ).textContent = nama;
+
+                    // Mengambil inisial username untuk avatar
+                    const inisial = nama.trim()
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map(kata => kata.charAt(0).toUpperCase())
+                        .join('');
+
+                    const avatar = card.querySelector('.avatar-circle');
+
+                    avatar.textContent = inisial;
+
+                    avatar.classList.add(
+                        ['avatar-dk', 'avatar-aw', 'avatar-rz'][index % 3]
+                    );
+
+
+                    // =====================================
+                    // BINTANG RATING PEMBELI
+                    // =====================================
+
+                    const rating = Math.max(
+                        0,
+                        Math.min(
+                            5,
+                            Math.round(Number(review.rating) || 0)
+                        )
+                    );
+
+                    card.querySelector('.review-stars').textContent =
+                        '★'.repeat(rating) +
+                        '☆'.repeat(5 - rating);
+
+
+                    // =====================================
+                    // KOMENTAR DAN TANGGAL
+                    // =====================================
+
+                    card.querySelector('.review-comment').textContent =
+                        review.komentar;
+
+                    card.querySelector('.review-time').textContent =
+                        review.tanggal;
+
+
+                    // =====================================
+                    // BALASAN DARI RESTORAN
+                    // =====================================
+
+                    if (review.owner_reply) {
+                        const replyBox = buatBalasanRestoran(
+                                review.restaurant_name,
+                                review.owner_reply
+                            );
+
+                            // Balasan diletakkan di bawah komentar
+                            card.querySelector('.review-comment')
+                                .insertAdjacentElement('afterend', replyBox);
+                                                
+                    }                      
+
+                    // =====================================
+                    // TOMBOL BALAS KHUSUS AKUN RESTORAN
+                    // =====================================
+
+                    {% if user.is_authenticated and user.is_partner and restaurant.owner_id == user.id %}
+
+                    // Tombol Balas hanya muncul jika belum ada balasan
+                    if (!String(review.owner_reply || '').trim()) {
+
+                        const replyContent = card.querySelector(
+                            '.review-comment'
+                        ).parentElement;
+
+                        // Membuat tombol Balas Ulasan
+                        const replyActions = document.createElement('div');
+                        replyActions.className = 'review-actions';
+
+                        const replyButton = document.createElement('button');
+                        replyButton.type = 'button';
+                        replyButton.className = 'review-edit-btn';
+                        replyButton.textContent = 'Balas Ulasan';
+
+                        replyActions.appendChild(replyButton);
+                        replyContent.appendChild(replyActions);
+
+                        // Membuat form balasan
+                        const replyForm = document.createElement('form');
+                        replyForm.className = 'review-inline-edit';
+                        replyForm.hidden = true;
+
+                        replyForm.innerHTML = `
+                            <label>
+                                Balasan Restoran
+                                <textarea name="owner_reply"
+                                          rows="3"
+                                          maxlength="1000"
+                                          required></textarea>
+                            </label>
+                            <button type="submit">Kirim Balasan</button>
+                            <p class="review-action-feedback"
+                               role="status"></p>
+                        `;
+
+                        replyContent.appendChild(replyForm);
+
+                        // Klik tombol untuk membuka form
+                        replyButton.addEventListener('click', () => {
+                            replyForm.hidden = !replyForm.hidden;
+                        });
+
+                        // Mengirim balasan ke Django
+                        replyForm.addEventListener('submit', async (event) => {
+                            event.preventDefault();
+
+                            const submitButton = replyForm.querySelector(
+                                '[type="submit"]'
+                            );
+                            submitButton.disabled = true;
+
+                            const feedback = replyForm.querySelector(
+                                '.review-action-feedback'
+                            );
+
+                            const csrfToken = document.querySelector(
+                                '#review-action-csrf input[name="csrfmiddlewaretoken"]'
+                            ).value;
+
+                            const url = "{% url 'review:reply_review' 999999 %}"
+                                .replace('999999', String(review.id));
+
+                            try {
+                                const response = await fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': csrfToken
+                                    },
+                                    body: new FormData(replyForm),
+                                    credentials: 'same-origin'
+                                });
+
+                                const data = await response.json()
+                                    .catch(() => ({}));
+
+                                if (!response.ok || !data.success) {
+                                    throw new Error(
+                                        data.error || 'Gagal mengirim balasan.'
+                                    );
+                                }
+
+                                // Menampilkan balasan di bawah komentar
+                                const replyBox = buatBalasanRestoran(
+                                    review.restaurant_name,
+                                    data.owner_reply
+                                );
+
+                                card.querySelector('.review-comment')
+                                .insertAdjacentElement('afterend', replyBox);
+                                // Review sudah dibalas, tombol Balas dihilangkan
+                                review.owner_reply = data.owner_reply;
+                                replyActions.remove();
+                                replyForm.remove();
+
+                            } catch (error) {
+                                feedback.textContent = error.message;
+                            } finally {
+                                submitButton.disabled = false;
+                            }
+                        });
+                    }
+
+                    {% endif %}
+
+
+
+                    // =====================================
+                    // TOMBOL EDIT DAN HAPUS REVIEW
+                    // =====================================
+
+                    // Hanya muncul jika:
+                    // - Review milik pembeli yang sedang login
+                    // - Restoran belum membalas
+                    if (review.can_manage) {
+                      
+
+                        const reviewContent = card.querySelector(
+                            '.review-comment'
+                        ).parentElement;
+
+                        // Membuat tombol Edit dan Hapus
+                        const actions = document.createElement('div');
+
+                        actions.className = 'review-actions';
+
+                        actions.innerHTML = `
+                            <button type="button"
+                                    class="review-edit-btn">
+                                Edit Ulasan
+                            </button>
+
+                            <button type="button"
+                                    class="review-delete-btn">
+                                Hapus Ulasan
+                            </button>
+                        `;
+
+                        reviewContent.appendChild(actions);
+
+
+                        // =====================================
+                        // FORM EDIT REVIEW
+                        // =====================================
+
+                        const editForm = document.createElement('form');
+
+                        editForm.className = 'review-inline-edit';
+                        editForm.hidden = true;
+
+                        editForm.innerHTML = `
+                            <label>
+                                Rating
+                                <select name="rating" required>
+                                    <option value="1">1 Bintang</option>
+                                    <option value="2">2 Bintang</option>
+                                    <option value="3">3 Bintang</option>
+                                    <option value="4">4 Bintang</option>
+                                    <option value="5">5 Bintang</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Komentar
+                                <textarea name="comment"
+                                          rows="3"
+                                          required></textarea>
+                            </label>
+
+                            <button type="submit">
+                                Simpan Perubahan
+                            </button>
+                        `;
+
+                        // Mengisi form dengan rating lama
+                        editForm.querySelector(
+                            '[name="rating"]'
+                        ).value = String(review.rating);
+
+                        // Mengisi form dengan komentar lama
+                        editForm.querySelector(
+                            '[name="comment"]'
+                        ).value = review.komentar;
+
+                        reviewContent.appendChild(editForm);
+
+
+                        // =====================================
+                        // PESAN BERHASIL / GAGAL
+                        // =====================================
+
+                        const feedback = document.createElement('p');
+
+                        feedback.className = 'review-action-feedback';
+                        feedback.setAttribute('role', 'status');
+
+                        reviewContent.appendChild(feedback);
+
+
+                        // Mengambil tombol Edit dan Hapus
+                        const editButton = actions.querySelector(
+                            '.review-edit-btn'
+                        );
+
+                        const deleteButton = actions.querySelector(
+                            '.review-delete-btn'
+                        );
+
+
+                        // Mengambil token CSRF Django
+                        const csrfToken = document.querySelector(
+                            '#review-action-csrf input[name="csrfmiddlewaretoken"]'
+                        ).value;
+
+
+                        // =====================================
+                        // MEMBUKA / MENUTUP FORM EDIT
+                        // =====================================
+
+                        editButton.addEventListener('click', () => {
+
+                            editForm.hidden = !editForm.hidden;
+
+                        });
+
+
+                        // =====================================
+                        // MENYIMPAN EDIT REVIEW DENGAN AJAX
+                        // =====================================
+
+                        editForm.addEventListener(
+                            'submit',
+                            async (event) => {
+
+                                // Mencegah reload halaman
+                                event.preventDefault();
+
+                                const saveButton = editForm.querySelector(
+                                    '[type="submit"]'
+                                );
+
+                                saveButton.disabled = true;
+
+                                const url =
+                                    "{% url 'review:update_review' 999999 %}"
+                                    .replace(
+                                        '999999',
+                                        String(review.id)
+                                    );
+
+                                try {
+
+                                    // Mengirim rating dan komentar baru
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': csrfToken
+                                        },
+                                        body: new FormData(editForm),
+                                        credentials: 'same-origin'
+                                    });
+
+                                    const data = await response.json()
+                                        .catch(() => ({}));
+
+
+                                    // Jika Django menolak edit
+                                    if (!response.ok || !data.success) {
+
+                                        // Restoran sudah membalas
+                                        if (response.status === 403) {
+
+                                            actions.remove();
+                                            editForm.remove();
+                                        }
+
+                                        throw new Error(
+                                            data.error ||
+                                            'Gagal mengedit ulasan.'
+                                        );
+                                    }
+
+
+                                    // Mengambil rating terbaru
+                                    review.rating = Number(
+                                        editForm.querySelector(
+                                            '[name="rating"]'
+                                        ).value
+                                    );
+
+                                    // Mengambil komentar terbaru
+                                    review.komentar = editForm.querySelector(
+                                        '[name="comment"]'
+                                    ).value;
+
+
+                                    // Memperbarui bintang tanpa reload
+                                    card.querySelector(
+                                        '.review-stars'
+                                    ).textContent =
+                                        '★'.repeat(review.rating) +
+                                        '☆'.repeat(5 - review.rating);
+
+
+                                    // Memperbarui komentar tanpa reload
+                                    card.querySelector(
+                                        '.review-comment'
+                                    ).textContent = review.komentar;
+
+
+                                    // Menyembunyikan form edit
+                                    editForm.hidden = true;
+
+                                    feedback.textContent =
+                                        'Ulasan berhasil diperbarui.';
+
+
+                                    // Memperbarui rata-rata rating restoran
+                                    try {
+
+                                        await refreshReviewRatingSummary();
+
+                                    } catch (summaryError) {
+
+                                        console.warn(
+                                            'Gagal memperbarui statistik:',
+                                            summaryError
+                                        );
+                                    }
+
+                                } catch (error) {
+
+                                    feedback.textContent = error.message;
+
+                                } finally {
+
+                                    saveButton.disabled = false;
+
+                                }
+                            }
+                        );
+
+
+                        // =====================================
+                        // HAPUS REVIEW DENGAN AJAX
+                        // =====================================
+
+                        deleteButton.addEventListener(
+                            'click',
+                            async () => {
+
+                                // Konfirmasi sebelum menghapus review
+                                if (!confirm(
+                                    'Yakin ingin menghapus ulasan ini?'
+                                )) {
+                                    return;
+                                }
+
+                                deleteButton.disabled = true;
+
+                                const url =
+                                    "{% url 'review:delete_review' 999999 %}"
+                                    .replace(
+                                        '999999',
+                                        String(review.id)
+                                    );
+
+                                try {
+
+                                    // Mengirim permintaan hapus ke Django
+                                    const response = await fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': csrfToken
+                                        },
+                                        credentials: 'same-origin'
+                                    });
+
+                                    const data = await response.json()
+                                        .catch(() => ({}));
+
+
+                                    // Jika Django menolak penghapusan
+                                    if (!response.ok || !data.success) {
+
+                                        // Restoran sudah membalas
+                                        if (response.status === 403) {
+
+                                            actions.remove();
+                                            editForm.remove();
+                                        }
+
+                                        throw new Error(
+                                            data.error ||
+                                            'Gagal menghapus ulasan.'
+                                        );
+                                    }
+
+
+                                    // Menghilangkan kartu review
+                                    card.remove();
+
+
+                                    // Jika semua review sudah dihapus
+                                    if (!reviewsGrid.querySelector(
+                                        '.review-card'
+                                    )) {
+
+                                        const empty =
+                                            document.createElement('p');
+
+                                        empty.textContent =
+                                            'Belum ada ulasan untuk restoran ini.';
+
+                                        reviewsGrid.appendChild(empty);
+                                    }
+
+
+                                    // Memperbarui rata-rata dan jumlah review
+                                    try {
+
+                                        await refreshReviewRatingSummary();
+
+                                    } catch (summaryError) {
+
+                                        console.warn(
+                                            'Gagal memperbarui statistik:',
+                                            summaryError
+                                        );
+                                    }
+
+                                } catch (error) {
+
+                                    feedback.textContent = error.message;
+
+                                    deleteButton.disabled = false;
+
+                                }
+                            }
+                        );
+                    }
+
+                    // Menampilkan kartu review ke halaman
+                    reviewsGrid.appendChild(card);
+
+                });
+            }
+
+        } catch (error) {
+
+            console.error('Gagal mengambil review:', error);
+
+        }
+
+    });
+
 </script>
 {% endblock %}

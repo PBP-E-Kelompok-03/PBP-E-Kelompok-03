@@ -93,6 +93,13 @@ class FoodViewsTest(TestCase):
         self.assertContains(response, "Bistro Kenari")
         self.assertContains(response, "Paket Roti Spesial")
 
+    def test_restaurant_detail_caps_quantity_like_checkout(self):
+        SurpriseBox.objects.filter(restaurant=self.restaurant).update(stok=9)
+        response = self.client.get(reverse("food:restaurant_detail", args=[self.restaurant.id]))
+        self.assertEqual(response.context["max_per_order"], 3)
+        self.assertContains(response, "maks. 3/pesanan")
+        self.assertContains(response, "Math.min(parseInt(card.dataset.stock, 10) || 1, 3)")
+
     def test_restaurant_detail_not_found(self):
         response = self.client.get(reverse("food:restaurant_detail", args=[999999]))
         self.assertEqual(response.status_code, 404)
@@ -100,6 +107,11 @@ class FoodViewsTest(TestCase):
     def test_create_restaurant_requires_login(self):
         response = self.client.get(reverse("food:create_restaurant"))
         self.assertEqual(response.status_code, 302)
+
+    def test_buyer_cannot_create_restaurant(self):
+        self.client.login(username="buyer1", password="password123")
+        response = self.client.get(reverse("food:create_restaurant"))
+        self.assertEqual(response.status_code, 403)
 
     def test_create_restaurant_success(self):
         self.client.login(username="mitra1", password="password123")
@@ -328,3 +340,90 @@ class FoodDatabaseExclusivityTest(TestCase):
         res_box = self.client.get(reverse("food:api_surprise_boxes"))
         self.assertEqual(res_box.status_code, 200)
         self.assertEqual(res_box.json(), {"surprise_boxes": []})
+
+
+class SeedFoodCommandTest(TestCase):
+    def test_seed_assigns_demo_owner_and_if_empty_skips(self):
+        from django.core.management import call_command
+
+        call_command("seed_food", stdout=io.StringIO())
+        owner = User.objects.get(username="mitra_demo")
+        self.assertFalse(owner.has_usable_password())
+        self.assertTrue(Restaurant.objects.exists())
+        self.assertFalse(Restaurant.objects.exclude(owner=owner).exists())
+
+        Restaurant.objects.filter(pk=Restaurant.objects.first().pk).update(nama="Diubah")
+        call_command("seed_food", "--if-empty", stdout=io.StringIO())
+        self.assertTrue(Restaurant.objects.filter(nama="Diubah").exists())
+
+
+    def test_reset_sequences_command(self):
+        from django.core.management import call_command
+        out = io.StringIO()
+        call_command("reset_sequences", stdout=out)
+        self.assertIn("No sequence reset needed", out.getvalue())
+
+    def test_reset_sequences_command_executes_sql(self):
+        from django.core.management import call_command
+        out = io.StringIO()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__.return_value = mock_cursor
+        with patch("django.db.connection.ops.sequence_reset_sql", return_value=["SELECT 1;"]):
+            with patch("django.db.connection.cursor", return_value=mock_cursor):
+                call_command("reset_sequences", stdout=out)
+                self.assertIn("Successfully reset PostgreSQL sequences", out.getvalue())
+                mock_cursor.execute.assert_called_once_with("SELECT 1;")
+
+    def test_restaurant_form_image_url_helpers(self):
+        from food.forms import RestaurantForm
+        form = RestaurantForm(data={
+            "nama": "Warung Test",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": "i.pinimg.com/736x/test.jpg"
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["image_url"], "https://i.pinimg.com/736x/test.jpg")
+
+        form_pin = RestaurantForm(data={
+            "nama": "Warung Test Pin",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": "https://pinterest.com/pin/123456789/"
+        })
+        self.assertFalse(form_pin.is_valid())
+        self.assertIn("image_url", form_pin.errors)
+
+        # Test base64 data URI direct upload
+        b64_sample = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD..."
+        form_b64 = RestaurantForm(data={
+            "nama": "Warung Test B64",
+            "alamat": "Jl. Margonda No. 1",
+            "image_url": b64_sample
+        })
+        self.assertTrue(form_b64.is_valid())
+        self.assertEqual(form_b64.cleaned_data["image_url"], b64_sample)
+
+    def test_surprise_box_form_image_url_helpers(self):
+        from food.forms import SurpriseBoxForm
+        form = SurpriseBoxForm(data={
+            "nama_paket": "Box Test",
+            "harga_normal": 50000,
+            "harga_diskon": 25000,
+            "stok": 5,
+            "image_url": "i.pinimg.com/736x/box.jpg"
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["image_url"], "https://i.pinimg.com/736x/box.jpg")
+
+        # Test base64 data URI direct upload for surprise box
+        b64_sample = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBD..."
+        form_box_b64 = SurpriseBoxForm(data={
+            "nama_paket": "Box Test B64",
+            "harga_normal": 50000,
+            "harga_diskon": 25000,
+            "stok": 5,
+            "image_url": b64_sample
+        })
+        self.assertTrue(form_box_b64.is_valid())
+        self.assertEqual(form_box_b64.cleaned_data["image_url"], b64_sample)
+
+

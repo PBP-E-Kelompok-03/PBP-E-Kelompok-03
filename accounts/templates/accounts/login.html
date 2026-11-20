@@ -36,6 +36,10 @@
         <button type="submit" class="ds-btn ds-btn--primary ds-btn--block">Masuk</button>
       </form>
 
+      {% if google_enabled %}
+        <a class="ds-btn ds-btn--secondary ds-btn--block" href="{% url 'accounts:google_login' %}">Masuk dengan Google</a>
+      {% endif %}
+
       <p class="ds-row" style="justify-content: center; gap: 6px">
         <span class="ds-text-secondary">Belum punya akun?</span>
         <a class="ds-link" href="{% url 'accounts:register' %}">Daftar gratis</a>

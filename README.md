@@ -19,6 +19,10 @@
 - [Panduan Memulai (Quick Start)](#-panduan-memulai-quick-start)
 - [Alur Pengguna (User Flow)](#-alur-pengguna-user-flow)
 - [Roadmap Pengembangan](#-roadmap-pengembangan)
+- [Figma](#figma)
+- [PWS](#pws)
+- [Web](#web)
+- [AI Disclosure](#ai-disclosure)
 - [Lisensi](#-lisensi)
 
 
@@ -53,7 +57,7 @@ Membangun aplikasi web interaktif yang memungkinkan gerai makanan menawarkan sur
 - Menjelajahi restoran terdekat berbasis peta interaktif (*geolocation*).
 - Memilih paket makanan sebelum batas waktu operasional berakhir.
 - Melakukan reservasi pemesanan secara daring (*online order*).
-- Mengambil langsung pesanan di restoran (*in-store self-pickup*) pada jendela waktu (*time window*) yang ditentukan.
+- Mengambil langsung pesanan di restoran (*in-store self-pickup*) dalam 24 jam sejak pesanan dibuat dan sebelum kedaluwarsa.
 
 
 ---
@@ -66,7 +70,7 @@ Membangun aplikasi web interaktif yang memungkinkan gerai makanan menawarkan sur
 | :--- | :--- |
 | **1. Browse Food** | Pengguna dapat melihat katalog makanan/surprise box yang tersedia dari berbagai mitra, lengkap dengan foto, nama paket, potongan harga (diskon), sisa stok, dan jam operasional. |
 | **2. Location & Map** | Visualisasi sebaran mitra restoran di sekitar lokasi pengguna melalui peta interaktif berbasis koordinat lintang & bujur (Latitude/Longitude). |
-| **3. Pick Up / Order** | Alur reservasi paket makanan untuk diambil langsung di gerai (*self-pickup*). Dilengkapi dengan ringkasan instruksi penjemputan, batas waktu (*pickup window*), serta detail alamat gerai. |
+| **3. Pick Up / Order** | Alur reservasi paket makanan untuk diambil langsung di gerai (*self-pickup*). Dilengkapi dengan ringkasan instruksi penjemputan, masa berlaku pesanan 24 jam, serta detail alamat gerai. |
 | **4. Review / Rating** | Pengguna dapat memberikan ulasan (teks) dan rating (bintang 1-5) setelah mendapatkan makanan yang dipesan. Rating dan Review ditampilkan di halaman restoran. |
 
 
@@ -95,7 +99,7 @@ Aplikasi terbagi menjadi 4 modul:
 | :--- | :--- | :--- |
 | **🍔 Food & Restaurant** | Mengelola dan menampilkan data restoran serta *surprise box* yang tersedia, seperti nama restoran, jenis makanan, harga normal & diskon, sisa stok, serta jam ketersediaan/waktu *pickup*. | Kapitra Fachriza Utomo 2506623231
 | **🗺️ Location & Map** | Menampilkan lokasi restoran pada peta interaktif menggunakan **OpenStreetMap** dan **Leaflet.js**. Pengguna dapat melihat penanda (*marker*) restoran dan mengakses detail ringkasan informasi lokasinya. | Muhammad Akbar Rinaldy 2506586311
-| **🛍️ Pick up / Order** | Memfasilitasi alur transaksi pemesanan: memungkinkan pengguna memilih *surprise box*, melakukan reservasi penjemputan (*pickup*), serta menyajikan konfirmasi detail waktu (*pickup window*) dan alamat pengambilan. | Dyah Zhafira Wibowo 2506623723
+| **🛍️ Pick up / Order** | Memfasilitasi alur transaksi pemesanan: memungkinkan pengguna memilih *surprise box*, melakukan reservasi penjemputan (*pickup*), serta menyajikan voucher berisi kode pickup, masa berlaku 24 jam, dan alamat pengambilan. | Dyah Zhafira Wibowo 2506623723
 | **⭐ Review / Rating** | Mengelola pemberian rating (bintang 1-5) dan ulasan teks dari pengguna setelah menerima makanan, menampilkan rating rata-rata dan kumpulan ulasan pada halaman restoran sebagai bahan pertimbangan pengguna lain. | Khansa Nathania Khairunnisa 2506618061
 
 ---
@@ -111,24 +115,31 @@ Aplikasi terbagi menjadi 4 modul:
    # macOS/Linux
    source .venv/bin/activate
    ```
-3. Install dependency:
+3. Install dependency untuk development dan testing:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
+
+   Build production PWS memakai `requirements.txt`. Selenium hanya diperlukan untuk
+   tes browser dan dipasang melalui `requirements-dev.txt`.
 4. Salin `.env.example` menjadi `.env`, isi `SECRET_KEY` dengan nilai acak.
 5. Jalankan migrasi:
    ```bash
    python manage.py migrate
    ```
-6. (Opsional) Buat superuser untuk akses admin:
+6. Isi data awal (restoran dan surprise box):
+   ```bash
+   python manage.py seed_food
+   ```
+7. (Opsional) Buat superuser untuk akses admin:
    ```bash
    python manage.py createsuperuser
    ```
-7. Jalankan server development:
+8. Jalankan server development:
    ```bash
    python manage.py runserver
    ```
-8. Buka `http://127.0.0.1:8000/`.
+9. Buka `http://127.0.0.1:8000/`.
 
 Settings default (`manage.py`) memakai `config.settings.dev` (SQLite lokal). Untuk test, jalankan
 dengan `DJANGO_SETTINGS_MODULE=config.settings.test`. Untuk produksi (PWS), gunakan
@@ -138,7 +149,7 @@ dengan `DJANGO_SETTINGS_MODULE=config.settings.test`. Untuk produksi (PWS), guna
 
 ```
 config/            # project settings (base, dev, prod, test), urls
-accounts/          # app autentikasi & role pengguna (pembeli/mitra) — belum diisi
+accounts/          # app autentikasi (login, Google OAuth, rate limit) & role pengguna (pembeli/mitra)
 food/              # modul Food & Restaurant (Kapitra)
 map/               # modul Location & Map (Akbar)
 order/             # modul Pick up / Order (Dyah)
@@ -148,3 +159,178 @@ static/css/        # design tokens (tokens.css) & style dasar (base.css)
 docs/ERD.md        # kontrak data & ERD antarmodul (dikunci)
 fixtures/          # dummy data (50+ restoran & surprise box) untuk mock API
 ```
+
+## Figma
+
+### Link Figma
+https://www.figma.com/design/87bYuDE7p079Zgpc7mhNz1/PBP?node-id=0-1&t=QHitKt0uAL6yV7LT-1
+
+## PWS
+
+### Link PWS
+https://pws.cs.ui.ac.id/web/project/dyah.zhafira/dibuang-sayang 
+
+## WEB
+
+### Link Web
+https://dyah-zhafira-dibuang-sayang.pws.cs.ui.ac.id
+
+### Umum
+
+| Landing page | Peta restoran |
+| :--- | :--- |
+| ![Landing page](docs/screenshots/01-landing.png) | ![Peta restoran](docs/screenshots/10-peta.png) |
+
+| Login | Register |
+| :--- | :--- |
+| ![Halaman login](docs/screenshots/02-login.png) | ![Halaman register](docs/screenshots/03-register.png) |
+
+### Alur pembeli
+
+| Katalog | Detail restoran |
+| :--- | :--- |
+| ![Katalog surprise box](docs/screenshots/04-katalog.png) | ![Detail restoran](docs/screenshots/05-detail-restoran.png) |
+
+| Pilih paket dan jumlah | Checkout |
+| :--- | :--- |
+| ![Pilih paket dan ringkasan](docs/screenshots/06-pilih-paket.png) | ![Checkout](docs/screenshots/07-checkout.png) |
+
+| Voucher reservasi | Riwayat pesanan |
+| :--- | :--- |
+| ![Voucher dengan kode pickup dan timer](docs/screenshots/08-voucher.png) | ![Riwayat pesanan](docs/screenshots/09-riwayat-pesanan.png) |
+
+### Alur mitra restoran
+
+| Profil mitra | Restoran saya |
+| :--- | :--- |
+| ![Profil mitra](docs/screenshots/11-profil-mitra.png) | ![Restoran saya dan paket surprise box](docs/screenshots/12-restoran-saya.png) |
+
+| Pesanan masuk | |
+| :--- | :--- |
+| ![Pesanan masuk dengan tombol terima dan tolak](docs/screenshots/13-pesanan-masuk.png) | |
+
+### Review dan rating
+
+| Beri ulasan | Ulasan pelanggan (mitra) |
+| :--- | :--- |
+| ![Form beri ulasan](docs/screenshots/14-beri-ulasan.png) | ![Ulasan pelanggan](docs/screenshots/15-ulasan-pelanggan.png) |
+
+| Balasan restoran | Ulasan di detail restoran |
+| :--- | :--- |
+| ![Balasan restoran](docs/screenshots/16-balasan-restoran.png) | ![Ulasan di halaman detail restoran](docs/screenshots/17-ulasan-detail-restoran.png) |
+
+## AI Disclosure
+
+### Khansa Nathania K — Fitur Rating & Review
+
+**AI Tools:** ChatGPT (OpenAI)
+
+**Tujuan Penggunaan:**
+
+ChatGPT digunakan sebagai alat bantu pembelajaran dan pendukung pengembangan fitur Rating & Review pada aplikasi Dibuang Sayang.
+
+**Bentuk Penggunaan AI:**
+
+- Membantu memahami konsep Django, seperti model, views, URL routing, ORM, dan relasi antarmodel.
+- Membantu memberikan saran implementasi fitur pembuatan, pengeditan, penghapusan (*soft delete*), dan balasan review oleh restoran.
+- Membantu memahami validasi hak akses, penanganan review duplikat, dan potensi *race condition*.
+- Membantu proses debugging dan perbaikan error pada backend serta pengujian otomatis GitHub Actions.
+- Membantu memahami pengujian menggunakan Django Test Framework dan Selenium.
+- Membantu penyesuaian tampilan frontend, termasuk avatar restoran dan konsistensi tipografi pada balasan review.
+
+**Strategi Penggunaan dan Validasi:**
+
+AI digunakan melalui diskusi interaktif untuk memperoleh penjelasan konsep, contoh kode, serta alternatif penyelesaian masalah. Saran yang diberikan ditinjau dan disesuaikan dengan struktur proyek, kemudian diperiksa melalui pengujian lokal dan GitHub Actions.
+
+**Keterbatasan dan Perbaikan Manual:**
+Saran AI tidak selalu langsung sesuai dengan struktur kode dan lingkungan pengembangan. Oleh karena itu, dilakukan penyesuaian manual, termasuk perbaikan respons `JsonResponse`, penyesuaian pengujian Selenium Safari pada lingkungan Linux, serta pemeriksaan kembali sintaks JavaScript dan integrasi frontend.
+
+**Dokumentasi Percakapan AI:**
+
+[Riwayat Penggunaan ChatGPT — Pengembangan Rating & Review](https://chatgpt.com/share/6ae36b96-5f80-83ec-94c6-63fcfe3175a1)
+
+### Modul Pick up Order (Dyah Zhafira)
+
+**Tools:** Claude 
+Notes: Mohon maaf log sebelum UTS tidak sengaja terhapus. Berikut log yang masih ada:
+https://claude.ai/share/845d8048-0e0e-46bc-b680-8d242dda7a6c
+
+**Tujuan:** membantu planning, implement, testing, audit, dan docs untuk modul Accounts dan Pick up/Order. 
+
+#### Rangkuman AI
+
+| # | Bantuan AI | Kekurangan AI |
+| :-- | :--- | :--- |
+| 1 | Bantu implementasi test race condition stok (OrderStockRaceConditionTest) | Aman di Postgres, tapi local pakai SQLite, sehingga perlu penyesuaian manual |
+| 2 | Bantu implementasi 3 test Selenium | - |
+| 3 | Membantu decide alur `pending -> confirmed -> completed`, sistem kode pickup, cancel dari `pending`, dan form `OrderCreateForm` & `PickupCodeForm`. | Pesanan `confirmed` yang kedaluwarsa awalnya ga return stok. Selain itu, di interface restoran sempat muncul atau leak kode pickupnya, sehingga dihapus bagian tersebut |
+| 4 | Bantu implementasi login Google dengan Authlib user baru jadi `buyer` dengan `google_<sub>`dan email bentrok ditolak| - |
+| 5 | Rate limiter di cache Django (`accounts/ratelimit.py`) dan test-nya. | - |
+
+List tersebut di ambil dari log yang masih ada. Untuk log yang terhapus, AI tersebut membantu implementasi template HTML dan ajax sesuai desain (termasuk dari sisi user interface dan design system). Selain itu, AI membantu untuk memvalidasi model, form, dan view yang ada. Ada beberapa bagian AI yang membantu saat refactor juga.
+
+#### Verifikasi hasil AI
+- Run test otomatis (unit dan Selenium) setelah perubahan.
+- Mengukur coverage modul accounts dan order.
+- Tes edge case dan keamanan langsung lewat test client dan di lokal sebagai pembeli dan mitra.
+- Cek diff sebelum commit.
+
+#### Keterbatasan yang masih ada
+- Jam buka dan tutup restoran belum digunakan untuk membatasi pesanan. Karena jadwal pickup dan expired 24 jam, sehingga jam buka dan tutup restoran hanya sebagai informasi tambahan bagi pembeli terkait waktu pickup.
+- Pengguna yang masuk lewat Google secara default dan otomatis menjadi pembeli, sehingga restoran harus membuat akun sendiri, tidak bisa lewat Google.
+
+
+### Modul Food & Restaurant (Kapitra Fachriza Utomo)
+
+**AI Tools:** Antigravity / Gemini  
+*Catatan:* Antigravity tidak menyediakan fitur *share chat* publik seperti platform web biasa. Namun, karena pemakaian Antigravity selalu dibarengi dengan penyusunan *Markdown Plan* sebelum eksekusi setiap *task*, seluruh dokumentasi dan rencana kerja lengkap dapat dilihat pada folder [`docs/plans/`](docs/plans/).
+
+**Tujuan Penggunaan:**
+AI digunakan sebagai asisten perancangan arsitektur (*pair programming*), pembuatan rencana kerja (*action plan*), *debugging* kendala lingkungan produksi (PWS PostgreSQL vs lokal SQLite), penulisan unit test untuk skenario ekstrem, dan optimasi performa UI/UX pada modul Food & Restaurant.
+
+#### Rangkuman Bantuan & Penyesuaian AI
+
+| # | Bantuan AI | Keterbatasan & Penyesuaian Manual |
+| :-- | :--- | :--- |
+| 1 | **Rencana Arsitektur & Resilience API Client**: Merancang `FoodApiClient` dengan timeout (5s), caching Django (TTL 300s), dan fallback tangguh saat terjadi gangguan jaringan/database. | Perlu penyesuaian manual agar query database tidak membaca file `dummy_data.json` secara runtime melainkan murni dari Django ORM dan menampilkan *empty state* yang ramah pengguna. |
+| 2 | **Diagnostik Error 500 PWS**: Mengidentifikasi akar masalah `ProgrammingError: relation "food_surprisebox" does not exist` di server PWS. | Menyadari bahwa `manage.py` secara default mengarah ke `config.settings.dev` (SQLite). Dilakukan penyesuaian instruksi eksekusi migrasi dan seeding dengan menyertakan flag `--settings=config.settings.prod`. |
+| 3 | **Integrasi Foto & Seeding Data**: Membantu pemetaan 9 link foto Pinterest CDN ke 55 restoran dan 104 Surprise Box pada `fixtures/dummy_data.json`, serta perancangan migrasi `image_url`. | Model field Django tidak menerima argumen `required=True` (hanya berlaku di Form). Dilakukan koreksi manual ke `blank=True, null=True, max_length=1000` untuk mengakomodasi URL CDN yang panjang. |
+| 4 | **UI Resilience (HTML/CSS)**: Menyusun efek hover zoom dan fallback atribut `onerror` pada tag gambar agar tampilan tidak rusak saat internet lambat/offline. | Penyesuaian layout dan z-index manual pada badge sisa stok dan badge diskon agar tetap berada di atas foto produk. |
+| 5 | **Bugfix PostgreSQL Sequence Collision**: Menganalisis tabrakan Primary Key (`UniqueViolation: Key (id)=(1) already exists`) saat mitra menambah restoran baru di PWS. | Menghindari hardcoded SQL khusus Postgres di migrasi agar tidak merusak database SQLite lokal, melainkan menggunakan `connection.ops.sequence_reset_sql` di `seed_food.py` dan command `reset_sequences.py`. |
+
+#### Strategi Penggunaan dan Validasi
+- **Perencanaan Sebelum Eksekusi**: Setiap penambahan fitur atau refaktor diawali dengan dokumen rencana kerja terstruktur (`plan.md`) yang tersimpan di folder [`docs/plans/`](docs/plans/).
+- **Uji Regresi Berkelanjutan**: Setiap perubahan kode divalidasi dengan menjalankan unit test modul `food` (27 test) dan full test suite proyek (213 test) sebelum melakukan commit.
+- **Pemeriksaan Diff & Keamanan**: Seluruh perubahan dicek secara manual melalui `git diff` untuk memastikan tidak ada credential/kunci rahasia yang bocor dan struktur kode tetap mematuhi konvensi Django.
+
+#### Keterbatasan yang Masih Ada
+- **CDN Eksternal**: Penggunaan tautan gambar Pinterest bergantung pada ketersediaan CDN pihak ketiga. Meskipun telah dilengkapi *fallback* emoji otomatis (`onerror`), solusi jangka panjang yang ideal adalah *cloud storage* mandiri (seperti AWS S3 atau Cloudinary).
+
+#### Dokumentasi Percakapan AI
+- [Riwayat Penggunaan Gemini — Modul Food & Restaurant](https://share.gemini.google/wkLmv6P0EESJ)
+
+### Modul Location & Map (Muhammad Akbar Rinaldy)
+AI Tools: ChatGPT (OpenAI)
+
+Tujuan Penggunaan:
+
+ChatGPT digunakan sebagai alat bantu pembelajaran dan pendukung pengembangan modul Location & Map pada aplikasi Dibuang Sayang.
+
+Bentuk Penggunaan AI:
+- Membantu memahami integrasi Leaflet.js dan OpenStreetMap dengan Django untuk menampilkan peta interaktif.
+- Membantu memberikan saran implementasi penanda (marker) restoran, popup informasi, serta integrasi data lokasi dari database melalui Django ORM dan respons JSON.
+- Membantu memahami penggunaan Browser Geolocation API, perhitungan jarak, dan penyaringan restoran berdasarkan radius lokasi pengguna.
+- Membantu memberikan saran penanganan koordinat tidak valid, penolakan izin lokasi, serta kegagalan pemuatan peta dan pembaruan data.
+- Membantu integrasi informasi stok, harga, foto restoran, dan tautan petunjuk arah menuju lokasi restoran melalui Google Maps.
+- Membantu proses debugging serta penyusunan pengujian menggunakan Django Test Framework untuk memeriksa data restoran, validasi koordinat, dan hak akses pengelolaan foto.
+- Membantu penyesuaian tampilan frontend, termasuk kartu restoran, penanda status ketersediaan, dan konsistensi informasi antara peta dan daftar restoran.
+Strategi Penggunaan dan Validasi:
+
+AI digunakan melalui diskusi interaktif untuk memperoleh penjelasan konsep, contoh kode, dan alternatif penyelesaian masalah. Saran yang diberikan ditinjau dan disesuaikan dengan struktur proyek serta integrasi antarmodul. Validasi mencakup pemeriksaan kesesuaian data dengan database, pengujian otomatis pada backend, dan pemeriksaan interaksi peta melalui browser, termasuk penggunaan lokasi pengguna dan filter radius.
+
+Keterbatasan dan Perbaikan Manual:
+
+Saran AI tidak selalu langsung sesuai dengan struktur model, format data, dan lingkungan pengembangan proyek. Oleh karena itu, penyesuaian manual diperlukan pada pengolahan koordinat, sinkronisasi stok dan harga, pembentukan tautan Google Maps, serta integrasi JavaScript dengan template Django. Perilaku geolokasi dan pemuatan peta juga perlu diperiksa secara langsung karena dipengaruhi oleh izin browser, koneksi internet, dan ketersediaan layanan eksternal.
+AI chat:
+- https://chatgpt.com/share/6ae48ab4-ebe8-83ec-8f2c-edd83c740416
+- https://chatgpt.com/share/6ae48b25-e240-83ec-93c6-cb359c76b8cb

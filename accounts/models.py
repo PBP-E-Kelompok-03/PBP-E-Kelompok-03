@@ -10,8 +10,10 @@ class User(AbstractUser):
 
     @property
     def is_buyer(self):
+        """true kalau role pembeli"""
         return self.role == self.Role.BUYER
 
     @property
     def is_partner(self):
+        """true kalau role mitra restoran"""
         return self.role == self.Role.PARTNER

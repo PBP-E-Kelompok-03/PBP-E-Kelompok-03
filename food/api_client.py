@@ -170,6 +170,7 @@ class FoodApiClient:
                     "lng": float(r.lng) if r.lng is not None else None,
                     "jam_buka": r.jam_buka.strftime("%H:%M") if r.jam_buka else None,
                     "jam_tutup": r.jam_tutup.strftime("%H:%M") if r.jam_tutup else None,
+                    "image_url": getattr(r, "image_url", None) or None,
                 }
                 for r in qs
             ]
@@ -206,6 +207,7 @@ class FoodApiClient:
                 "lng": float(r.lng) if r.lng is not None else None,
                 "jam_buka": r.jam_buka.strftime("%H:%M") if r.jam_buka else None,
                 "jam_tutup": r.jam_tutup.strftime("%H:%M") if r.jam_tutup else None,
+                "image_url": getattr(r, "image_url", None) or None,
             }
             if use_cache:
                 self._cache_set(cache_key, result)
@@ -252,8 +254,7 @@ class FoodApiClient:
                     "harga_diskon": float(b.harga_diskon),
                     "diskon_persen": b.diskon_persen,
                     "stok": b.stok,
-                    "pickup_start": b.pickup_start.isoformat() if b.pickup_start else None,
-                    "pickup_end": b.pickup_end.isoformat() if b.pickup_end else None,
+                    "image_url": getattr(b, "image_url", None) or None,
                 }
                 for b in qs
             ]

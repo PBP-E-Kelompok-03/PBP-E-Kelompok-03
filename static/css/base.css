@@ -52,7 +52,7 @@ a {
   border-radius: var(--radius-md); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;
   transition: background 0.2s ease, transform 0.15s ease;
 }
-.btn-navbar-logout { color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.5); background: transparent; }
+.btn-navbar-logout { cursor: pointer; font-family: inherit; color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.5); background: transparent; }
 .btn-navbar-logout:hover { border-color: #FFFFFF; background: rgba(255, 255, 255, 0.12); }
 .btn-navbar-cta { min-width: 96px; color: var(--color-forest); background: var(--color-accent); }
 .btn-navbar-cta:hover { transform: translateY(-1px); }

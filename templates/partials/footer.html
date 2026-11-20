@@ -1,0 +1,52 @@
+{% load static %}
+<footer style="background: var(--ds-text-primary); border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 64px 24px 32px; color: var(--ds-white);">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px;">
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 40px;">
+      
+      <!-- Col 1: Brand Info -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+          <img src="{% static 'images/Logo BackGroundless.svg' %}" alt="Logo Dibuang Sayang" style="height: 40px; width: auto; object-fit: contain;">
+          <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 20px; color: var(--ds-white);">Dibuang Sayang</span>
+        </div>
+        <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; line-height: 20px; color: var(--ds-brand-tint); margin: 0;">
+          Platform penyelamat makanan berlebih untuk kurangi food waste & sediakan makanan terjangkau.
+        </p>
+      </div>
+
+      <!-- Col 2: Konsumen -->
+      <div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ds-accent-on-inverse); margin-bottom: 16px;">
+          Konsumen
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
+          <a href="{% url 'food:list' %}" style="color: var(--ds-white); text-decoration: none;">Cari makanan</a>
+          <a href="{% url 'landing' %}#cara-kerja" style="color: var(--ds-white); text-decoration: none;">Cara kerja</a>
+          <a href="{% url 'map:map' %}" style="color: var(--ds-white); text-decoration: none;">Peta gerai</a>
+        </div>
+      </div>
+
+      <!-- Col 3: Mitra Resto -->
+      <div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ds-accent-on-inverse); margin-bottom: 16px;">
+          Mitra
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
+          <a href="{% url 'accounts:register' %}" style="color: var(--ds-accent-on-inverse); text-decoration: none; font-weight: 600;">Daftar jadi mitra</a>
+          <a href="{% url 'accounts:login' %}" style="color: var(--ds-white); text-decoration: none;">Portal gerai</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 14px; color: rgba(255, 255, 255, 0.7);">
+      <div>© 2026 Dibuang Sayang • PBP E Kelompok 03</div>
+      <div style="display: flex; gap: 16px;">
+        <span>Jakarta/Depok, Indonesia</span>
+      </div>
+    </div>
+
+  </div>
+</footer>

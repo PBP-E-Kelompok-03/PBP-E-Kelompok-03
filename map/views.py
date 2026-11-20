@@ -1,40 +1,42 @@
-import math
-
-from django.shortcuts import render
-from django.urls import reverse
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET, require_http_methods
 
 from food.models import Restaurant
-from food.views import _load_dummy_data
+from .forms import RestaurantPhotoForm
+from .models import RestaurantMapProfile
+from .services import restaurant_locations
 
 
+@never_cache
+@require_GET
 def map_view(request):
-    """Use the same restaurant source as the food module."""
-    restaurants = list(Restaurant.objects.filter(is_active=True).values(
-        "id", "nama", "alamat", "lat", "lng", "jam_buka", "jam_tutup"
-    ))
-    if not restaurants:
-        restaurants = [
-            restaurant.copy()
-            for restaurant in _load_dummy_data().get("restaurants", [])
-            if restaurant.get("is_active", True)
-        ]
+    return render(request, "map/map.html", {"restaurants": restaurant_locations(request.user)})
 
-    locations = []
-    for restaurant in restaurants:
-        try:
-            lat, lng = float(restaurant["lat"]), float(restaurant["lng"])
-        except (KeyError, TypeError, ValueError):
-            continue
-        if not (math.isfinite(lat) and math.isfinite(lng)
-                and -90 <= lat <= 90 and -180 <= lng <= 180):
-            continue
-        restaurant["lat"], restaurant["lng"] = lat, lng
-        for field in ("jam_buka", "jam_tutup"):
-            value = restaurant.get(field)
-            restaurant[field] = value.strftime("%H:%M") if hasattr(value, "strftime") else value
-        restaurant["detail_url"] = reverse(
-            "food:restaurant_detail", args=[restaurant["id"]]
-        )
-        locations.append(restaurant)
 
-    return render(request, "map/map.html", {"restaurants": locations})
+@never_cache
+@require_GET
+def restaurants_data(request):
+    return JsonResponse({"restaurants": restaurant_locations(request.user)})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def restaurant_photo(request, restaurant_id):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id, is_active=True)
+    if not (request.user.is_staff or restaurant.owner_id == request.user.pk):
+        raise PermissionDenied("Hanya pemilik restoran yang boleh mengubah foto.")
+    profile = RestaurantMapProfile.objects.filter(restaurant=restaurant).first()
+    form = RestaurantPhotoForm(
+        request.POST if request.method == "POST" else None,
+        instance=profile or RestaurantMapProfile(restaurant=restaurant),
+    )
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Foto restoran berhasil diperbarui.")
+        return redirect("map:map")
+    return render(request, "map/restaurant_photo.html", {"restaurant": restaurant, "form": form})

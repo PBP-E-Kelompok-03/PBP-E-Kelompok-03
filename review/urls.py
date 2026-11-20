@@ -30,7 +30,6 @@ urlpatterns = [
         name="delete_review"
     ),
 
-
     # URL untuk mengambil ulasan dan rata-rata rating restoran
     path(
         "restaurant/<int:restaurant_id>/reviews/",
@@ -38,6 +37,19 @@ urlpatterns = [
         name="restaurant_reviews"
     ),
 
+        # URL untuk menampilkan review kepada pemilik restoran
+    path(
+        "restaurant/<int:restaurant_id>/owner/",
+        views.owner_restaurant_reviews,
+        name="owner_restaurant_reviews"
+    ),
+
+    # URL untuk pemilik restoran membalas review pembeli
+    path(
+        "reply/<int:review_id>/",
+        views.reply_review,
+        name="reply_review"
+    ),
 
         # API Review untuk Flutter
     path(
