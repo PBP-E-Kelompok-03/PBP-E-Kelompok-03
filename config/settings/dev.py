@@ -14,3 +14,11 @@ DATABASES = {
         "OPTIONS": {"timeout": 20, "transaction_mode": "IMMEDIATE"},
     }
 }
+
+# Izinkan Flutter Web mengakses Django saat development lokal
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
+CORS_ALLOW_CREDENTIALS = True
